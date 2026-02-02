@@ -28,7 +28,7 @@ export const EtherConverter = () => {
         gwei: formatUnits(weiValue, 9),
         wei: formatUnits(weiValue, 0),
       });
-    } catch (e) {
+    } catch {
       // If invalid number, just update the field being typed in so user can fix it
       setValues({ ...values, [unit === "ether" ? "eth" : unit]: amount });
     }
@@ -37,10 +37,7 @@ export const EtherConverter = () => {
   return (
     <div className="relative">
       {/* 1. The Trigger Button (Sits in Footer) */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="btn btn-primary btn-sm font-normal gap-2 shadow-lg"
-      >
+      <button onClick={() => setIsOpen(!isOpen)} className="btn btn-primary btn-sm font-normal gap-2 shadow-lg">
         <ArrowsRightLeftIcon className="h-4 w-4" />
         <span>Eth Converter</span>
       </button>
@@ -64,7 +61,7 @@ export const EtherConverter = () => {
               <input
                 type="text"
                 value={values.eth}
-                onChange={(e) => handleChange(e.target.value, "ether")}
+                onChange={e => handleChange(e.target.value, "ether")}
                 className="input input-bordered input-sm w-full font-mono focus:outline-none focus:border-primary"
                 placeholder="ETH"
               />
@@ -78,7 +75,7 @@ export const EtherConverter = () => {
               <input
                 type="text"
                 value={values.gwei}
-                onChange={(e) => handleChange(e.target.value, "gwei")}
+                onChange={e => handleChange(e.target.value, "gwei")}
                 className="input input-bordered input-sm w-full font-mono focus:outline-none focus:border-primary"
                 placeholder="Gwei"
               />
@@ -92,7 +89,7 @@ export const EtherConverter = () => {
               <input
                 type="text"
                 value={values.wei}
-                onChange={(e) => handleChange(e.target.value, "wei")}
+                onChange={e => handleChange(e.target.value, "wei")}
                 className="input input-bordered input-sm w-full font-mono focus:outline-none focus:border-primary"
                 placeholder="Wei"
               />
