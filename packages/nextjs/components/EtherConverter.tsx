@@ -19,30 +19,25 @@ export const EtherConverter = () => {
     }
 
     try {
-      // 1. Convert input to Wei (Base unit)
       const weiValue = parseUnits(amount, unit === "ether" ? 18 : unit === "gwei" ? 9 : 0);
-
-      // 2. Update all fields derived from Wei
       setValues({
         eth: formatUnits(weiValue, 18),
         gwei: formatUnits(weiValue, 9),
         wei: formatUnits(weiValue, 0),
       });
     } catch {
-      // If invalid number, just update the field being typed in so user can fix it
+      // ✅ FIX: No (e) here. We just ignore errors silently.
       setValues({ ...values, [unit === "ether" ? "eth" : unit]: amount });
     }
   };
 
   return (
     <div className="relative">
-      {/* 1. The Trigger Button (Sits in Footer) */}
       <button onClick={() => setIsOpen(!isOpen)} className="btn btn-primary btn-sm font-normal gap-2 shadow-lg">
         <ArrowsRightLeftIcon className="h-4 w-4" />
         <span>Eth Converter</span>
       </button>
 
-      {/* 2. The Converter Panel (Pops UP above the button) */}
       {isOpen && (
         <div className="absolute bottom-12 left-0 w-80 bg-base-100 border border-base-300 shadow-xl rounded-xl p-4 animate-fade-in-up">
           <div className="flex justify-between items-center mb-4">
@@ -51,9 +46,7 @@ export const EtherConverter = () => {
               <XMarkIcon className="h-4 w-4" />
             </button>
           </div>
-
           <div className="space-y-3">
-            {/* Ether Input */}
             <div className="form-control">
               <label className="label pt-0 pb-1">
                 <span className="label-text text-xs font-bold text-gray-500">Ether</span>
@@ -66,8 +59,6 @@ export const EtherConverter = () => {
                 placeholder="ETH"
               />
             </div>
-
-            {/* Gwei Input */}
             <div className="form-control">
               <label className="label pt-0 pb-1">
                 <span className="label-text text-xs font-bold text-gray-500">Gwei</span>
@@ -80,8 +71,6 @@ export const EtherConverter = () => {
                 placeholder="Gwei"
               />
             </div>
-
-            {/* Wei Input */}
             <div className="form-control">
               <label className="label pt-0 pb-1">
                 <span className="label-text text-xs font-bold text-gray-500">Wei</span>
