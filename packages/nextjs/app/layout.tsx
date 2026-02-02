@@ -7,8 +7,8 @@ import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 // I updated this section with your v0 branding
 export const metadata = getMetadata({
-  title: "EtherLotto | Decentralized Lottery",
-  description: "Enter the decentralized lottery and win big with EtherLotto",
+  title: "Decentralized Lottery",
+  description: "Enter the decentralized lottery and win big with Omega Gaming",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
