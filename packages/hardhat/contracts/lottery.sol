@@ -69,6 +69,6 @@ contract Lottery {
     //modifier ownerOnly() 
     //{
         //require(msg.sender == owner);
-        _;  // this says: run whatever code follows the modifier
+        //_;  // this says: run whatever code follows the modifier
     //}
 }
