@@ -15,7 +15,7 @@ contract Lottery {
         lotteryId = 0;
     }
 
-    function resetLottery() public ownerOnly {
+    function resetLottery() {
         players = new address payable[](0);
     }
 
