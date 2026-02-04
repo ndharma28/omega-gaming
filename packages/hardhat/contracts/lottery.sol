@@ -20,7 +20,6 @@ contract Lottery {
     }
 
     function transferOwnership(address newOwner) public ownerOnly {
-        require(newOwner != address(0), "Ivalid address");
         owner = newOwner;
     }
 
