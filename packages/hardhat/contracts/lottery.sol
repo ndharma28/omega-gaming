@@ -19,7 +19,7 @@ contract Lottery {
         players = new address payable[](0);
     }
 
-    function transferOwnership(address newOwner) public ownerOnly {
+    function transferOwnership(address newOwner) {
         owner = newOwner;
     }
 
