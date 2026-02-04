@@ -15,11 +15,11 @@ contract Lottery {
         lotteryId = 0;
     }
 
-    function resetLottery() {
+    function resetLottery() public {
         players = new address payable[](0);
     }
 
-    function transferOwnership(address newOwner) {
+    function transferOwnership(address newOwner) public {
         owner = newOwner;
     }
 
@@ -37,7 +37,7 @@ contract Lottery {
         return uint(keccak256(abi.encodePacked(owner, block.timestamp)));
     }
 
-    function chooseWinner()  
+    function chooseWinner() public
     {
         uint index = getRandomNumber() % players.length;
         
