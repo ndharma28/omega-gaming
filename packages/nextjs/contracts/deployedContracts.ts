@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   11155111: {
     Lottery: {
-      address: "0x250B09279a946a6A411566BF8bf770415160157C",
+      address: "0x2CD92Cfe75EC9817436bdc9289d1B9DD2C0D8b80",
       abi: [
         {
           inputs: [],
@@ -150,9 +150,29 @@ const deployedContracts = {
           stateMutability: "view",
           type: "function",
         },
+        {
+          inputs: [],
+          name: "resetLottery",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newOwner",
+              type: "address",
+            },
+          ],
+          name: "transferOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 10109551,
+      deployedOnBlock: 10191833,
     },
   },
 } as const;
