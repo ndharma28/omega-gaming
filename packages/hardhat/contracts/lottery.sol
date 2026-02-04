@@ -15,6 +15,15 @@ contract Lottery {
         lotteryId = 0;
     }
 
+    function resetLottery() public ownerOnly {
+        players = new address payable[](0);
+    }
+
+    function transferOwnership(address newOwner) public ownerOnly {
+        require(newOwner != address(0), "Ivalid address");
+        owner = newOwner;
+    }
+
     function enter() public payable
     {
         require(msg.value > .01 ether); // enforces that the user is betting > .01 eth
