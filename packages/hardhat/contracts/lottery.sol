@@ -1,74 +1,155 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-pragma solidity >=0.8.2 <0.9.0; // set the version of solidity that we are using
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
-contract Lottery {
+contract lotteryV3 is
+    VRFConsumerBaseV2Plus,
+    ReentrancyGuard
+{
+    /* ========== LOTTERY STATE ========== */
 
-    address public owner;   // the person who deployed the contract
-    address payable[] public players;   // array of players who have entered the lottery (NOTE: we use the payable modifier for any addresses who can receive payment/eth)
-    uint public lotteryId;
-    mapping (uint => address payable) public pastWinners;
-    
-    constructor()
+    address payable[] public players;
+    mapping(uint256 => address payable) public pastWinners;
+
+    uint256 public lotteryId;
+
+    /* ========== VRF CONFIG ========== */
+
+    uint256 public subscriptionId;
+    bytes32 public keyHash;
+
+    uint32 public callbackGasLimit = 100_000;
+    uint16 public requestConfirmations = 3;
+    uint32 public numWords = 1;
+
+    uint256 public lastRequestId;
+    bool public drawing;
+
+    /* ========== EVENTS ========== */
+
+    event Entered(address player);
+    event RandomnessRequested(uint256 requestId);
+    event WinnerPicked(uint256 lotteryId, address winner, uint256 amount);
+
+    /* ========== RECEIVE ETH ========== */
+    receive() external payable {}
+
+    /* ========== CONSTRUCTOR ========== */
+
+    // NOTE: this is hard coded for testing efficiency (TEMP)
+
+    /*
+    constructor(
+        uint256 _subId,
+        address _coordinator,
+        bytes32 _keyHash
+    )
+        VRFConsumerBaseV2Plus(_coordinator)
     {
-        owner = msg.sender;   // owner state variable = address of the deployer of the contract
-        lotteryId = 0;
+        subscriptionId = _subId;
+        keyHash = _keyHash;
     }
-
-    function resetLottery() public {
-        players = new address payable[](0);
-    }
-
-    function transferOwnership(address newOwner) public {
-        owner = newOwner;
-    }
-
-    function enter() public payable
+    */
+     constructor(
+        /*
+        uint256 _subId,
+        address _coordinator,
+        bytes32 _keyHash
+        */
+    )
+        VRFConsumerBaseV2Plus(0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B)
     {
-        require(msg.value > .01 ether); // enforces that the user is betting > .01 eth
-
-        players.push(payable(msg.sender));   // in this context, msg.sender is the address of the person who invoked this function
+        subscriptionId = 5381939440800401583750118558724030775370857736705249184581988840504175043599;
+        keyHash = 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae;
     }
 
-    function getRandomNumber() public view returns (uint)
-    {
-        // pseudo-random number generation using the keccak256 hashing algorithm
-            // note: abi.encodePacked is the easiest way to concatenate two strings
-        return uint(keccak256(abi.encodePacked(owner, block.timestamp)));
+    /* ========== ENTER LOTTERY ========== */
+
+    function enter() external payable {
+        require(!drawing, "Drawing in progress");
+        require(msg.value >= 0.01 ether, "Min 0.01 ETH");
+
+        players.push(payable(msg.sender));
+
+        emit Entered(msg.sender);
     }
 
-    function chooseWinner() public
-    {
-        uint index = getRandomNumber() % players.length;
-        
-        (bool success, ) = players[index].call{value: address(this).balance}("");
-        require(success, "Transfer failed.");
+    /* ========== REQUEST RANDOMNESS ========== */
+    // owner starts draw
 
-        // increment lotteryId and pastWinners log (NOTE: make sure you update state AFTER eth transfers to protect against re-entry attacks)
-        pastWinners[lotteryId] = players[index];
+    function chooseWinner() external onlyOwner returns (uint256 requestId) {
+        require(players.length >= 2, "Need at least 2 players");
+        require(!drawing, "Already drawing");
+
+        drawing = true;
+
+        requestId = s_vrfCoordinator.requestRandomWords(
+            VRFV2PlusClient.RandomWordsRequest({
+                keyHash: keyHash,
+                subId: subscriptionId,
+                requestConfirmations: requestConfirmations,
+                callbackGasLimit: callbackGasLimit,
+                numWords: numWords,
+                extraArgs: VRFV2PlusClient._argsToBytes(
+                    VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
+                )
+            })
+        );
+
+        lastRequestId = requestId;
+
+        emit RandomnessRequested(requestId);
+    }
+
+    /* ========== VRF CALLBACK (WINNER SELECTED HERE) ========== */
+
+    function fulfillRandomWords(uint256 _requestId, uint256[] calldata randomWords) internal override nonReentrant
+    {
+        require(_requestId == lastRequestId, "Invalid request");
+        require(players.length >= 2, "Not enough players");
+
+        uint256 index = randomWords[0] % players.length;
+
+        address payable winner = players[index];
+        uint256 prize = address(this).balance;
+
+        // Update state BEFORE external call
+        pastWinners[lotteryId] = winner;
         lotteryId++;
 
-        // reset the state of the contract by creating a new players array of length 0
-        players = new address payable[](0);
+        delete players;
+        drawing = false;
+
+        emit WinnerPicked(lotteryId - 1, winner, prize);
+
+        // External call last
+        (bool success, ) = winner.call{value: prize}("");
+        require(success, "Transfer failed");
     }
 
-    // helper functions:
-    function getPotBalance() public view returns (uint) {
-        return address(this).balance;
-    }
-    function getPlayers() public view returns (address payable[] memory)
-    {
+    /* ========== VIEW HELPERS ========== */
+
+    function getPlayers() external view returns (address payable[] memory) {
         return players;
     }
-    function getWinnerByLotteryId(uint gameId) public view returns (address payable)
-    {
-        return pastWinners[gameId];
+
+    function getPotBalance() external view returns (uint256) {
+        return address(this).balance;
     }
 
-    // custom modifier(s)
-    //modifier ownerOnly() 
-    //{
-        //require(msg.sender == owner);
-        //_;  // this says: run whatever code follows the modifier
-    //}
+    function getWinnerByLotteryId(uint256 id) external view returns (address payable)
+    {
+        return pastWinners[id];
+    }
+
+    function setCallbackGasLimit(uint32 gasLimit) external onlyOwner {
+        callbackGasLimit = gasLimit;
+    }
+
+    function setConfirmations(uint16 conf) external onlyOwner {
+        requestConfirmations = conf;
+    }
 }
