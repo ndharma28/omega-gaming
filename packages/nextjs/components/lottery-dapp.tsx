@@ -82,7 +82,7 @@ export default function LotteryDapp() {
         <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900 shadow-2xl">
           <div className="absolute inset-0 bg-yellow-500/5 pointer-events-none" />
           <div className="p-6 text-center relative">
-            <h2 className="text-slate-500 text-sm font-bold uppercase tracking-widest mb-4">Current Pot Balance</h2>
+            <h2 className="text-slate-100 text-sm font-bold uppercase tracking-widest mb-4">Current Pot Balance</h2>
             <div className="flex items-baseline justify-center gap-2">
               <span className="text-6xl md:text-7xl font-bold text-yellow-500 tabular-nums drop-shadow-sm">
                 {potBalance ? Number(formatEther(potBalance)).toFixed(4) : "0.0000"}
@@ -117,7 +117,7 @@ export default function LotteryDapp() {
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">ETH</span>
               </div>
-              <p className="text-xs text-slate-500">Minimum entry: 0.01 ETH</p>
+              <p className="text-xs text-slate-100">Minimum entry: 0.01 ETH</p>
             </div>
 
             <button
