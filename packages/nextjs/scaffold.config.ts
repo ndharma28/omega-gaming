@@ -7,13 +7,11 @@ export type ScaffoldConfig = {
   rpcOverrides?: Record<number, string>;
   walletConnectProjectId: string;
   onlyLocalBurnerWallet: boolean;
-  appName: string;
 };
 
 export const DEFAULT_ALCHEMY_API_KEY = "cR4WnXePioePZ5fFrnSiR";
 
 const scaffoldConfig = {
-  appName: "Omega Gaming",
   // The networks on which your DApp is live
   targetNetworks: [chains.sepolia],
 

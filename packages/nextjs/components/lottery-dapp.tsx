@@ -66,7 +66,7 @@ export default function LotteryDapp() {
             <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20">
               <Trophy className="w-5 h-5 text-yellow-500" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">EtherLotto</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Omega Gaming</h1>
           </div>
           {/* Wallet Display */}
           <div className="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm font-medium flex items-center gap-2">
