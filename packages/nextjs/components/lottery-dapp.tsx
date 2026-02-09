@@ -31,8 +31,12 @@ export default function LotteryDapp() {
   });
 
   // --- WRITE SMART CONTRACT FUNCTIONS ---
-  const { writeContractAsync: enterLottery, isPending: isEntering } = useScaffoldWriteContract("Lottery");
-  const { writeContractAsync: pickWinner, isPending: isPicking } = useScaffoldWriteContract("Lottery");
+  const { writeContractAsync: enterLottery, isPending: isEntering } = useScaffoldWriteContract({
+    contractName: "Lottery",
+  });
+  const { writeContractAsync: pickWinner, isPending: isPicking } = useScaffoldWriteContract({
+    contractName: "Lottery",
+  });
 
   // Check if connected user is the owner
   useEffect(() => {
