@@ -162,7 +162,7 @@ export default function LotteryDapp() {
               </div>
             ) : (
               <div className="space-y-2">
-                {players.map((player, index) => (
+                {players.map((player: string, index: number) => (
                   <div
                     key={index}
                     className="flex items-center justify-between py-3 px-4 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors"
