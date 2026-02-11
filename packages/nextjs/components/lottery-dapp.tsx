@@ -98,7 +98,6 @@ export default function LotteryDapp() {
             </div>
           </div>
         </div>
-
         {/* Action Section: Enter Lottery */}
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-lg">
           <div className="flex items-center gap-3 mb-6">
@@ -107,7 +106,6 @@ export default function LotteryDapp() {
             </div>
             <h3 className="font-semibold text-lg text-white">Enter the Lottery</h3>
           </div>
-
           <div className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="amount" className="text-sm font-medium text-white">
@@ -120,36 +118,34 @@ export default function LotteryDapp() {
                   step="0.01"
                   value={entryAmount}
                   onChange={e => setEntryAmount(e.target.value)}
-                  // DYNAMIC CLASS: Soft red border and glow when invalid
                   className={`w-full bg-slate-950 border rounded-lg h-12 px-4 text-lg text-white transition-all outline-none
-                        ${
-                          isInvalid
-                            ? "border-red-500/40 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
-                            : "border-slate-800 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/50"
-                        }`}
+                    ${
+                      isInvalid
+                        ? "border-rose-500/40 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                        : "border-slate-800 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/50"
+                    }`}
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">ETH</span>
               </div>
-              <div className="flex items-center gap-2 min-h-[20px] mt-1">
+
+              <div className="flex items-center gap-2 min-h-[20px] mt-2">
                 {isInvalid ? (
-                  // THE ERROR STATE: Bright, steady, and glowing (No Flashing)
-                  <div className="flex items-center gap-1.5 animate-in fade-in duration-300">
-                    <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
-                    <p className="text-xs font-black text-rose-400 drop-shadow-[0_0_5px_rgba(251,113,133,0.4)] tracking-wide">
+                  <div className="flex items-center gap-1.5 animate-in fade-in duration-500">
+                    <AlertCircle className="w-4 h-4 text-rose-400 drop-shadow-[0_0_3px_rgba(251,113,133,0.3)]" />
+                    <p className="text-xs font-black text-rose-300 drop-shadow-[0_0_8px_rgba(251,113,133,0.5)] tracking-wide">
                       Minimum entry: 0.01 ETH required
                     </p>
                   </div>
                 ) : (
-                  // THE NORMAL STATE: Clean, high-contrast white
-                  <p className="text-xs font-bold text-white opacity-90 tracking-wide">Minimum entry: 0.01 ETH</p>
+                  <p className="text-xs font-bold text-white tracking-wide">Minimum entry: 0.01 ETH</p>
                 )}
               </div>
             </div>
 
             <button
               onClick={handleEnter}
-              disabled={isEntering}
-              className="w-full h-12 rounded-lg font-bold text-lg bg-yellow-500 text-slate-900 hover:bg-yellow-400 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_0_20px_-5px_rgba(234,179,8,0.4)]"
+              disabled={isEntering || isInvalid}
+              className="w-full h-12 rounded-lg font-bold text-lg bg-yellow-500 text-slate-900 hover:bg-yellow-400 active:scale-[0.98] disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed transition-all shadow-[0_0_20px_-5px_rgba(234,179,8,0.4)]"
             >
               {isEntering ? (
                 <span className="flex items-center justify-center gap-2">
@@ -159,9 +155,10 @@ export default function LotteryDapp() {
                 "Enter Lottery"
               )}
             </button>
-          </div>
-        </div>
-
+          </div>{" "}
+          {/* Closing space-y-4 */}
+        </div>{" "}
+        {/* Closing main container */}
         {/* Players List */}
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-lg">
           <div className="flex items-center justify-between mb-4">
@@ -206,7 +203,6 @@ export default function LotteryDapp() {
             )}
           </div>
         </div>
-
         {/* Owner Panel (Only shows if YOU are the owner) */}
         {isOwner && (
           <div className="rounded-xl border border-red-900/30 bg-red-950/10 overflow-hidden">
