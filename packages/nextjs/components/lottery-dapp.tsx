@@ -110,7 +110,7 @@ export default function LotteryDapp() {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="amount" className="text-sm font-medium text-slate-400">
+              <label htmlFor="amount" className="text-sm font-medium text-white">
                 Amount (ETH)
               </label>
               <div className="relative">
@@ -130,13 +130,18 @@ export default function LotteryDapp() {
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">ETH</span>
               </div>
-
-              {/* The error message "transforms" the minimum entry text */}
-              <div className="flex items-center gap-2 min-h-[20px]">
+              <div className="flex items-center gap-2 min-h-[20px] mt-1">
                 {isInvalid ? (
-                  <p className="text-xs font-bold text-red-400 animate-pulse">Minimum entry: 0.01 ETH required</p>
+                  // THE ERROR STATE: Bright, steady, and glowing (No Flashing)
+                  <div className="flex items-center gap-1.5 animate-in fade-in duration-300">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                    <p className="text-xs font-black text-rose-400 drop-shadow-[0_0_5px_rgba(251,113,133,0.4)] tracking-wide">
+                      Minimum entry: 0.01 ETH required
+                    </p>
+                  </div>
                 ) : (
-                  <p className="text-xs font-bold text-white tracking-wide opacity-90">Minimum entry: 0.01 ETH</p>
+                  // THE NORMAL STATE: Clean, high-contrast white
+                  <p className="text-xs font-bold text-white opacity-90 tracking-wide">Minimum entry: 0.01 ETH</p>
                 )}
               </div>
             </div>
