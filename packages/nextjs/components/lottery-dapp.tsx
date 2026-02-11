@@ -130,9 +130,9 @@ export default function LotteryDapp() {
 
               <div className="flex items-center gap-2 min-h-[20px] mt-2">
                 {isInvalid ? (
-                  <div className="flex items-center gap-1.5 animate-in fade-in duration-500">
-                    <AlertCircle className="w-4 h-4 text-rose-400 drop-shadow-[0_0_3px_rgba(251,113,133,0.3)]" />
-                    <p className="text-xs font-black text-rose-300 drop-shadow-[0_0_8px_rgba(251,113,133,0.5)] tracking-wide">
+                  <div className="flex items-center gap-1.5 animate-in fade-in duration-300">
+                    <AlertCircle className="w-4 h-4 text-rose-400 drop-shadow-[0_0_2px_rgba(225,29,72,0.8)]" />
+                    <p className="text-xs font-black text-white drop-shadow-[0_0_10px_rgba(225,29,72,1)] tracking-widest uppercase">
                       Minimum entry: 0.01 ETH required
                     </p>
                   </div>
