@@ -11,6 +11,7 @@ export default function LotteryDapp() {
   const [entryAmount, setEntryAmount] = useState("0.02");
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const isInvalid = Number(entryAmount) < 0.01 || isNaN(Number(entryAmount));
 
   // --- READ SMART CONTRACT DATA ---
   const { data: potBalance } = useScaffoldReadContract({
@@ -42,6 +43,8 @@ export default function LotteryDapp() {
   useEffect(() => {
     if (owner && connectedAddress) {
       setIsOwner(owner.toLowerCase() === connectedAddress.toLowerCase());
+    } else {
+      setIsOwner(false);
     }
   }, [owner, connectedAddress]);
 
@@ -117,11 +120,25 @@ export default function LotteryDapp() {
                   step="0.01"
                   value={entryAmount}
                   onChange={e => setEntryAmount(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg h-12 px-4 text-lg text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all"
+                  // DYNAMIC CLASS: Soft red border and glow when invalid
+                  className={`w-full bg-slate-950 border rounded-lg h-12 px-4 text-lg text-white transition-all outline-none
+                        ${
+                          isInvalid
+                            ? "border-red-500/40 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                            : "border-slate-800 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/50"
+                        }`}
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">ETH</span>
               </div>
-              <p className="text-xs text-slate-100">Minimum entry: 0.01 ETH</p>
+
+              {/* The error message "transforms" the minimum entry text */}
+              <div className="flex items-center gap-2 min-h-[20px]">
+                {isInvalid ? (
+                  <p className="text-xs font-bold text-red-400 animate-pulse">Minimum entry: 0.01 ETH required</p>
+                ) : (
+                  <p className="text-xs text-slate-500">Minimum entry: 0.01 ETH</p>
+                )}
+              </div>
             </div>
 
             <button

@@ -5,6 +5,9 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
+error Lottery__InsufficientEntryFee(uint256 sent, uint256 required);
+error Lottery__DrawingInProgress();
+
 contract Lottery is
     VRFConsumerBaseV2Plus,
     ReentrancyGuard
@@ -15,6 +18,8 @@ contract Lottery is
     mapping(uint256 => address payable) public pastWinners;
 
     uint256 public lotteryId;
+
+    unint public constant MINIMUM_ENTRY = 0.01 ether;
 
     /* ========== VRF CONFIG ========== */
 
@@ -70,7 +75,9 @@ contract Lottery is
 
     function enter() external payable {
         require(!drawing, "Drawing in progress");
-        require(msg.value >= 0.01 ether, "Min 0.01 ETH");
+        if (msg.value < MINIMUM_ENTRY) {
+            revert Lottery__InsufficientEntryFee(msg.value, MINIMUM_ENTRY);
+        }
 
         players.push(payable(msg.sender));
 
