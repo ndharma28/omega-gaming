@@ -136,7 +136,7 @@ export default function LotteryDapp() {
                 {isInvalid ? (
                   <p className="text-xs font-bold text-red-400 animate-pulse">Minimum entry: 0.01 ETH required</p>
                 ) : (
-                  <p className="text-xs text-slate-500">Minimum entry: 0.01 ETH</p>
+                  <p className="text-xs font-bold text-white tracking-wide opacity-90">Minimum entry: 0.01 ETH</p>
                 )}
               </div>
             </div>

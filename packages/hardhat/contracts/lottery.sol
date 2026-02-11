@@ -19,7 +19,7 @@ contract Lottery is
 
     uint256 public lotteryId;
 
-    unint public constant MINIMUM_ENTRY = 0.01 ether;
+    uint256 public constant MINIMUM_ENTRY = 0.01 ether;
 
     /* ========== VRF CONFIG ========== */
 
