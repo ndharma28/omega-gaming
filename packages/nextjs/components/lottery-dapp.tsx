@@ -145,7 +145,7 @@ export default function LotteryDapp() {
             <button
               onClick={handleEnter}
               disabled={isEntering || isInvalid}
-              className="w-full h-12 rounded-lg font-bold text-lg bg-yellow-500 text-slate-900 hover:bg-yellow-400 active:scale-[0.98] disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed transition-all shadow-[0_0_20px_-5px_rgba(234,179,8,0.4)]"
+              className="w-full h-12 rounded-lg font-bold text-lg bg-yellow-500 text-slate-900 hover:bg-yellow-400 active:scale-[0.98] disabled:text-slate-100 disabled:cursor-not-allowed transition-all shadow-[0_0_20px_-5px_rgba(234,179,8,0.4) disabled:shadow-none]"
             >
               {isEntering ? (
                 <span className="flex items-center justify-center gap-2">
