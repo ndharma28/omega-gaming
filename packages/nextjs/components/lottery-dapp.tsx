@@ -121,7 +121,7 @@ export default function LotteryDapp() {
                   className={`w-full bg-slate-950 border rounded-lg h-12 px-4 text-lg text-white transition-all outline-none
                     ${
                       isInvalid
-                        ? "border-rose-500/40 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                        ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
                         : "border-slate-800 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/50"
                     }`}
                 />
@@ -130,9 +130,9 @@ export default function LotteryDapp() {
 
               <div className="flex items-center gap-2 min-h-[20px] mt-2">
                 {isInvalid ? (
-                  <div className="flex items-center gap-1.5 animate-in fade-in duration-300">
-                    <AlertCircle className="w-4 h-4 text-rose-400 drop-shadow-[0_0_2px_rgba(225,29,72,0.8)]" />
-                    <p className="text-xs font-black text-white drop-shadow-[0_0_10px_rgba(225,29,72,1)] tracking-widest uppercase">
+                  <div className="flex items-center gap-1.5 animate-in fade-in duration-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 w-full">
+                    <AlertCircle className="w-4 h-4 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+                    <p className="text-xs font-black text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,1)] tracking-widest uppercase">
                       Minimum entry: 0.01 ETH required
                     </p>
                   </div>
