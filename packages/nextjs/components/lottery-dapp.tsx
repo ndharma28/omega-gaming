@@ -184,14 +184,14 @@ export default function LotteryDapp() {
 
             <button
               onClick={handleEnter}
-              // SAFETY: Disable for pending txns, invalid amounts, or closed hours
+              // Logic: Disable if transaction is pending, amount is too low, or market is closed
               disabled={isEntering || isInvalid || !isOpen}
               className={`w-full h-12 rounded-lg font-bold text-lg transition-all active:scale-[0.98] 
-                ${
-                  !isOpen
-                    ? "bg-slate-800 text-slate-500 cursor-not-allowed shadow-none"
-                    : "bg-yellow-500 text-slate-900 hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]"
-                } disabled:opacity-50`}
+              ${
+                !isOpen || isInvalid || isEntering
+                  ? "bg-slate-700 text-white cursor-not-allowed shadow-none opacity-100"
+                  : "bg-yellow-500 text-slate-900 hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]"
+              }`}
             >
               {isEntering ? (
                 <span className="flex items-center justify-center gap-2">
@@ -199,6 +199,8 @@ export default function LotteryDapp() {
                 </span>
               ) : !isOpen ? (
                 "Market Closed"
+              ) : isInvalid ? (
+                "Invalid Amount"
               ) : (
                 "Enter Lottery"
               )}
