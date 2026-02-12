@@ -12,6 +12,8 @@ export default function LotteryDapp() {
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const isInvalid = Number(entryAmount) < 0.01 || isNaN(Number(entryAmount));
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isOpen, setIsOpen] = useState(false);
 
   // --- READ SMART CONTRACT DATA ---
   const { data: potBalance } = useScaffoldReadContract({
@@ -47,6 +49,17 @@ export default function LotteryDapp() {
       setIsOwner(false);
     }
   }, [owner, connectedAddress]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      setCurrentTime(now);
+      const hours = now.getHours();
+      setIsOpen(hours >= 8 && hours < 20); // Open from 8am to 8pm
+    }, 1000); // Update every second
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleEnter = async () => {
     try {
@@ -86,15 +99,42 @@ export default function LotteryDapp() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* Pot Balance Card */}
-        <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900 shadow-2xl">
-          <div className="absolute inset-0 bg-yellow-500/5 pointer-events-none" />
-          <div className="p-6 text-center relative">
-            <h2 className="text-slate-100 text-sm font-bold uppercase tracking-widest mb-4">Current Pot Balance</h2>
-            <div className="flex items-baseline justify-center gap-2">
-              <span className="text-6xl md:text-7xl font-bold text-yellow-500 tabular-nums drop-shadow-sm">
-                {potBalance ? Number(formatEther(potBalance)).toFixed(4) : "0.0000"}
-              </span>
-              <span className="text-2xl md:text-3xl font-semibold text-yellow-500/50">ETH</span>
+        <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900 shadow-2xl p-8">
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h2 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Current Pot</h2>
+              <div className="flex items-baseline gap-2">
+                <span className="text-6xl font-black text-yellow-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                  {potBalance ? Number(formatEther(potBalance)).toFixed(4) : "0.0000"}
+                </span>
+                <span className="text-xl font-bold text-yellow-500/50">ETH</span>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-tighter">Your Local Time</p>
+              <p className="text-2xl font-mono text-white">
+                {currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+              </p>
+            </div>
+          </div>
+
+          {/* Status Bar */}
+          <div
+            className={`flex items-center gap-4 py-3 px-4 rounded-lg border transition-all duration-500 ${isOpen ? "bg-green-500/5 border-green-500/20" : "bg-red-500/5 border-red-500/20"}`}
+          >
+            <div className={`w-2.5 h-2.5 rounded-full ${isOpen ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
+            <div className="flex flex-col">
+              <p
+                className={`text-[10px] font-black uppercase tracking-[0.2em] ${isOpen ? "text-green-400" : "text-red-400"}`}
+              >
+                {isOpen ? "Entries Open" : "Entries Closed"}
+              </p>
+              <p className="text-xs text-slate-400 font-medium">{isOpen ? "Closes at 8:00 PM" : "Opens at 8:00 AM"}</p>
+            </div>
+            <div className="ml-auto text-right">
+              <span className="text-slate-500 text-[9px] block uppercase font-bold">Next Grand Draw</span>
+              <span className="text-white font-black text-sm">9:00 PM LOCAL</span>
             </div>
           </div>
         </div>
@@ -144,13 +184,21 @@ export default function LotteryDapp() {
 
             <button
               onClick={handleEnter}
-              disabled={isEntering || isInvalid}
-              className="w-full h-12 rounded-lg font-bold text-lg bg-yellow-500 text-slate-900 hover:bg-yellow-400 active:scale-[0.98] disabled:bg-slate-700 disabled:text-slate-100 disabled:cursor-not-allowed transition-all shadow-[0_0_20px_-5px_rgba(234,179,8,0.4) disabled:shadow-none]"
+              // SAFETY: Disable for pending txns, invalid amounts, or closed hours
+              disabled={isEntering || isInvalid || !isOpen}
+              className={`w-full h-12 rounded-lg font-bold text-lg transition-all active:scale-[0.98] 
+                ${
+                  !isOpen
+                    ? "bg-slate-800 text-slate-500 cursor-not-allowed shadow-none"
+                    : "bg-yellow-500 text-slate-900 hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]"
+                } disabled:opacity-50`}
             >
               {isEntering ? (
                 <span className="flex items-center justify-center gap-2">
                   <RefreshCw className="w-5 h-5 animate-spin" /> Processing...
                 </span>
+              ) : !isOpen ? (
+                "Market Closed"
               ) : (
                 "Enter Lottery"
               )}

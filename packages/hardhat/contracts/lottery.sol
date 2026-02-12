@@ -7,6 +7,7 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
 
 error Lottery__InsufficientEntryFee(uint256 sent, uint256 required);
 error Lottery__DrawingInProgress();
+error Lottery__Closed();
 
 contract Lottery is
     VRFConsumerBaseV2Plus,
@@ -74,6 +75,12 @@ contract Lottery is
     /* ========== ENTER LOTTERY ========== */
 
     function enter() external payable {
+        uint256 currentUTCHour = (block.timestamp / 3600) % 24;
+
+        if (currentUTCHour >= 2 && currentUTCHour < 14) {
+            revert Lottery__Closed();
+        }
+
         require(!drawing, "Drawing in progress");
         if (msg.value < MINIMUM_ENTRY) {
             revert Lottery__InsufficientEntryFee(msg.value, MINIMUM_ENTRY);
