@@ -14,6 +14,7 @@ export default function LotteryDapp() {
   const isInvalid = Number(entryAmount) < 0.01 || isNaN(Number(entryAmount));
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosingSoon, setIsClosingSoon] = useState(false);
 
   // --- READ SMART CONTRACT DATA ---
   const { data: potBalance } = useScaffoldReadContract({
@@ -56,6 +57,8 @@ export default function LotteryDapp() {
       setCurrentTime(now);
       const hours = now.getHours();
       setIsOpen(hours >= 8 && hours < 20); // Open from 8am to 8pm
+      //Logic: If it's 7:00 PM or later, but not yet 8:00 PM
+      setIsClosingSoon(hours === 19);
     }, 1000); // Update every second
 
     return () => clearInterval(timer);
@@ -121,20 +124,45 @@ export default function LotteryDapp() {
 
           {/* Status Bar */}
           <div
-            className={`flex items-center gap-4 py-3 px-4 rounded-lg border transition-all duration-500 ${isOpen ? "bg-green-500/5 border-green-500/20" : "bg-red-500/5 border-red-500/20"}`}
+            className={`flex items-center gap-4 py-3 px-4 rounded-lg border transition-all duration-500 ${
+              !isOpen
+                ? "bg-red-500/5 border-red-500/20"
+                : isClosingSoon
+                  ? "bg-yellow-500/10 border-yellow-500/40 shadow-[0_0_15px_rgba(234,179,8,0.1)]"
+                  : "bg-green-500/5 border-green-500/20"
+            }`}
           >
-            <div className={`w-2.5 h-2.5 rounded-full ${isOpen ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
+            {/* Status Indicator Dot */}
+            <div
+              className={`w-2.5 h-2.5 rounded-full ${
+                !isOpen
+                  ? "bg-red-500"
+                  : isClosingSoon
+                    ? "bg-yellow-500 animate-bounce" // Bounces to draw attention
+                    : "bg-green-500 animate-pulse"
+              }`}
+            />
+
             <div className="flex flex-col">
               <p
-                className={`text-[10px] font-black uppercase tracking-[0.2em] ${isOpen ? "text-green-400" : "text-red-400"}`}
+                className={`text-[10px] font-black uppercase tracking-[0.2em] ${
+                  !isOpen ? "text-red-400" : isClosingSoon ? "text-yellow-500" : "text-green-400"
+                }`}
               >
-                {isOpen ? "Entries Open" : "Entries Closed"}
+                {!isOpen ? "Entries Closed" : isClosingSoon ? "Closing Soon" : "Entries Open"}
               </p>
               <p className="text-xs text-slate-400 font-medium">{isOpen ? "Closes at 8:00 PM" : "Opens at 8:00 AM"}</p>
             </div>
+
             <div className="ml-auto text-right">
-              <span className="text-slate-500 text-[9px] block uppercase font-bold">Next Grand Draw</span>
-              <span className="text-white font-black text-sm">9:00 PM LOCAL</span>
+              <span className="text-slate-500 text-[9px] block uppercase font-bold">
+                {isClosingSoon ? "Final Hour" : "Next Grand Draw"}
+              </span>
+              <span
+                className={`font-black text-sm transition-colors ${isClosingSoon ? "text-yellow-500" : "text-white"}`}
+              >
+                9:00 PM LOCAL
+              </span>
             </div>
           </div>
         </div>
