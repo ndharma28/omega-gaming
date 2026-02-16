@@ -15,6 +15,7 @@ export default function LotteryDapp() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isOpen, setIsOpen] = useState(false);
   const [isClosingSoon, setIsClosingSoon] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState("");
 
   // --- READ SMART CONTRACT DATA ---
   const { data: potBalance } = useScaffoldReadContract({
@@ -56,9 +57,20 @@ export default function LotteryDapp() {
       const now = new Date();
       setCurrentTime(now);
       const hours = now.getHours();
-      setIsOpen(hours >= 8 && hours < 20); // Open from 8am to 8pm
+      const open = hours >= 8 && hours < 20;
+      setIsOpen(open); // Open from 8am to 8pm
       //Logic: If it's 7:00 PM or later, but not yet 8:00 PM
-      setIsClosingSoon(hours === 19);
+      const closingSoon = hours === 19; // Closing soon if it's 7 PM (19:00)
+      setIsClosingSoon(closingSoon);
+      //Calculate time remaining if in the final hour
+      if (closingSoon) {
+        const target = new Date();
+        target.setHours(20, 0, 0, 0);
+        const diff = target.getTime() - now.getTime();
+        const minutes = Math.floor(diff / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        setTimeRemaining(`${minutes}m ${seconds}s`);
+      }
     }, 1000); // Update every second
 
     return () => clearInterval(timer);
@@ -128,18 +140,13 @@ export default function LotteryDapp() {
               !isOpen
                 ? "bg-red-500/5 border-red-500/20"
                 : isClosingSoon
-                  ? "bg-yellow-500/10 border-yellow-500/40 shadow-[0_0_15px_rgba(234,179,8,0.1)]"
+                  ? "bg-yellow-500/10 border-yellow-500/40 shadow-[0_0_20px_rgba(234,179,8,0.2)]"
                   : "bg-green-500/5 border-green-500/20"
             }`}
           >
-            {/* Status Indicator Dot */}
             <div
               className={`w-2.5 h-2.5 rounded-full ${
-                !isOpen
-                  ? "bg-red-500"
-                  : isClosingSoon
-                    ? "bg-yellow-500 animate-bounce" // Bounces to draw attention
-                    : "bg-green-500 animate-pulse"
+                !isOpen ? "bg-red-500" : isClosingSoon ? "bg-yellow-500 animate-bounce" : "bg-green-500 animate-pulse"
               }`}
             />
 
@@ -154,15 +161,23 @@ export default function LotteryDapp() {
               <p className="text-xs text-slate-400 font-medium">{isOpen ? "Closes at 8:00 PM" : "Opens at 8:00 AM"}</p>
             </div>
 
+            {/* Dynamic Countdown / Draw Time */}
             <div className="ml-auto text-right">
-              <span className="text-slate-500 text-[9px] block uppercase font-bold">
-                {isClosingSoon ? "Final Hour" : "Next Grand Draw"}
-              </span>
-              <span
-                className={`font-black text-sm transition-colors ${isClosingSoon ? "text-yellow-500" : "text-white"}`}
-              >
-                9:00 PM LOCAL
-              </span>
+              {isClosingSoon ? (
+                <div className="flex flex-col animate-in fade-in slide-in-from-right-2">
+                  <span className="text-yellow-500/70 text-[9px] block uppercase font-black tracking-tighter">
+                    Time Remaining
+                  </span>
+                  <span className="text-yellow-500 font-mono font-black text-lg drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]">
+                    {timeRemaining}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex flex-col">
+                  <span className="text-slate-500 text-[9px] block uppercase font-bold">Next Grand Draw</span>
+                  <span className="text-white font-black text-sm uppercase">9:00 PM Local</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

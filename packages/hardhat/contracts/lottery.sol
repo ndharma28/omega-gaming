@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
-import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import { VRFConsumerBaseV2Plus } from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+import { VRFV2PlusClient } from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
 error Lottery__InsufficientEntryFee(uint256 sent, uint256 required);
 error Lottery__DrawingInProgress();
 error Lottery__Closed();
 
-contract Lottery is
-    VRFConsumerBaseV2Plus,
-    ReentrancyGuard
-{
+contract Lottery is VRFConsumerBaseV2Plus, ReentrancyGuard {
     /* ========== LOTTERY STATE ========== */
 
     address payable[] public players;
@@ -59,13 +56,12 @@ contract Lottery is
         keyHash = _keyHash;
     }
     */
-     constructor(
+    constructor()
         /*
         uint256 _subId,
         address _coordinator,
         bytes32 _keyHash
         */
-    )
         VRFConsumerBaseV2Plus(0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B)
     {
         subscriptionId = 5381939440800401583750118558724030775370857736705249184581988840504175043599;
@@ -107,9 +103,7 @@ contract Lottery is
                 requestConfirmations: requestConfirmations,
                 callbackGasLimit: callbackGasLimit,
                 numWords: numWords,
-                extraArgs: VRFV2PlusClient._argsToBytes(
-                    VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
-                )
+                extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({ nativePayment: false }))
             })
         );
 
@@ -120,8 +114,7 @@ contract Lottery is
 
     /* ========== VRF CALLBACK (WINNER SELECTED HERE) ========== */
 
-    function fulfillRandomWords(uint256 _requestId, uint256[] calldata randomWords) internal override nonReentrant
-    {
+    function fulfillRandomWords(uint256 _requestId, uint256[] calldata randomWords) internal override nonReentrant {
         require(_requestId == lastRequestId, "Invalid request");
         require(players.length >= 2, "Not enough players");
 
@@ -140,7 +133,7 @@ contract Lottery is
         emit WinnerPicked(lotteryId - 1, winner, prize);
 
         // External call last
-        (bool success, ) = winner.call{value: prize}("");
+        (bool success, ) = winner.call{ value: prize }("");
         require(success, "Transfer failed");
     }
 
@@ -154,8 +147,7 @@ contract Lottery is
         return address(this).balance;
     }
 
-    function getWinnerByLotteryId(uint256 id) external view returns (address payable)
-    {
+    function getWinnerByLotteryId(uint256 id) external view returns (address payable) {
         return pastWinners[id];
     }
 
