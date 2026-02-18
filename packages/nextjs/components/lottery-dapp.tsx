@@ -63,7 +63,7 @@ export default function LotteryDapp() {
           entryAmount={entryAmount}
           setEntryAmount={setEntryAmount}
           onEnter={handleEnter}
-          disabled={isEntering || isInvalid || !isOpen}
+          disabled={!mounted || isEntering || isInvalid || !isOpen}
           isEntering={isEntering}
           isInvalid={isInvalid}
           isOpen={isOpen}
