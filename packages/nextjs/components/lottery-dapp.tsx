@@ -26,10 +26,6 @@ export default function LotteryDapp() {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return <div className="min-h-screen bg-slate-950" />;
-  }
-
   const isInvalid = Number(entryAmount) < 0.01 || isNaN(Number(entryAmount));
 
   const handleEnter = async () => {
@@ -50,16 +46,18 @@ export default function LotteryDapp() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-yellow-500/30">
-      <LotteryHeader address={connectedAddress} />
+      <LotteryHeader address={mounted ? connectedAddress : undefined} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <PotCard
-          potBalance={potBalance}
-          currentTime={currentTime}
-          isOpen={isOpen}
-          isClosingSoon={isClosingSoon}
-          timeRemaining={timeRemaining}
-        />
+        <div className={`transition-opacity duration-500 ${mounted ? "opacity-100" : "opacity-0"}`}>
+          <PotCard
+            potBalance={potBalance}
+            currentTime={currentTime}
+            isOpen={isOpen}
+            isClosingSoon={isClosingSoon}
+            timeRemaining={timeRemaining}
+          />
+        </div>
 
         <EnterForm
           entryAmount={entryAmount}
