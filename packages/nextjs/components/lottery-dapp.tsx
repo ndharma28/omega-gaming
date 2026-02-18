@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EnterForm from "./EnterForm";
 import LotteryHeader from "./LotteryHeader";
 import OwnerPanel from "./OwnerPanel";
@@ -12,6 +12,8 @@ import { useLottery } from "~~/hooks/useLottery";
 import { useOpenHours } from "~~/hooks/useOpenHours";
 
 export default function LotteryDapp() {
+  const [mounted, setMounted] = useState(false);
+
   const { address: connectedAddress } = useAccount();
   const { potBalance, players, isOwner, enter, pickWinner, isEntering, isPicking } = useLottery();
 
@@ -19,6 +21,14 @@ export default function LotteryDapp() {
 
   const [entryAmount, setEntryAmount] = useState("0.02");
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-slate-950" />;
+  }
 
   const isInvalid = Number(entryAmount) < 0.01 || isNaN(Number(entryAmount));
 
