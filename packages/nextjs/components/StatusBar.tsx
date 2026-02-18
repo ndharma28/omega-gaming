@@ -1,12 +1,16 @@
 "use client";
 
 interface StatusBarProps {
-  isOpen: boolean;
+  isOpen: boolean | null;
   isClosingSoon: boolean;
   timeRemaining: string;
 }
 
 export default function StatusBar({ isOpen, isClosingSoon, timeRemaining }: StatusBarProps) {
+  if (isOpen === null) {
+    return <div className="h-[62px] w-full bg-slate-900/50 rounded-lg animate-pulse border border-slate-800" />;
+  }
+
   return (
     <div
       className={`flex items-center gap-4 py-3 px-4 rounded-lg border transition-all duration-500 ${
