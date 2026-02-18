@@ -12,18 +12,18 @@ import { useLottery } from "~~/hooks/useLottery";
 import { useOpenHours } from "~~/hooks/useOpenHours";
 
 export default function LotteryDapp() {
-  const [mounted, setMounted] = useState(false);
-
+  const [componentMounted, setComponentMounted] = useState(false);
   const { address: connectedAddress } = useAccount();
   const { potBalance, players, isOwner, enter, pickWinner, isEntering, isPicking } = useLottery();
 
-  const { currentTime, isOpen, isClosingSoon, timeRemaining } = useOpenHours();
+  // Use the 'mounted' state from our hook to gate the UI
+  const { currentTime, isOpen, isClosingSoon, timeRemaining, mounted } = useOpenHours();
 
   const [entryAmount, setEntryAmount] = useState("0.02");
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setComponentMounted(true);
   }, []);
 
   const isInvalid = Number(entryAmount) < 0.01 || isNaN(Number(entryAmount));
@@ -46,23 +46,38 @@ export default function LotteryDapp() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-yellow-500/30">
-      <LotteryHeader address={mounted ? connectedAddress : undefined} />
+      <LotteryHeader address={componentMounted ? connectedAddress : undefined} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <div className={`transition-opacity duration-500 ${mounted ? "opacity-100" : "opacity-0"}`}>
-          <PotCard
-            potBalance={potBalance}
-            currentTime={currentTime}
-            isOpen={isOpen}
-            isClosingSoon={isClosingSoon}
-            timeRemaining={timeRemaining}
-          />
+        {/* STATUS SECTION with Skeleton Guard */}
+        <div className="min-h-[80px]">
+          {!mounted ? (
+            // This is the Skeleton Loader: It matches the size of your PotCard/StatusBar
+            <div className="w-full h-20 bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse flex items-center px-6">
+              <div className="w-3 h-3 rounded-full bg-slate-700 mr-4" />
+              <div className="space-y-2">
+                <div className="h-2 w-24 bg-slate-700 rounded" />
+                <div className="h-3 w-32 bg-slate-800 rounded" />
+              </div>
+            </div>
+          ) : (
+            <div className="animate-in fade-in zoom-in-95 duration-500">
+              <PotCard
+                potBalance={potBalance}
+                currentTime={currentTime}
+                isOpen={isOpen}
+                isClosingSoon={isClosingSoon}
+                timeRemaining={timeRemaining}
+              />
+            </div>
+          )}
         </div>
 
         <EnterForm
           entryAmount={entryAmount}
           setEntryAmount={setEntryAmount}
           onEnter={handleEnter}
+          // Button remains disabled until the clock logic is ready
           disabled={!mounted || isEntering || isInvalid || !isOpen}
           isEntering={isEntering}
           isInvalid={isInvalid}
