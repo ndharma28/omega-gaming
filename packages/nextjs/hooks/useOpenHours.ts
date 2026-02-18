@@ -10,19 +10,17 @@ const checkIsOpen = (date: Date) => {
 };
 
 export const useOpenHours = () => {
-  const [mounted, setMounted] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // 2. Initialize state with the actual time immediately.
   // This prevents the "false" default that causes the red flash.
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isOpen, setIsOpen] = useState(() => checkIsOpen(new Date()));
+  const [isOpen, setIsOpen] = useState<boolean | undefined>(undefined); // Start as undefined to indicate "not ready"
   const [isClosingSoon, setIsClosingSoon] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState("");
 
   useEffect(() => {
-    setMounted(true);
-
-    const timer = setInterval(() => {
+    const updateStatus = () => {
       const now = new Date();
       const currentIsOpen = checkIsOpen(now);
 
@@ -44,7 +42,11 @@ export const useOpenHours = () => {
         const secs = Math.floor((diff / 1000) % 60);
         setTimeRemaining(`${hours}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`);
       }
-    }, 1000);
+      setIsInitialized(true); // Mark as initialized after the first check
+    };
+
+    updateStatus(); // Call immediately to set initial state
+    const timer = setInterval(updateStatus, 1000);
 
     return () => clearInterval(timer);
   }, []);
@@ -54,6 +56,6 @@ export const useOpenHours = () => {
     isOpen,
     isClosingSoon,
     timeRemaining,
-    mounted, // Tell the UI we are ready to show the real data
+    isInitialized, // Tell the UI we are ready to show the real data
   };
 };

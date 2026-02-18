@@ -12,18 +12,18 @@ import { useLottery } from "~~/hooks/useLottery";
 import { useOpenHours } from "~~/hooks/useOpenHours";
 
 export default function LotteryDapp() {
-  const [componentMounted, setComponentMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { address: connectedAddress } = useAccount();
   const { potBalance, players, isOwner, enter, pickWinner, isEntering, isPicking } = useLottery();
 
-  // Use the 'mounted' state from our hook to gate the UI
-  const { currentTime, isOpen, isClosingSoon, timeRemaining, mounted } = useOpenHours();
+  // isInitialized is our secret weapon against flickering
+  const { currentTime, isOpen, isClosingSoon, timeRemaining, isInitialized } = useOpenHours();
 
   const [entryAmount, setEntryAmount] = useState("0.02");
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
 
   useEffect(() => {
-    setComponentMounted(true);
+    setMounted(true);
   }, []);
 
   const isInvalid = Number(entryAmount) < 0.01 || isNaN(Number(entryAmount));
@@ -46,26 +46,27 @@ export default function LotteryDapp() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-yellow-500/30">
-      <LotteryHeader address={componentMounted ? connectedAddress : undefined} />
+      <LotteryHeader address={mounted ? connectedAddress : undefined} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* STATUS SECTION with Skeleton Guard */}
-        <div className="min-h-[80px]">
-          {!mounted ? (
-            // This is the Skeleton Loader: It matches the size of your PotCard/StatusBar
-            <div className="w-full h-20 bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse flex items-center px-6">
-              <div className="w-3 h-3 rounded-full bg-slate-700 mr-4" />
-              <div className="space-y-2">
-                <div className="h-2 w-24 bg-slate-700 rounded" />
+        {/* Status Section */}
+        <div className="min-h-[82px]">
+          {!isInitialized ? (
+            // The Skeleton: Shown while calculating the true state
+            <div className="w-full h-[74px] bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse flex items-center px-4">
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-700 mr-4" />
+              <div className="flex-1 space-y-2">
+                <div className="h-2 w-20 bg-slate-700 rounded" />
                 <div className="h-3 w-32 bg-slate-800 rounded" />
               </div>
             </div>
           ) : (
-            <div className="animate-in fade-in zoom-in-95 duration-500">
+            // The Real Card: Transitions in only when the status is 100% certain
+            <div className="animate-in fade-in duration-300">
               <PotCard
                 potBalance={potBalance}
                 currentTime={currentTime}
-                isOpen={isOpen}
+                isOpen={!!isOpen}
                 isClosingSoon={isClosingSoon}
                 timeRemaining={timeRemaining}
               />
@@ -77,11 +78,11 @@ export default function LotteryDapp() {
           entryAmount={entryAmount}
           setEntryAmount={setEntryAmount}
           onEnter={handleEnter}
-          // Button remains disabled until the clock logic is ready
-          disabled={!mounted || isEntering || isInvalid || !isOpen}
+          // Strict check: disable button if not initialized or if closed
+          disabled={!isInitialized || isEntering || isInvalid || !isOpen}
           isEntering={isEntering}
           isInvalid={isInvalid}
-          isOpen={isOpen}
+          isOpen={!!isOpen}
         />
 
         <PlayersList players={players} connectedAddress={connectedAddress} />
