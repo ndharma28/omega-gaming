@@ -1,161 +1,123 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.30;
 
-import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import { VRFConsumerBaseV2Plus } from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
-import { VRFV2PlusClient } from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
+// IMPORTS
+import {Initializable}      from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable}    from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
-error Lottery__InsufficientEntryFee(uint256 sent, uint256 required);
-error Lottery__DrawingInProgress();
-error Lottery__Closed();
+// CONTRACT
+contract Lottery is Initializable, UUPSUpgradeable, OwnableUpgradeable
+{
+    using Strings for uint256;
 
-contract Lottery is VRFConsumerBaseV2Plus, ReentrancyGuard {
-    /* ========== LOTTERY STATE ========== */
+    // ERRORS
+    error InsufficientFunds();
+    error InvalidEntryTime();
 
-    address payable[] public players;
-    mapping(uint256 => address payable) public pastWinners;
+    error LotteryDNE();
+    error LotteryEnded();
+    error LotteryNotOpen();
+    error LotteryNotStarted();
+    
+   // EVENTS
+    event LotteryCreated
+    (
+        uint256 indexed lotteryId,
+        uint256 entryFee,
+        uint256 startTime,
+        uint256 endTime
+    );
 
-    uint256 public lotteryId;
+    event LotteryEntered
+    (
+        uint256 indexed lotteryId,
+        address indexed playerAddress,
+        uint256 playerStake
+    );
 
-    uint256 public constant MINIMUM_ENTRY = 0.01 ether;
-
-    /* ========== VRF CONFIG ========== */
-
-    uint256 public subscriptionId;
-    bytes32 public keyHash;
-
-    uint32 public callbackGasLimit = 100_000;
-    uint16 public requestConfirmations = 3;
-    uint32 public numWords = 1;
-
-    uint256 public lastRequestId;
-    bool public drawing;
-
-    /* ========== EVENTS ========== */
-
-    event Entered(address player);
-    event RandomnessRequested(uint256 requestId);
-    event WinnerPicked(uint256 lotteryId, address winner, uint256 amount);
-
-    /* ========== RECEIVE ETH ========== */
-    receive() external payable {}
-
-    /* ========== CONSTRUCTOR ========== */
-
-    // NOTE: this is hard coded for testing efficiency (TEMP)
-
-    /*
-    constructor(
-        uint256 _subId,
-        address _coordinator,
-        bytes32 _keyHash
-    )
-        VRFConsumerBaseV2Plus(_coordinator)
+    // TYPES
+    enum LotteryStatus 
     {
-        subscriptionId = _subId;
-        keyHash = _keyHash;
+        NOT_STARTED,
+        OPEN,
+        CLOSED,
+        DRAWING,
+        RESOLVED
     }
-    */
-    constructor()
-        /*
-        uint256 _subId,
-        address _coordinator,
-        bytes32 _keyHash
-        */
-        VRFConsumerBaseV2Plus(0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B)
+
+    struct Lottery 
     {
-        subscriptionId = 5381939440800401583750118558724030775370857736705249184581988840504175043599;
-        keyHash = 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae;
+        uint256 id;
+        uint256 entryFee;
+        uint256 startTime;
+        uint256 endTime;
+        uint256 totalPot;
+        LotteryStatus status;
+        address winner; // empty until lottery resolves
     }
 
-    /* ========== ENTER LOTTERY ========== */
+    // STORAGE
+    uint256 public lotteryIdCounter;    // incrementing lottery ID. starts @ 1
+    mapping(uint256 => Lottery) internal lotteries; // lotteryId => Lottery 
+    mapping(uint256 => address[]) internal lotteryPlayers;  // lotteryId => players
+    uint256[45] private __gap;  // reserved storage gap for future updates
 
-    function enter() external payable {
-        uint256 currentUTCHour = (block.timestamp / 3600) % 24;
+    
+    // INITIALIZER -> runs exactly once (one-time setup, part of UUPS)
+    function initialize(address initialOwner) external initializer 
+    {
+        __Ownable_init(initialOwner);   // sets contract owner
+        __UUPSUpgradeable_init();
 
-        if (currentUTCHour >= 2 && currentUTCHour < 14) {
-            revert Lottery__Closed();
-        }
-
-        require(!drawing, "Drawing in progress");
-        if (msg.value < MINIMUM_ENTRY) {
-            revert Lottery__InsufficientEntryFee(msg.value, MINIMUM_ENTRY);
-        }
-
-        players.push(payable(msg.sender));
-
-        emit Entered(msg.sender);
+        lotteryIdCounter = 1;
     }
 
-    /* ========== REQUEST RANDOMNESS ========== */
-    // owner starts draw
+    // LOTTERY CREATION
+    function createLottery(uint256 entryFee, uint256 startTime, uint256 endTime) external onlyOwner returns (uint256 lotteryId) 
+    {
+        // enforce rules
+        if (startTime >= endTime) revert InvalidEntryTime();
 
-    function chooseWinner() external onlyOwner returns (uint256 requestId) {
-        require(players.length >= 2, "Need at least 2 players");
-        require(!drawing, "Already drawing");
+        lotteryId = lotteryIdCounter++;
 
-        drawing = true;
+        Lottery storage lottery = lotteries[lotteryId];
+        lottery.id = lotteryId;
+        lottery.entryFee = entryFee;
+        lottery.startTime = startTime;
+        lottery.endTime = endTime;
+        lottery.status = LotteryStatus.NOT_STARTED;
 
-        requestId = s_vrfCoordinator.requestRandomWords(
-            VRFV2PlusClient.RandomWordsRequest({
-                keyHash: keyHash,
-                subId: subscriptionId,
-                requestConfirmations: requestConfirmations,
-                callbackGasLimit: callbackGasLimit,
-                numWords: numWords,
-                extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({ nativePayment: false }))
-            })
-        );
-
-        lastRequestId = requestId;
-
-        emit RandomnessRequested(requestId);
+        emit LotteryCreated(lotteryId, entryFee, startTime, endTime);
     }
 
-    /* ========== VRF CALLBACK (WINNER SELECTED HERE) ========== */
+    // JOIN LOTTERY
+    function joinLottery(uint256 lotteryId) external payable
+    {
+        Lottery storage lottery = lotteries[lotteryId];
 
-    function fulfillRandomWords(uint256 _requestId, uint256[] calldata randomWords) internal override nonReentrant {
-        require(_requestId == lastRequestId, "Invalid request");
-        require(players.length >= 2, "Not enough players");
+        // enforce rules
+        if (lotteryId == 0) revert LotteryDNE();
+        if (block.timestamp < lottery.startTime) revert LotteryNotStarted();
+        if (block.timestamp >= lottery.endTime) revert LotteryEnded();
+        if (msg.value < lottery.entryFee) revert InsufficientFunds();
+        if (lottery.status != LotteryStatus.OPEN) revert LotteryNotOpen();
 
-        uint256 index = randomWords[0] % players.length;
+        // update lottery state
+        lotteryPlayers[lotteryId].push(msg.sender);
+        lottery.totalPot += msg.value;
 
-        address payable winner = players[index];
-        uint256 prize = address(this).balance;
-
-        // Update state BEFORE external call
-        pastWinners[lotteryId] = winner;
-        lotteryId++;
-
-        delete players;
-        drawing = false;
-
-        emit WinnerPicked(lotteryId - 1, winner, prize);
-
-        // External call last
-        (bool success, ) = winner.call{ value: prize }("");
-        require(success, "Transfer failed");
+        // send event to frontend
+        emit LotteryEntered(lotteryId, msg.sender, msg.value);
     }
 
-    /* ========== VIEW HELPERS ========== */
-
-    function getPlayers() external view returns (address payable[] memory) {
-        return players;
+    // VIEW FUNCTIONS (for debugging/development)
+    function getLottery(uint256 lotteryId) external view returns (Lottery memory)
+    {
+        return lotteries[lotteryId];
     }
 
-    function getPotBalance() external view returns (uint256) {
-        return address(this).balance;
-    }
-
-    function getWinnerByLotteryId(uint256 id) external view returns (address payable) {
-        return pastWinners[id];
-    }
-
-    function setCallbackGasLimit(uint32 gasLimit) external onlyOwner {
-        callbackGasLimit = gasLimit;
-    }
-
-    function setConfirmations(uint16 conf) external onlyOwner {
-        requestConfirmations = conf;
-    }
+    // UUPS
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 }
