@@ -8,7 +8,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 // CONTRACT
-contract Lottery is Initializable, UUPSUpgradeable, OwnableUpgradeable
+contract OmegaLottery is Initializable, UUPSUpgradeable, OwnableUpgradeable
 {
     using Strings for uint256;
 
