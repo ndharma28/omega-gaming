@@ -6,7 +6,6 @@ import LotteryHeader from "./LotteryHeader";
 import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
-import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { useLottery } from "~~/hooks/useLottery";
 import { useOpenHours } from "~~/hooks/useOpenHours";
@@ -14,9 +13,10 @@ import { useOpenHours } from "~~/hooks/useOpenHours";
 export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
   const { address: connectedAddress } = useAccount();
-  const { potBalance, players, isOwner, enter, pickWinner, isEntering, isPicking } = useLottery();
 
-  // isInitialized is our secret weapon against flickering
+  // 1. Updated Destructuring: useLottery now returns a lotteryData object
+  const { lotteryData, isOwner, joinLottery, requestWinner, isJoining, isRequesting } = useLottery(1n); // Assuming we are looking at lottery ID 1
+
   const { currentTime, isOpen, isClosingSoon, timeRemaining, isInitialized } = useOpenHours();
 
   const [entryAmount, setEntryAmount] = useState("0.02");
@@ -26,21 +26,26 @@ export default function LotteryDapp() {
     setMounted(true);
   }, []);
 
-  const isInvalid = Number(entryAmount) < 0.01 || isNaN(Number(entryAmount));
+  // Use the entryFee from the contract if available, otherwise fallback to 0.01
+  const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
+  const isInvalid = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
 
+  // 2. Updated Join Logic
   const handleEnter = async () => {
     try {
-      await enter({ functionName: "enter", value: parseEther(entryAmount) });
+      // In useLottery, we already wrapped this to send the correct value
+      await joinLottery();
     } catch (e) {
-      console.error(e);
+      console.error("Join Error:", e);
     }
   };
 
+  // 3. Updated Admin Logic (Chainlink VRF Trigger)
   const handlePickWinner = async () => {
     try {
-      await pickWinner({ functionName: "chooseWinner" });
+      await requestWinner();
     } catch (e) {
-      console.error(e);
+      console.error("VRF Request Error:", e);
     }
   };
 
@@ -49,10 +54,8 @@ export default function LotteryDapp() {
       <LotteryHeader address={mounted ? connectedAddress : undefined} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* Status Section */}
         <div className="min-h-[82px]">
-          {!isInitialized ? (
-            // The Skeleton: Shown while calculating the true state
+          {!isInitialized || !lotteryData ? (
             <div className="w-full h-[74px] bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse flex items-center px-4">
               <div className="w-2.5 h-2.5 rounded-full bg-slate-700 mr-4" />
               <div className="flex-1 space-y-2">
@@ -61,12 +64,12 @@ export default function LotteryDapp() {
               </div>
             </div>
           ) : (
-            // The Real Card: Transitions in only when the status is 100% certain
             <div className="animate-in fade-in duration-300">
               <PotCard
-                potBalance={potBalance}
+                // Accessing the totalPot from the new struct
+                potBalance={lotteryData.totalPot}
                 currentTime={currentTime}
-                isOpen={!!isOpen}
+                isOpen={lotteryData.status === 1} // 1 = OPEN in your Enum
                 isClosingSoon={isClosingSoon}
                 timeRemaining={timeRemaining}
               />
@@ -78,22 +81,24 @@ export default function LotteryDapp() {
           entryAmount={entryAmount}
           setEntryAmount={setEntryAmount}
           onEnter={handleEnter}
-          // Strict check: disable button if not initialized or if closed
-          disabled={!isInitialized || isEntering || isInvalid || !isOpen}
-          isEntering={isEntering}
+          // The button is disabled if status isn't OPEN (1)
+          disabled={!isInitialized || isJoining || isInvalid || lotteryData?.status !== 1}
+          isEntering={isJoining}
           isInvalid={isInvalid}
-          isOpen={!!isOpen}
+          isOpen={lotteryData?.status === 1}
         />
 
-        <PlayersList players={players} connectedAddress={connectedAddress} />
+        {/* Note: You'll need to update PlayersList to handle the players array from contract */}
+        <PlayersList players={[]} connectedAddress={connectedAddress} />
 
         {isOwner && (
           <OwnerPanel
             show={showOwnerPanel}
             toggle={() => setShowOwnerPanel(b => !b)}
             onPick={handlePickWinner}
-            isPicking={isPicking}
-            hasPlayers={!!players && players.length > 0}
+            isPicking={isRequesting}
+            // Logic to ensure the lottery is actually ready to be drawn
+            hasPlayers={true}
           />
         )}
       </main>

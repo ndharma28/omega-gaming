@@ -2,34 +2,48 @@ import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
-export function useLottery() {
+export function useLottery(lotteryId: bigint = 1n) {
   const { address } = useAccount();
 
-  const { data: potBalance } = useScaffoldReadContract({
-    contractName: "Lottery",
-    functionName: "getPotBalance",
+  // 1. Fetch Lottery Data from OmegaLottery
+  const { data: lotteryData } = useScaffoldReadContract({
+    contractName: "OmegaLottery",
+    functionName: "getLottery",
+    args: [lotteryId],
     watch: true,
   });
 
-  const { data: players } = useScaffoldReadContract({
-    contractName: "Lottery",
-    functionName: "getPlayers",
-    watch: true,
-  });
-
+  // 2. Fetch the Owner of the contract
   const { data: owner } = useScaffoldReadContract({
-    contractName: "Lottery",
+    contractName: "OmegaLottery",
     functionName: "owner",
   });
 
-  const { writeContractAsync: enter, isPending: isEntering } = useScaffoldWriteContract({
-    contractName: "Lottery",
+  // 3. Fetch randomness status from the RandomNumber contract
+  // 👉 UPDATE "RandomNumber" to match deployedContracts.ts exactly!
+  const { data: lastRequestId } = useScaffoldReadContract({
+    contractName: "randomNumber",
+    functionName: "lastRequestId",
+    watch: true,
   });
 
-  const { writeContractAsync: pickWinner, isPending: isPicking } = useScaffoldWriteContract({
-    contractName: "Lottery",
+  const { data: requestStatus } = useScaffoldReadContract({
+    contractName: "randomNumber", // (Make sure this casing matches deployedContracts.ts!)
+    functionName: "getRequestStatus",
+    args: [lastRequestId], // <-- Simply wrap it in brackets
+    watch: true,
   });
 
+  // 4. Setup Write Functions
+  const { writeContractAsync: joinLotteryContract, isPending: isJoining } = useScaffoldWriteContract({
+    contractName: "OmegaLottery",
+  });
+
+  const { writeContractAsync: requestRandomness, isPending: isRequesting } = useScaffoldWriteContract({
+    contractName: "randomNumber",
+  });
+
+  // Owner State logic
   const [isOwner, setIsOwner] = useState(false);
   useEffect(() => {
     if (owner && address) {
@@ -39,14 +53,44 @@ export function useLottery() {
     }
   }, [owner, address]);
 
+  const handleJoin = async () => {
+    if (!lotteryData || typeof lotteryData !== "object") {
+      console.error("Lottery data not loaded");
+      return;
+    }
+
+    try {
+      await joinLotteryContract({
+        functionName: "joinLottery",
+        args: [lotteryId],
+        value: lotteryData.entryFee,
+      });
+    } catch (e) {
+      console.error("Error joining lottery:", e);
+    }
+  };
+
+  const handleRequestWinner = async () => {
+    try {
+      await requestRandomness({
+        functionName: "requestRandomWords",
+        args: [false],
+      });
+    } catch (e) {
+      console.error("Error requesting randomness:", e);
+    }
+  };
+
   return {
-    potBalance,
-    players,
+    lotteryData,
     owner,
     isOwner,
-    enter,
-    pickWinner,
-    isEntering,
-    isPicking,
+    joinLottery: handleJoin,
+    requestWinner: handleRequestWinner,
+    isJoining,
+    isRequesting,
+    randomResult: requestStatus ? requestStatus[1] : undefined,
+    isRandomnessReady: requestStatus ? requestStatus[0] : false,
+    status: lotteryData?.status,
   };
 }
