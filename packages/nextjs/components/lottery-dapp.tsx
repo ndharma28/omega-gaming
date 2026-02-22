@@ -14,8 +14,16 @@ export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
   const { address: connectedAddress } = useAccount();
 
-  // 1. Updated Destructuring: useLottery now returns a lotteryData object
-  const { lotteryData, isOwner, joinLottery, requestWinner, isJoining, isRequesting } = useLottery(1n); // Assuming we are looking at lottery ID 1
+  // 1. Updated Destructuring: Pulling treasuryBalance from the hook!
+  const {
+    lotteryData,
+    isOwner,
+    joinLottery,
+    requestWinner,
+    isJoining,
+    isRequesting,
+    treasuryBalance, // 👉 Added here
+  } = useLottery(1n);
 
   const { currentTime, isOpen, isClosingSoon, timeRemaining, isInitialized } = useOpenHours();
 
@@ -33,7 +41,6 @@ export default function LotteryDapp() {
   // 2. Updated Join Logic
   const handleEnter = async () => {
     try {
-      // In useLottery, we already wrapped this to send the correct value
       await joinLottery();
     } catch (e) {
       console.error("Join Error:", e);
@@ -48,6 +55,9 @@ export default function LotteryDapp() {
       console.error("VRF Request Error:", e);
     }
   };
+
+  // Check if there's actually money in the pot so the Owner doesn't draw an empty lottery
+  const hasPlayers = (lotteryData?.totalPot ?? 0n) > 0n;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-yellow-500/30">
@@ -97,8 +107,8 @@ export default function LotteryDapp() {
             toggle={() => setShowOwnerPanel(b => !b)}
             onPick={handlePickWinner}
             isPicking={isRequesting}
-            // Logic to ensure the lottery is actually ready to be drawn
-            hasPlayers={true}
+            hasPlayers={hasPlayers} // 👉 Dynamically set based on the pot size
+            treasuryBalance={treasuryBalance} // 👉 Passed into the panel UI!
           />
         )}
       </main>
