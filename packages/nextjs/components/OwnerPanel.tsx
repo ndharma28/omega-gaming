@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronUp, Wallet } from "lucide-react";
 
 interface OwnerPanelProps {
   show: boolean;
@@ -8,9 +8,14 @@ interface OwnerPanelProps {
   onPick: () => Promise<void>;
   isPicking: boolean;
   hasPlayers: boolean;
+  // 👉 NEW: Add the balance object to the props interface
+  treasuryBalance?: {
+    formatted: string;
+    symbol: string;
+  };
 }
 
-export default function OwnerPanel({ show, toggle, onPick, isPicking, hasPlayers }: OwnerPanelProps) {
+export default function OwnerPanel({ show, toggle, onPick, isPicking, hasPlayers, treasuryBalance }: OwnerPanelProps) {
   return (
     <div className="rounded-xl border border-red-900/30 bg-red-950/10 overflow-hidden">
       <div
@@ -26,6 +31,17 @@ export default function OwnerPanel({ show, toggle, onPick, isPicking, hasPlayers
 
       {show && (
         <div className="p-6 border-t border-red-900/30 space-y-4">
+          {/* 👉 NEW: Treasury Balance Display */}
+          <div className="flex items-center justify-between bg-red-950/40 p-4 rounded-lg border border-red-900/50">
+            <div className="flex items-center gap-2 text-red-200/80">
+              <Wallet className="w-5 h-5" />
+              <span className="font-medium text-sm">Treasury Balance</span>
+            </div>
+            <div className="text-xl font-bold text-red-100">
+              {treasuryBalance ? `${treasuryBalance.formatted} ${treasuryBalance.symbol}` : "Loading..."}
+            </div>
+          </div>
+
           <p className="text-sm text-red-200/70">
             As the admin, you can trigger the random winner selection. The entire pot will be transferred immediately.
           </p>

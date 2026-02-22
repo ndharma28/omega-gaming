@@ -1,9 +1,20 @@
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useAccount, useBalance } from "wagmi";
+import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 export function useLottery(lotteryId: bigint = 1n) {
   const { address } = useAccount();
+
+  const { data: lotteryContractInfo } = useDeployedContractInfo({
+    contractName: "OmegaLottery",
+  });
+
+  const { data: treasuryBalance } = useBalance({
+    address: lotteryContractInfo?.address,
+    query: {
+      refetchInterval: 5000, // Refresh every 5 seconds
+    },
+  });
 
   // 1. Fetch Lottery Data from OmegaLottery
   const { data: lotteryData } = useScaffoldReadContract({
@@ -82,6 +93,7 @@ export function useLottery(lotteryId: bigint = 1n) {
   };
 
   return {
+    treasuryBalance,
     lotteryData,
     owner,
     isOwner,
