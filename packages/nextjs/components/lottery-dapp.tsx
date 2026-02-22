@@ -25,7 +25,7 @@ export default function LotteryDapp() {
     treasuryBalance, // 👉 Added here
   } = useLottery(1n);
 
-  const { currentTime, isOpen, isClosingSoon, timeRemaining, isInitialized } = useOpenHours();
+  const { currentTime, isClosingSoon, timeRemaining, isInitialized } = useOpenHours();
 
   const [entryAmount, setEntryAmount] = useState("0.02");
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
