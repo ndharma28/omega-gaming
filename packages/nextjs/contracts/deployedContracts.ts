@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   11155111: {
     DefaultProxyAdmin: {
-      address: "0xBf3ce1D2852A9413575528cC24408768A5B38cFA",
+      address: "0xa0126bFFB4566e0408088FdF24638105a9330a9C",
       abi: [
         {
           inputs: [
@@ -171,10 +171,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 10322340,
+      deployedOnBlock: 10322660,
     },
     OmegaLottery: {
-      address: "0x3Ca279834c2829524CEE3dA890Ea04f3400000a1",
+      address: "0x2923Ff3534c3e7BFBbF8b2a68d97357b2BC18021",
       abi: [
         {
           anonymous: false,
@@ -703,10 +703,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 10322342,
+      deployedOnBlock: 10322662,
     },
     OmegaLottery_Implementation: {
-      address: "0x08DE696221f99F3AC35154dA30a869A0019BF918",
+      address: "0x6f457A125642B56d4882988ce717aFC296BE4F27",
       abi: [
         {
           inputs: [
@@ -1122,10 +1122,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 10322341,
+      deployedOnBlock: 10322661,
     },
     OmegaLottery_Proxy: {
-      address: "0x3Ca279834c2829524CEE3dA890Ea04f3400000a1",
+      address: "0x2923Ff3534c3e7BFBbF8b2a68d97357b2BC18021",
       abi: [
         {
           inputs: [
@@ -1273,10 +1273,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 10322342,
+      deployedOnBlock: 10322662,
     },
     randomNumber: {
-      address: "0xf83619cd6123B70f25Ae3089B88F2490439191F1",
+      address: "0x0755B860B28084c180b71BC4B35dc21A676Aa1C4",
       abi: [
         {
           inputs: [
@@ -1670,7 +1670,7 @@ const deployedContracts = {
         setCoordinator: "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol",
         transferOwnership: "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol",
       },
-      deployedOnBlock: 10322343,
+      deployedOnBlock: 10322663,
     },
   },
 } as const;
