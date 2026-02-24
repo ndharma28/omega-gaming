@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   11155111: {
     OmegaLottery: {
-      address: "0x87303CF86A4EE4e11D58Cec32da93Bcc7CbC154C",
+      address: "0xA486F49487918333245ebBe1F5ED464fE3c50f8F",
       abi: [
         {
           inputs: [
@@ -586,7 +586,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 10329904,
+      deployedOnBlock: 10329918,
     },
   },
 } as const;
