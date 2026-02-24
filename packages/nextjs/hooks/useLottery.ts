@@ -12,7 +12,7 @@ export function useLottery(lotteryId: bigint = 1n) {
   const { data: treasuryBalance } = useBalance({
     address: lotteryContractInfo?.address,
     query: {
-      refetchInterval: 5000, // Refresh every 5 seconds
+      refetchInterval: 5000,
     },
   });
 
@@ -30,18 +30,10 @@ export function useLottery(lotteryId: bigint = 1n) {
     functionName: "owner",
   });
 
-  // 3. Fetch randomness status from the RandomNumber contract
-  // 👉 UPDATE "RandomNumber" to match deployedContracts.ts exactly!
+  // 3. Fetch last VRF request ID from OmegaLottery
   const { data: lastRequestId } = useScaffoldReadContract({
-    contractName: "randomNumber",
+    contractName: "OmegaLottery",
     functionName: "lastRequestId",
-    watch: true,
-  });
-
-  const { data: requestStatus } = useScaffoldReadContract({
-    contractName: "randomNumber", // (Make sure this casing matches deployedContracts.ts!)
-    functionName: "getRequestStatus",
-    args: [lastRequestId], // <-- Simply wrap it in brackets
     watch: true,
   });
 
@@ -50,11 +42,11 @@ export function useLottery(lotteryId: bigint = 1n) {
     contractName: "OmegaLottery",
   });
 
-  const { writeContractAsync: requestRandomness, isPending: isRequesting } = useScaffoldWriteContract({
-    contractName: "randomNumber",
+  const { writeContractAsync: requestWinnerContract, isPending: isRequesting } = useScaffoldWriteContract({
+    contractName: "OmegaLottery",
   });
 
-  // Owner State logic
+  // Owner state logic
   const [isOwner, setIsOwner] = useState(false);
   useEffect(() => {
     if (owner && address) {
@@ -83,12 +75,12 @@ export function useLottery(lotteryId: bigint = 1n) {
 
   const handleRequestWinner = async () => {
     try {
-      await requestRandomness({
-        functionName: "requestRandomWords",
-        args: [false],
+      await requestWinnerContract({
+        functionName: "requestWinner",
+        args: [lotteryId],
       });
     } catch (e) {
-      console.error("Error requesting randomness:", e);
+      console.error("Error requesting winner:", e);
     }
   };
 
@@ -97,12 +89,11 @@ export function useLottery(lotteryId: bigint = 1n) {
     lotteryData,
     owner,
     isOwner,
+    lastRequestId,
     joinLottery: handleJoin,
     requestWinner: handleRequestWinner,
     isJoining,
     isRequesting,
-    randomResult: requestStatus ? requestStatus[1] : undefined,
-    isRandomnessReady: requestStatus ? requestStatus[0] : false,
     status: lotteryData?.status,
   };
 }
