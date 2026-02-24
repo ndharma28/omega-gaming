@@ -6,6 +6,7 @@ import LotteryHeader from "./LotteryHeader";
 import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
+import { LotteryStatus } from "./StatusBar";
 import { useAccount } from "wagmi";
 import { useLottery } from "~~/hooks/useLottery";
 import { useOpenHours } from "~~/hooks/useOpenHours";
@@ -14,16 +15,7 @@ export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
   const { address: connectedAddress } = useAccount();
 
-  // 1. Updated Destructuring: Pulling treasuryBalance from the hook!
-  const {
-    lotteryData,
-    isOwner,
-    joinLottery,
-    requestWinner,
-    isJoining,
-    isRequesting,
-    treasuryBalance, // 👉 Added here
-  } = useLottery(1n);
+  const { lotteryData, isOwner, joinLottery, requestWinner, isJoining, isRequesting, treasuryBalance } = useLottery(1n);
 
   const { currentTime, isClosingSoon, timeRemaining, isInitialized } = useOpenHours();
 
@@ -34,11 +26,12 @@ export default function LotteryDapp() {
     setMounted(true);
   }, []);
 
-  // Use the entryFee from the contract if available, otherwise fallback to 0.01
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalid = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
 
-  // 2. Updated Join Logic
+  const status: LotteryStatus = lotteryData?.status ?? LotteryStatus.NOT_STARTED;
+  const isOpen = status === LotteryStatus.OPEN;
+
   const handleEnter = async () => {
     try {
       await joinLottery();
@@ -47,7 +40,6 @@ export default function LotteryDapp() {
     }
   };
 
-  // 3. Updated Admin Logic (Chainlink VRF Trigger)
   const handlePickWinner = async () => {
     try {
       await requestWinner();
@@ -56,7 +48,6 @@ export default function LotteryDapp() {
     }
   };
 
-  // Check if there's actually money in the pot so the Owner doesn't draw an empty lottery
   const hasPlayers = (lotteryData?.totalPot ?? 0n) > 0n;
 
   return (
@@ -76,12 +67,12 @@ export default function LotteryDapp() {
           ) : (
             <div className="animate-in fade-in duration-300">
               <PotCard
-                // Accessing the totalPot from the new struct
                 potBalance={lotteryData.totalPot}
                 currentTime={currentTime}
-                isOpen={lotteryData.status === 1} // 1 = OPEN in your Enum
-                isClosingSoon={isClosingSoon}
-                timeRemaining={timeRemaining}
+                status={status}
+                timeRemaining={isClosingSoon ? timeRemaining : ""}
+                startTime={lotteryData.startTime}
+                endTime={lotteryData.endTime}
               />
             </div>
           )}
@@ -91,14 +82,12 @@ export default function LotteryDapp() {
           entryAmount={entryAmount}
           setEntryAmount={setEntryAmount}
           onEnter={handleEnter}
-          // The button is disabled if status isn't OPEN (1)
-          disabled={!isInitialized || isJoining || isInvalid || lotteryData?.status !== 1}
+          disabled={!isInitialized || isJoining || isInvalid || !isOpen}
           isEntering={isJoining}
           isInvalid={isInvalid}
-          isOpen={lotteryData?.status === 1}
+          isOpen={isOpen}
         />
 
-        {/* Note: You'll need to update PlayersList to handle the players array from contract */}
         <PlayersList players={[]} connectedAddress={connectedAddress} />
 
         {isOwner && (
@@ -107,8 +96,9 @@ export default function LotteryDapp() {
             toggle={() => setShowOwnerPanel(b => !b)}
             onPick={handlePickWinner}
             isPicking={isRequesting}
-            hasPlayers={hasPlayers} // 👉 Dynamically set based on the pot size
-            treasuryBalance={treasuryBalance} // 👉 Passed into the panel UI!
+            hasPlayers={hasPlayers}
+            status={status}
+            treasuryBalance={treasuryBalance}
           />
         )}
       </main>

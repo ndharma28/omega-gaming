@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import StatusBar from "./StatusBar";
+import StatusBar, { LotteryStatus } from "./StatusBar";
 import { formatEther } from "viem";
 
-// 🛡️ THE FIX: This block was likely missing or misspelled
 interface PotCardProps {
   potBalance?: bigint;
   currentTime: Date;
-  isOpen: boolean;
-  isClosingSoon: boolean;
+  status: LotteryStatus;
   timeRemaining: string;
+  startTime?: bigint;
+  endTime?: bigint;
 }
 
-export default function PotCard({ potBalance, currentTime, isOpen, isClosingSoon, timeRemaining }: PotCardProps) {
+export default function PotCard({ potBalance, currentTime, status, timeRemaining, startTime, endTime }: PotCardProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function PotCard({ potBalance, currentTime, isOpen, isClosingSoon
         className={`transition-all duration-700 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
       >
         {mounted ? (
-          <StatusBar isOpen={isOpen} isClosingSoon={isClosingSoon} timeRemaining={timeRemaining} />
+          <StatusBar status={status} timeRemaining={timeRemaining} startTime={startTime} endTime={endTime} />
         ) : (
           <div className="h-10 w-full bg-slate-800/50 animate-pulse rounded-lg" />
         )}
