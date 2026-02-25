@@ -37,28 +37,28 @@ function getStatusConfig(status: LotteryStatus, isClosingSoon: boolean) {
     case LotteryStatus.OPEN:
       return {
         label: "Entries Open",
-        containerClass: "bg-green-500/5 border-green-500/20",
+        containerClass: "bg-green-950/40 border-green-500/20",
         dotClass: "bg-green-500 animate-pulse",
         textClass: "text-green-400",
       };
     case LotteryStatus.NOT_STARTED:
       return {
         label: "Not Yet Started",
-        containerClass: "bg-red-500/5 border-red-500/20",
+        containerClass: "bg-red-950/40 border-red-500/20",
         dotClass: "bg-red-500",
         textClass: "text-red-400",
       };
     case LotteryStatus.DRAWING:
       return {
         label: "Drawing Winner",
-        containerClass: "bg-red-500/5 border-red-500/20",
+        containerClass: "bg-red-950/40 border-red-500/20",
         dotClass: "bg-red-500 animate-pulse",
         textClass: "text-red-400",
       };
     case LotteryStatus.RESOLVED:
       return {
         label: "Lottery Resolved",
-        containerClass: "bg-red-500/5 border-red-500/20",
+        containerClass: "bg-red-950/40 border-red-500/20",
         dotClass: "bg-red-500",
         textClass: "text-red-400",
       };
@@ -66,7 +66,7 @@ function getStatusConfig(status: LotteryStatus, isClosingSoon: boolean) {
     default:
       return {
         label: "Entries Closed",
-        containerClass: "bg-red-500/5 border-red-500/20",
+        containerClass: "bg-red-950/40 border-red-500/20",
         dotClass: "bg-red-500",
         textClass: "text-red-400",
       };
