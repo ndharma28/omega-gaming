@@ -44,9 +44,9 @@ function getStatusConfig(status: LotteryStatus, isClosingSoon: boolean) {
     case LotteryStatus.NOT_STARTED:
       return {
         label: "Not Yet Started",
-        containerClass: "bg-yellow-500/10 border-yellow-500/40",
-        dotClass: "bg-yellow-500",
-        textClass: "text-yellow-500",
+        containerClass: "bg-red-500/5 border-red-500/20",
+        dotClass: "bg-red-500",
+        textClass: "text-red-400",
       };
     case LotteryStatus.DRAWING:
       return {

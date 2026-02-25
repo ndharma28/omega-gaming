@@ -18,7 +18,7 @@ interface OwnerPanelProps {
 
 function StatusBadge({ status }: { status: LotteryStatus }) {
   const config = {
-    [LotteryStatus.NOT_STARTED]: { label: "Not Started", class: "bg-slate-700 text-slate-300" },
+    [LotteryStatus.NOT_STARTED]: { label: "Not Started", class: "bg-red-900/60 text-red-300" },
     [LotteryStatus.OPEN]: { label: "Open", class: "bg-green-900/60 text-green-300" },
     [LotteryStatus.CLOSED]: { label: "Closed", class: "bg-red-900/60 text-red-300" },
     [LotteryStatus.DRAWING]: { label: "Drawing...", class: "bg-yellow-900/60 text-yellow-300" },
