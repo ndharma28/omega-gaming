@@ -13,7 +13,7 @@ export default function LotteryHeader({ address }: LotteryHeaderProps) {
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20">
             {/* logo could be passed as prop if needed */}
-            <span className="font-bold text-yellow-500">🎲</span>
+            <span className="font-bold text-xl">🎱</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-white">Omega Gaming</h1>
         </div>
