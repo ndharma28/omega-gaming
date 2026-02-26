@@ -64,6 +64,15 @@ export default function LotteryDapp() {
     setMounted(true);
   }, []);
 
+  // Poll every 15 seconds to keep status, pot, and players in sync with the chain
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetchAll();
+      refetchCounter();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
   const status = (lotteryData?.status as LotteryStatus) ?? LotteryStatus.NOT_STARTED;
   const isOpen = status === LotteryStatus.OPEN;
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
