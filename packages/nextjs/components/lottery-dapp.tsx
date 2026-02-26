@@ -8,16 +8,25 @@ import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
 import { LotteryStatus } from "./StatusBar";
 import { useAccount } from "wagmi";
+// Ensure this matches 0-4 enums
 import { useLottery } from "~~/hooks/useLottery";
-import { useOpenHours } from "~~/hooks/useOpenHours";
 
 export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
   const { address: connectedAddress } = useAccount();
 
-  const { lotteryData, isOwner, joinLottery, requestWinner, isJoining, isRequesting, treasuryBalance } = useLottery(1n);
-
-  const { currentTime, isClosingSoon, timeRemaining, isInitialized } = useOpenHours();
+  // Passing 1n as the default lottery ID
+  const {
+    lotteryData,
+    players,
+    winnerHistory,
+    treasuryBalance,
+    isOwner,
+    joinLottery,
+    requestWinner,
+    isJoining,
+    isRequesting,
+  } = useLottery(1n);
 
   const [entryAmount, setEntryAmount] = useState("0.02");
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
@@ -26,15 +35,18 @@ export default function LotteryDapp() {
     setMounted(true);
   }, []);
 
-  const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
-  const isInvalid = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
-
-  const status: LotteryStatus = lotteryData?.status ?? LotteryStatus.NOT_STARTED;
+  // Derived States from Contract
+  const status = lotteryData?.status ?? LotteryStatus.NOT_STARTED;
   const isOpen = status === LotteryStatus.OPEN;
+
+  // Calculate if the entry fee is valid based on contract requirement
+  const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
+  const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
 
   const handleEnter = async () => {
     try {
-      await joinLottery();
+      // Now passing the entryAmount state to the hook
+      await joinLottery(entryAmount);
     } catch (e) {
       console.error("Join Error:", e);
     }
@@ -48,15 +60,18 @@ export default function LotteryDapp() {
     }
   };
 
-  const hasPlayers = (lotteryData?.totalPot ?? 0n) > 0n;
+  const hasPlayers = players.length > 0;
+
+  // Prevent Hydration Mismatch
+  if (!mounted) return null;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-yellow-500/30">
-      <LotteryHeader address={mounted ? connectedAddress : undefined} />
+      <LotteryHeader address={connectedAddress} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <div className="min-h-[82px]">
-          {!isInitialized || !lotteryData ? (
+          {!lotteryData ? (
             <div className="w-full h-[74px] bg-slate-900/40 rounded-xl border border-slate-800 animate-pulse flex items-center px-4">
               <div className="w-2.5 h-2.5 rounded-full bg-slate-700 mr-4" />
               <div className="flex-1 space-y-2">
@@ -68,11 +83,10 @@ export default function LotteryDapp() {
             <div className="animate-in fade-in duration-300">
               <PotCard
                 potBalance={lotteryData.totalPot}
-                currentTime={currentTime}
                 status={status}
-                timeRemaining={isClosingSoon ? timeRemaining : ""}
                 startTime={lotteryData.startTime}
                 endTime={lotteryData.endTime}
+                winner={lotteryData.winner}
               />
             </div>
           )}
@@ -82,13 +96,13 @@ export default function LotteryDapp() {
           entryAmount={entryAmount}
           setEntryAmount={setEntryAmount}
           onEnter={handleEnter}
-          disabled={!isInitialized || isJoining || isInvalid || !isOpen}
+          disabled={isJoining || isInvalidAmount || !isOpen}
           isEntering={isJoining}
-          isInvalid={isInvalid}
+          isInvalid={isInvalidAmount}
           isOpen={isOpen}
         />
 
-        <PlayersList players={[]} connectedAddress={connectedAddress} />
+        <PlayersList players={players} connectedAddress={connectedAddress} />
 
         {isOwner && (
           <OwnerPanel
@@ -96,9 +110,10 @@ export default function LotteryDapp() {
             toggle={() => setShowOwnerPanel(b => !b)}
             onPick={handlePickWinner}
             isPicking={isRequesting}
-            hasPlayers={hasPlayers}
+            hasPlayers={players.length > 0}
             status={status}
             treasuryBalance={treasuryBalance}
+            winnerHistory={winnerHistory}
           />
         )}
       </main>

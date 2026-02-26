@@ -1,99 +1,110 @@
 import { useEffect, useState } from "react";
-import { useAccount, useBalance } from "wagmi";
-import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { OMEGA_LOTTERY_ABI } from "../constants/abi";
+import { parseEther } from "viem";
+import {
+  useAccount,
+  useBalance,
+  usePublicClient,
+  useReadContract,
+  useWatchContractEvent,
+  useWriteContract,
+} from "wagmi";
 
-export function useLottery(lotteryId: bigint = 1n) {
-  const { address } = useAccount();
+export const useLottery = (lotteryId: bigint) => {
+  const { address: connectedAddress } = useAccount();
+  const publicClient = usePublicClient();
+  const [winnerHistory, setWinnerHistory] = useState<any[]>([]);
 
-  const { data: lotteryContractInfo } = useDeployedContractInfo({
-    contractName: "OmegaLottery",
+  const contractConfig = {
+    address: "0xf073F96E5Dd3813d16bff9E167600Bc93de20FCc" as `0x${string}`,
+    abi: OMEGA_LOTTERY_ABI,
+  };
+
+  // 1. MAIN LOTTERY DATA
+  const { data: lotteryData, refetch: refetchLottery } = useReadContract({
+    ...contractConfig,
+    functionName: "getLottery",
+    args: [lotteryId],
   });
 
+  // 2. PLAYERS
+  const { data: players, refetch: refetchPlayers } = useReadContract({
+    ...contractConfig,
+    functionName: "getPlayersByLotteryId",
+    args: [lotteryId],
+  });
+
+  // 3. TREASURY & OWNER
+  const { data: treasuryAddress } = useReadContract({ ...contractConfig, functionName: "getTreasuryAddress" });
+  const { data: ownerAddress } = useReadContract({ ...contractConfig, functionName: "owner" });
+
   const { data: treasuryBalance } = useBalance({
-    address: lotteryContractInfo?.address,
-    query: {
-      refetchInterval: 5000,
+    address: treasuryAddress,
+  });
+
+  // 4. HISTORICAL WINNERS (Fetching Logs)
+  const fetchHistory = async () => {
+    if (!publicClient) return;
+    try {
+      const logs = await publicClient.getContractEvents({
+        ...contractConfig,
+        eventName: "WinnerPaid",
+        fromBlock: BigInt(0), // Ideally use the block number where contract was deployed
+      });
+
+      // Map logs to match the WinnerHistoryItem interface in OwnerPanel
+      const formattedHistory = logs
+        .map((log: any) => ({
+          lotteryId: log.args.lotteryId,
+          winnerAddress: log.args.winnerAddress,
+          winnerPayout: log.args.winnerPayout,
+          totalPot: log.args.totalPot,
+        }))
+        .reverse(); // Newest first
+
+      setWinnerHistory(formattedHistory);
+    } catch (error) {
+      console.error("Failed to fetch history:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, [publicClient]);
+
+  // 5. REAL-TIME EVENT WATCHING
+  useWatchContractEvent({
+    ...contractConfig,
+    eventName: "WinnerPaid",
+    onLogs() {
+      fetchHistory(); // Refresh history list
+      refetchLottery(); // Update status to RESOLVED
     },
   });
 
-  // 1. Fetch Lottery Data from OmegaLottery
-  const { data: lotteryData } = useScaffoldReadContract({
-    contractName: "OmegaLottery",
-    functionName: "getLottery",
-    args: [lotteryId],
-    watch: true,
+  useWatchContractEvent({
+    ...contractConfig,
+    eventName: "LotteryEntered",
+    onLogs() {
+      refetchPlayers();
+      refetchLottery();
+    },
   });
 
-  // 2. Fetch the Owner of the contract
-  const { data: owner } = useScaffoldReadContract({
-    contractName: "OmegaLottery",
-    functionName: "owner",
-  });
-
-  // 3. Fetch last VRF request ID from OmegaLottery
-  const { data: lastRequestId } = useScaffoldReadContract({
-    contractName: "OmegaLottery",
-    functionName: "lastRequestId",
-    watch: true,
-  });
-
-  // 4. Setup Write Functions
-  const { writeContractAsync: joinLotteryContract, isPending: isJoining } = useScaffoldWriteContract({
-    contractName: "OmegaLottery",
-  });
-
-  const { writeContractAsync: requestWinnerContract, isPending: isRequesting } = useScaffoldWriteContract({
-    contractName: "OmegaLottery",
-  });
-
-  // Owner state logic
-  const [isOwner, setIsOwner] = useState(false);
-  useEffect(() => {
-    if (owner && address) {
-      setIsOwner(owner.toLowerCase() === address.toLowerCase());
-    } else {
-      setIsOwner(false);
-    }
-  }, [owner, address]);
-
-  const handleJoin = async () => {
-    if (!lotteryData || typeof lotteryData !== "object") {
-      console.error("Lottery data not loaded");
-      return;
-    }
-
-    try {
-      await joinLotteryContract({
-        functionName: "joinLottery",
-        args: [lotteryId],
-        value: lotteryData.entryFee,
-      });
-    } catch (e) {
-      console.error("Error joining lottery:", e);
-    }
-  };
-
-  const handleRequestWinner = async () => {
-    try {
-      await requestWinnerContract({
-        functionName: "requestWinner",
-        args: [lotteryId],
-      });
-    } catch (e) {
-      console.error("Error requesting winner:", e);
-    }
-  };
+  // 6. CONTRACT ACTIONS
+  const { writeContractAsync: joinTx, isPending: isJoining } = useWriteContract();
+  const { writeContractAsync: requestTx, isPending: isRequesting } = useWriteContract();
 
   return {
-    treasuryBalance,
     lotteryData,
-    owner,
-    isOwner,
-    lastRequestId,
-    joinLottery: handleJoin,
-    requestWinner: handleRequestWinner,
+    players: players || [],
+    winnerHistory,
+    treasuryBalance,
     isJoining,
     isRequesting,
-    status: lotteryData?.status,
+    isOwner: connectedAddress?.toLowerCase() === ownerAddress?.toLowerCase(),
+    joinLottery: (amount: string) =>
+      joinTx({ ...contractConfig, functionName: "joinLottery", args: [lotteryId], value: parseEther(amount) }),
+    requestWinner: () => requestTx({ ...contractConfig, functionName: "requestWinner", args: [lotteryId] }),
   };
-}
+};

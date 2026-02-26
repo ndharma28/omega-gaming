@@ -1,58 +1,48 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import StatusBar, { LotteryStatus } from "./StatusBar";
+import { LotteryStatus } from "./StatusBar";
 import { formatEther } from "viem";
 
 interface PotCardProps {
-  potBalance?: bigint;
-  currentTime: Date;
-  status: LotteryStatus;
-  timeRemaining: string;
-  startTime?: bigint;
-  endTime?: bigint;
+  potBalance: bigint;
+  status: number;
+  startTime: bigint;
+  endTime: bigint;
+  winner?: string; // Add this line
 }
 
-export default function PotCard({ potBalance, currentTime, status, timeRemaining, startTime, endTime }: PotCardProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export default function PotCard({ potBalance, status, startTime, endTime, winner }: PotCardProps) {
+  const isResolved = status === 4; // RESOLVED status
+  const isDrawing = status === 3; // DRAWING status
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900 shadow-2xl p-8 min-h-[160px]">
-      <div className="flex justify-between items-start mb-6">
+    <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 shadow-xl">
+      <div className="flex justify-between items-end">
         <div>
-          <h2 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Current Pot</h2>
-          <div className="flex items-baseline gap-2">
-            <span className="text-6xl font-black text-yellow-500 drop-shadow-[0_0_15px_rgba(234,179,8,0.3)]">
-              {potBalance ? Number(formatEther(potBalance)).toFixed(4) : "0.0000"}
-            </span>
-            <span className="text-xl font-bold text-yellow-500/50">ETH</span>
-          </div>
+          <p className="text-slate-400 text-sm font-medium mb-1">Current Jackpot</p>
+          <h2 className="text-4xl font-bold text-yellow-500">
+            {formatEther(potBalance)} <span className="text-xl text-slate-500">ETH</span>
+          </h2>
         </div>
 
         <div className="text-right">
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-tighter">Your Local Time</p>
-          <p className="text-2xl font-mono text-white min-w-[120px]">
-            {mounted ? (
-              currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
-            ) : (
-              <span className="opacity-20">--:--:--</span>
-            )}
-          </p>
+          {isResolved ? (
+            <div className="animate-in zoom-in duration-500">
+              <p className="text-green-400 text-xs font-bold uppercase tracking-wider">Winner Selected</p>
+              <p className="text-slate-200 font-mono text-sm">
+                {winner?.slice(0, 6)}...{winner?.slice(-4)}
+              </p>
+            </div>
+          ) : isDrawing ? (
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-ping" />
+              <p className="text-yellow-500 text-sm font-medium">Selecting Winner...</p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-slate-400 text-xs uppercase tracking-wider">Status</p>
+              <p className="text-slate-200 font-medium">{status === 1 ? "Open" : "Pending"}</p>
+            </div>
+          )}
         </div>
-      </div>
-
-      <div
-        className={`transition-all duration-700 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
-      >
-        {mounted ? (
-          <StatusBar status={status} timeRemaining={timeRemaining} startTime={startTime} endTime={endTime} />
-        ) : (
-          <div className="h-10 w-full bg-slate-800/50 animate-pulse rounded-lg" />
-        )}
       </div>
     </div>
   );
