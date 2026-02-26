@@ -46,8 +46,6 @@ export default function LotteryDapp() {
     players,
     winnerHistory,
     treasuryBalance,
-    isOwner,
-    isOwnerLoading,
     joinLottery,
     requestWinner,
     createNewLottery,
@@ -125,11 +123,11 @@ export default function LotteryDapp() {
           isEntering={isJoining}
           isInvalid={isInvalidAmount}
           isOpen={isOpen}
+          minEntry={minEntry}
         />
 
         <PlayersList players={players} connectedAddress={connectedAddress} />
 
-        {/* Using isOwnerDirect as source of truth while debugging */}
         {isOwnerDirect && (
           <div className="mt-12 pt-8 border-t border-slate-900/50">
             <OwnerPanel
