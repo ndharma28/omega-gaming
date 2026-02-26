@@ -65,7 +65,7 @@ export default function LotteryDapp() {
         {/* --- DEBUG BAR — remove before production --- */}
         <div className="text-[10px] font-mono bg-red-500/10 border border-red-500/20 p-2 rounded mb-4">
           DEBUG: ID={activeLotteryId.toString()} | isOwner={String(isOwner)} | isOwnerLoading={String(isOwnerLoading)} |
-          Wallet={connectedAddress}
+          Wallet={connectedAddress?.slice(0, 6)}
         </div>
 
         <StatusBar

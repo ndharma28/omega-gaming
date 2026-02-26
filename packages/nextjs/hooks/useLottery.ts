@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { OMEGA_LOTTERY_ABI } from "../constants/abi";
 import { decodeEventLog, keccak256, parseEther, toBytes } from "viem";
 import { useAccount, useBalance, usePublicClient, useReadContract, useWriteContract } from "wagmi";
@@ -150,14 +150,13 @@ export const useLottery = (lotteryId: bigint) => {
     }
   }, []);
 
-  // OWNER CHECK
-  // Depends on isOwnerLoading so the memo re-runs once ownerAddress has loaded.
-  // Without this, the memo sees ownerAddress=undefined on first render → false,
-  // and may never recompute if no other state changes trigger a re-render.
-  const isOwner = useMemo(() => {
-    if (isOwnerLoading || !connectedAddress || !ownerAddress) return false;
-    return connectedAddress.toLowerCase() === (ownerAddress as string).toLowerCase();
-  }, [connectedAddress, ownerAddress, isOwnerLoading]);
+  // OWNER CHECK — plain derived value, no useMemo.
+  // useMemo was caching a stale `false` from before ownerAddress loaded.
+  const isOwner =
+    !isOwnerLoading &&
+    !!connectedAddress &&
+    !!ownerAddress &&
+    connectedAddress.toLowerCase() === (ownerAddress as string).toLowerCase();
 
   useEffect(() => {
     fetchHistory();
