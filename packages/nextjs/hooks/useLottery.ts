@@ -96,6 +96,7 @@ export const useLottery = (lotteryId: bigint) => {
         abi: OMEGA_LOTTERY_ABI,
         eventName: "WinnerPaid",
         fromBlock: fromBlock,
+        toBlock: latestBlock,
       });
 
       const formattedHistory = logs
