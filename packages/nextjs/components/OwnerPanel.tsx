@@ -12,7 +12,6 @@ interface OwnerPanelProps {
   onCreate: (fee: string, start: number, end: number) => Promise<void>;
   isPicking: boolean;
   isCreating: boolean;
-  hasPlayers: boolean;
   status: LotteryStatus;
   treasuryBalance?: { formatted: string; symbol: string };
   winnerHistory?: any[];
@@ -25,7 +24,6 @@ export default function OwnerPanel({
   onCreate,
   isPicking,
   isCreating,
-  hasPlayers,
   status,
   treasuryBalance,
   winnerHistory = [],
