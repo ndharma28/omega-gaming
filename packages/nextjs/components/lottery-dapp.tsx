@@ -96,11 +96,12 @@ export default function LotteryDapp() {
         <PlayersList players={players} connectedAddress={connectedAddress} />
 
         {/* The Owner Panel visibility relies strictly on isOwner */}
+        {/* 1. If we are the owner, show the panel */}
         {isOwner && (
-          <div className="mt-12 pt-8 border-t border-red-900/30">
+          <div className="mt-12 pt-8 border-t border-slate-900/50">
             <OwnerPanel
               show={showOwnerPanel}
-              toggle={() => setShowOwnerPanel(!showOwnerPanel)}
+              toggle={() => setShowOwnerPanel(prev => !prev)}
               onPick={async () => {
                 await requestWinner();
               }}
@@ -115,6 +116,14 @@ export default function LotteryDapp() {
               treasuryBalance={treasuryBalance}
               winnerHistory={winnerHistory}
             />
+          </div>
+        )}
+
+        {/* 2. Debugging: If you ARE the owner but the panel is hidden, show a warning */}
+        {!isOwner && connectedAddress?.toLowerCase() === "0xae54848325a769866418b76b707471850167730d".toLowerCase() && (
+          <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-500 text-xs">
+            <strong>System Note:</strong> Your wallet matches the owner record, but the contract read is still syncing.
+            The Owner Panel will appear as soon as the blockchain responds.
           </div>
         )}
       </main>
