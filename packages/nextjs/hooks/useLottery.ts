@@ -3,7 +3,7 @@ import { OMEGA_LOTTERY_ABI } from "../constants/abi";
 import { decodeEventLog, keccak256, parseEther, toBytes } from "viem";
 import { useAccount, useBalance, usePublicClient, useReadContract, useWriteContract } from "wagmi";
 
-const CONTRACT_ADDRESS = "0xf073F96E5Dd3813d16bff9E167600Bc93de20FCc";
+const CONTRACT_ADDRESS = "0x256aA1F20fEFd5d8E8A4Eab916af17A36323eC97";
 
 // Your Alchemy API key & base URL for Sepolia
 const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!;

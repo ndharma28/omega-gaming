@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   11155111: {
     OmegaLottery: {
-      address: "0x1BD300A31a89b80DE8714d35194f7Ed6c67377de",
+      address: "0x256aA1F20fEFd5d8E8A4Eab916af17A36323eC97",
       abi: [
         {
           inputs: [
@@ -720,7 +720,7 @@ const deployedContracts = {
         checkUpkeep: "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol",
         performUpkeep: "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol",
       },
-      deployedOnBlock: 10338078,
+      deployedOnBlock: 10339264,
     },
   },
 } as const;

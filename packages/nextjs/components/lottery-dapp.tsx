@@ -11,7 +11,7 @@ import { useAccount, useReadContract } from "wagmi";
 import { OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
 
-const CONTRACT_ADDRESS = "0xf073F96E5Dd3813d16bff9E167600Bc93de20FCc";
+const CONTRACT_ADDRESS = "0x256aA1F20fEFd5d8E8A4Eab916af17A36323eC97";
 
 export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
