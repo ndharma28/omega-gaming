@@ -49,16 +49,6 @@ export const useLottery = (lotteryId: bigint) => {
     address: treasuryAddress as `0x${string}`,
   });
 
-  // --- THE FIX: Robust Owner Comparison ---
-  const isOwner = useMemo(() => {
-    if (!connectedAddress || !ownerAddress) return false;
-
-    const wallet = getAddress(connectedAddress);
-    const contractOwner = getAddress(ownerAddress as string);
-
-    return wallet === contractOwner;
-  }, [connectedAddress, ownerAddress]);
-
   // WRITES
   const { writeContractAsync: joinTx, isPending: isJoining } = useWriteContract();
   const { writeContractAsync: requestTx, isPending: isRequesting } = useWriteContract();
@@ -92,19 +82,20 @@ export const useLottery = (lotteryId: bigint) => {
     });
   };
 
-  // Event History Fetching...
+  // --- UPDATED HISTORY FETCHING ---
   const fetchHistory = async () => {
     if (!publicClient) return;
     try {
-      // Try to get a more recent block to start from
-      const currentBlock = await publicClient.getBlockNumber();
-      const fromBlock = currentBlock - 9000n; // Only scan the last 9k blocks to stay under limits
+      // Get the latest block and look back only 5,000 blocks
+      // This stays well within Alchemy's 10,000 block limit
+      const latestBlock = await publicClient.getBlockNumber();
+      const fromBlock = latestBlock > 5000n ? latestBlock - 5000n : 0n;
 
       const logs = await publicClient.getContractEvents({
         address: CONTRACT_ADDRESS,
         abi: OMEGA_LOTTERY_ABI,
         eventName: "WinnerPaid",
-        fromBlock: fromBlock > 0n ? fromBlock : 0n,
+        fromBlock: fromBlock,
       });
 
       const formattedHistory = logs
@@ -118,11 +109,22 @@ export const useLottery = (lotteryId: bigint) => {
 
       setWinnerHistory(formattedHistory);
     } catch (error) {
-      // Crucial: Log the error but DON'T let it stop the hook
-      console.warn("History fetch failed (RPC Limit), using empty history for now:", error);
+      // We catch the error here so the rest of the hook keeps working!
+      console.warn("History fetch failed, but owner check will proceed:", error);
       setWinnerHistory([]);
     }
   };
+
+  // --- ENSURE OWNER CHECK IS INDEPENDENT ---
+  const isOwner = useMemo(() => {
+    if (!connectedAddress || !ownerAddress) return false;
+    // Standardizing to checksum addresses to prevent mismatch
+    try {
+      return connectedAddress.toLowerCase() === (ownerAddress as string).toLowerCase();
+    } catch {
+      return false;
+    }
+  }, [connectedAddress, ownerAddress]);
 
   useEffect(() => {
     fetchHistory();
