@@ -28,13 +28,26 @@ export default function LotteryDapp() {
     return (idCounter as bigint) > 0n ? (idCounter as bigint) - 1n : 1n;
   }, [idCounter]);
 
+  // --- INDEPENDENT OWNER CHECK (bypasses useLottery hook entirely) ---
+  const { data: rawOwnerAddress, isLoading: rawOwnerLoading } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: OMEGA_LOTTERY_ABI,
+    functionName: "owner",
+  });
+
+  const isOwnerDirect =
+    !rawOwnerLoading &&
+    !!connectedAddress &&
+    !!rawOwnerAddress &&
+    connectedAddress.toLowerCase() === (rawOwnerAddress as string).toLowerCase();
+
   const {
     lotteryData,
     players,
     winnerHistory,
     treasuryBalance,
     isOwner,
-    isOwnerLoading, // ← use this to avoid flashing "not owner" before data loads
+    isOwnerLoading,
     joinLottery,
     requestWinner,
     createNewLottery,
@@ -62,10 +75,16 @@ export default function LotteryDapp() {
       <LotteryHeader address={connectedAddress} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* --- DEBUG BAR — remove before production --- */}
-        <div className="text-[10px] font-mono bg-red-500/10 border border-red-500/20 p-2 rounded mb-4">
-          DEBUG: ID={activeLotteryId.toString()} | isOwner={String(isOwner)} | isOwnerLoading={String(isOwnerLoading)} |
-          Wallet={connectedAddress?.slice(0, 6)}
+        {/* --- DEBUG BAR --- */}
+        <div className="text-[10px] font-mono bg-red-500/10 border border-red-500/20 p-2 rounded mb-4 space-y-1">
+          <div>
+            hook → isOwner={String(isOwner)} | isOwnerLoading={String(isOwnerLoading)}
+          </div>
+          <div>
+            direct → isOwnerDirect={String(isOwnerDirect)} | rawOwnerLoading={String(rawOwnerLoading)}
+          </div>
+          <div>rawOwnerAddress={String(rawOwnerAddress)}</div>
+          <div>connectedAddress={String(connectedAddress)}</div>
         </div>
 
         <StatusBar
@@ -97,13 +116,8 @@ export default function LotteryDapp() {
 
         <PlayersList players={players} connectedAddress={connectedAddress} />
 
-        {/*
-          Show the owner panel only once the contract read has resolved.
-          Without isOwnerLoading guard, isOwner is briefly `false` (ownerAddress
-          is undefined in-flight) and the panel never appears if nothing else
-          triggers a re-render after the data loads.
-        */}
-        {!isOwnerLoading && isOwner && (
+        {/* Using isOwnerDirect as source of truth while debugging */}
+        {isOwnerDirect && (
           <div className="mt-12 pt-8 border-t border-slate-900/50">
             <OwnerPanel
               show={showOwnerPanel}
