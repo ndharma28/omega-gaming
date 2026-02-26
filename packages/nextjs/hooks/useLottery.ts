@@ -99,7 +99,7 @@ export const useLottery = (lotteryId: bigint) => {
             {
               address: CONTRACT_ADDRESS,
               topics: [WINNER_PAID_TOPIC],
-              fromBlock: "earliest",
+              fromBlock: "0x9DC513",
               toBlock: "latest",
             },
           ],
