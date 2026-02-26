@@ -52,13 +52,11 @@ export const useLottery = (lotteryId: bigint) => {
   // --- THE FIX: Robust Owner Comparison ---
   const isOwner = useMemo(() => {
     if (!connectedAddress || !ownerAddress) return false;
-    try {
-      // Normalizes both strings to standard Checksum format
-      return getAddress(connectedAddress) === getAddress(ownerAddress as string);
-    } catch (e) {
-      // Fallback to lowercase comparison
-      return connectedAddress.toLowerCase() === (ownerAddress as string).toLowerCase();
-    }
+
+    const wallet = getAddress(connectedAddress);
+    const contractOwner = getAddress(ownerAddress as string);
+
+    return wallet === contractOwner;
   }, [connectedAddress, ownerAddress]);
 
   // WRITES
@@ -98,24 +96,31 @@ export const useLottery = (lotteryId: bigint) => {
   const fetchHistory = async () => {
     if (!publicClient) return;
     try {
+      // Try to get a more recent block to start from
+      const currentBlock = await publicClient.getBlockNumber();
+      const fromBlock = currentBlock - 9000n; // Only scan the last 9k blocks to stay under limits
+
       const logs = await publicClient.getContractEvents({
         address: CONTRACT_ADDRESS,
         abi: OMEGA_LOTTERY_ABI,
         eventName: "WinnerPaid",
-        fromBlock: BigInt(10337555), //first block deployed
+        fromBlock: fromBlock > 0n ? fromBlock : 0n,
       });
-      setWinnerHistory(
-        logs
-          .map((log: any) => ({
-            lotteryId: log.args.lotteryId,
-            winnerAddress: log.args.winnerAddress,
-            winnerPayout: log.args.winnerPayout,
-            totalPot: log.args.totalPot,
-          }))
-          .reverse(),
-      );
-    } catch (e) {
-      console.error(e);
+
+      const formattedHistory = logs
+        .map((log: any) => ({
+          lotteryId: log.args.lotteryId,
+          winnerAddress: log.args.winnerAddress,
+          winnerPayout: log.args.winnerPayout,
+          totalPot: log.args.totalPot,
+        }))
+        .reverse();
+
+      setWinnerHistory(formattedHistory);
+    } catch (error) {
+      // Crucial: Log the error but DON'T let it stop the hook
+      console.warn("History fetch failed (RPC Limit), using empty history for now:", error);
+      setWinnerHistory([]);
     }
   };
 
