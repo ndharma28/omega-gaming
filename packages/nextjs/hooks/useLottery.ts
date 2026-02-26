@@ -89,7 +89,7 @@ export const useLottery = (lotteryId: bigint) => {
       // Get the latest block and look back only 5,000 blocks
       // This stays well within Alchemy's 10,000 block limit
       const latestBlock = await publicClient.getBlockNumber();
-      const fromBlock = latestBlock > 5000n ? latestBlock - 5000n : 0n;
+      const fromBlock = latestBlock > 1000n ? latestBlock - 1000n : 0n;
 
       const logs = await publicClient.getContractEvents({
         address: CONTRACT_ADDRESS,
