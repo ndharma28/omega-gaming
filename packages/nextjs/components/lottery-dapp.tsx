@@ -143,7 +143,8 @@ export default function LotteryDapp() {
         </div>
 
         {/* Owner-Only Administrative Dashboard */}
-        {isOwner && (
+        {/* Change the logic in lottery-dapp.tsx to this: */}
+        {mounted && isOwner && (
           <div className="mt-12 pt-8 border-t border-slate-900">
             <OwnerPanel
               show={showOwnerPanel}

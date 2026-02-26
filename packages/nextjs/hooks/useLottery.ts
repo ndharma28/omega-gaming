@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { OMEGA_LOTTERY_ABI } from "../constants/abi";
+import { get } from "http";
+import { getAddress } from "viem";
 import { parseEther } from "viem";
 import {
   useAccount,
@@ -61,7 +63,11 @@ export const useLottery = (lotteryId: bigint) => {
   // Memoized check to ensure lowercase comparison (fixes visibility issues)
   const isOwner = useMemo(() => {
     if (!connectedAddress || !ownerAddress) return false;
-    return connectedAddress.toLowerCase() === (ownerAddress as string).toLowerCase();
+    try {
+      return connectedAddress.toLowerCase() === getAddress(ownerAddress as string);
+    } catch (e) {
+      return connectedAddress.toLowerCase() === (ownerAddress as string).toLowerCase();
+    }
   }, [connectedAddress, ownerAddress]);
 
   // --- 3. EVENT LOG FETCHING (Winner History) ---
