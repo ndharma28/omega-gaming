@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+// Added useMemo
 import { OMEGA_LOTTERY_ABI } from "../constants/abi";
 import { parseEther } from "viem";
 import {
@@ -20,39 +21,45 @@ export const useLottery = (lotteryId: bigint) => {
     abi: OMEGA_LOTTERY_ABI,
   };
 
-  // 1. MAIN LOTTERY DATA
   const { data: lotteryData, refetch: refetchLottery } = useReadContract({
     ...contractConfig,
     functionName: "getLottery",
     args: [lotteryId],
   });
 
-  // 2. PLAYERS
   const { data: players, refetch: refetchPlayers } = useReadContract({
     ...contractConfig,
     functionName: "getPlayersByLotteryId",
     args: [lotteryId],
   });
 
-  // 3. TREASURY & OWNER
   const { data: treasuryAddress } = useReadContract({ ...contractConfig, functionName: "getTreasuryAddress" });
-  const { data: ownerAddress } = useReadContract({ ...contractConfig, functionName: "owner" });
+
+  // 1. Explicitly cast the return type to string to avoid comparison errors
+  const { data: ownerAddress } = useReadContract({
+    ...contractConfig,
+    functionName: "owner",
+  }) as { data: `0x${string}` | undefined };
 
   const { data: treasuryBalance } = useBalance({
     address: treasuryAddress,
   });
 
-  // 4. HISTORICAL WINNERS (Fetching Logs)
+  // 2. Wrap the owner check in useMemo
+  const isOwner = useMemo(() => {
+    if (!connectedAddress || !ownerAddress) return false;
+    return connectedAddress.toLowerCase() === ownerAddress.toLowerCase();
+  }, [connectedAddress, ownerAddress]);
+
   const fetchHistory = async () => {
     if (!publicClient) return;
     try {
       const logs = await publicClient.getContractEvents({
         ...contractConfig,
         eventName: "WinnerPaid",
-        fromBlock: BigInt(0), // Ideally use the block number where contract was deployed
+        fromBlock: BigInt(0),
       });
 
-      // Map logs to match the WinnerHistoryItem interface in OwnerPanel
       const formattedHistory = logs
         .map((log: any) => ({
           lotteryId: log.args.lotteryId,
@@ -60,7 +67,7 @@ export const useLottery = (lotteryId: bigint) => {
           winnerPayout: log.args.winnerPayout,
           totalPot: log.args.totalPot,
         }))
-        .reverse(); // Newest first
+        .reverse();
 
       setWinnerHistory(formattedHistory);
     } catch (error) {
@@ -72,13 +79,12 @@ export const useLottery = (lotteryId: bigint) => {
     fetchHistory();
   }, [publicClient]);
 
-  // 5. REAL-TIME EVENT WATCHING
   useWatchContractEvent({
     ...contractConfig,
     eventName: "WinnerPaid",
     onLogs() {
-      fetchHistory(); // Refresh history list
-      refetchLottery(); // Update status to RESOLVED
+      fetchHistory();
+      refetchLottery();
     },
   });
 
@@ -91,7 +97,6 @@ export const useLottery = (lotteryId: bigint) => {
     },
   });
 
-  // 6. CONTRACT ACTIONS
   const { writeContractAsync: joinTx, isPending: isJoining } = useWriteContract();
   const { writeContractAsync: requestTx, isPending: isRequesting } = useWriteContract();
 
@@ -102,7 +107,7 @@ export const useLottery = (lotteryId: bigint) => {
     treasuryBalance,
     isJoining,
     isRequesting,
-    isOwner: connectedAddress?.toLowerCase() === ownerAddress?.toLowerCase(),
+    isOwner, // Return the memoized value
     joinLottery: (amount: string) =>
       joinTx({ ...contractConfig, functionName: "joinLottery", args: [lotteryId], value: parseEther(amount) }),
     requestWinner: () => requestTx({ ...contractConfig, functionName: "requestWinner", args: [lotteryId] }),
