@@ -110,7 +110,7 @@ export default function LotteryDapp() {
             toggle={() => setShowOwnerPanel(b => !b)}
             onPick={handlePickWinner}
             isPicking={isRequesting}
-            hasPlayers={players.length > 0}
+            hasPlayers={hasPlayers}
             status={status}
             treasuryBalance={treasuryBalance}
             winnerHistory={winnerHistory}

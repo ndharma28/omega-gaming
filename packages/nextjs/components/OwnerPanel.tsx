@@ -1,13 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { LotteryStatus } from "./StatusBar";
 import {
   AlertCircle,
   ChevronDown,
   ChevronUp,
   Clock,
-  ExternalLink,
   History,
   Loader2,
   ShieldCheck,
