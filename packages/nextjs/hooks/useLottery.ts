@@ -9,8 +9,9 @@ const CONTRACT_ADDRESS = "0x256aA1F20fEFd5d8E8A4Eab916af17A36323eC97";
 const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!;
 const ALCHEMY_URL = `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`;
 
-// Contract deployment block (hex). Alchemy free tier requires a bounded range.
-const CONTRACT_DEPLOY_BLOCK = "0x9DC513"; // block 10337555
+// Contract deployment block (hex). Find on Etherscan by looking up tx:
+// 0x2afcac3ae887629545ae6096978c885a3291d62baa31a5d05c42d71bcef9eeed
+const CONTRACT_DEPLOY_BLOCK = "0x9DC513"; // ← update this with the new deployment block
 
 // keccak256 of the WinnerPaid event signature — used to filter eth_getLogs.
 // toBytes() converts the string to a Uint8Array which is what keccak256 expects.
@@ -22,14 +23,14 @@ export const useLottery = (lotteryId: bigint) => {
   const [winnerHistory, setWinnerHistory] = useState<any[]>([]);
 
   // READS
-  const { data: lotteryData } = useReadContract({
+  const { data: lotteryData, refetch: refetchLottery } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
     functionName: "getLottery",
     args: [lotteryId],
   });
 
-  const { data: players } = useReadContract({
+  const { data: players, refetch: refetchPlayers } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
     functionName: "getPlayersByLotteryId",
@@ -162,6 +163,11 @@ export const useLottery = (lotteryId: bigint) => {
     fetchHistory();
   }, [fetchHistory]);
 
+  const refetchAll = () => {
+    refetchLottery();
+    refetchPlayers();
+  };
+
   return {
     lotteryData,
     players: (players as readonly string[]) || [],
@@ -176,5 +182,6 @@ export const useLottery = (lotteryId: bigint) => {
     requestWinner,
     createNewLottery,
     refetchHistory: fetchHistory,
+    refetchAll,
   };
 };

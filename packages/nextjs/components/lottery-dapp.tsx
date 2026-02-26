@@ -54,6 +54,7 @@ export default function LotteryDapp() {
     isJoining,
     isRequesting,
     isCreating,
+    refetchAll,
   } = useLottery(activeLotteryId);
 
   const [entryAmount, setEntryAmount] = useState("0.02");
@@ -128,6 +129,7 @@ export default function LotteryDapp() {
               onCreate={async (f, s, e) => {
                 await createNewLottery(f, s, e);
                 refetchCounter();
+                refetchAll();
               }}
               isPicking={isRequesting}
               isCreating={isCreating}
