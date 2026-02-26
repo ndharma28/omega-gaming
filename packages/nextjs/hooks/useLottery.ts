@@ -102,7 +102,7 @@ export const useLottery = (lotteryId: bigint) => {
         address: CONTRACT_ADDRESS,
         abi: OMEGA_LOTTERY_ABI,
         eventName: "WinnerPaid",
-        fromBlock: BigInt(0),
+        fromBlock: BigInt(10337555), //first block deployed
       });
       setWinnerHistory(
         logs
