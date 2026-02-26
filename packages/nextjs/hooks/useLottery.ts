@@ -1,18 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { OMEGA_LOTTERY_ABI } from "../constants/abi";
-import { encodeEventTopics, keccak256, parseEther, toHex } from "viem";
+import { decodeEventLog, keccak256, parseEther, toBytes } from "viem";
 import { useAccount, useBalance, usePublicClient, useReadContract, useWriteContract } from "wagmi";
 
 const CONTRACT_ADDRESS = "0xf073F96E5Dd3813d16bff9E167600Bc93de20FCc";
 
 // Your Alchemy API key & base URL for Sepolia
-const ALCHEMY_API_KEY = "x4GRTypNvMckD7pIeZpSi";
+const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!;
 const ALCHEMY_URL = `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`;
 
-// The WinnerPaid event signature topic — precomputed to avoid runtime hashing issues
-// keccak256("WinnerPaid(uint256,address,uint256,uint256)")
-// Replace this with the exact event signature from your ABI if it differs
-const WINNER_PAID_TOPIC = keccak256(toHex("WinnerPaid(uint256,address,uint256,uint256)"));
+// Contract deployment block (hex). Alchemy free tier requires a bounded range.
+const CONTRACT_DEPLOY_BLOCK = "0x9DC513"; // block 10337555
+
+// keccak256 of the WinnerPaid event signature — used to filter eth_getLogs.
+// toBytes() converts the string to a Uint8Array which is what keccak256 expects.
+const WINNER_PAID_TOPIC = keccak256(toBytes("WinnerPaid(uint256,address,uint256,uint256)"));
 
 export const useLottery = (lotteryId: bigint) => {
   const { address: connectedAddress } = useAccount();
@@ -20,21 +22,24 @@ export const useLottery = (lotteryId: bigint) => {
   const [winnerHistory, setWinnerHistory] = useState<any[]>([]);
 
   // READS
-  const { data: lotteryData, refetch: refetchLottery } = useReadContract({
+  const { data: lotteryData } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
     functionName: "getLottery",
     args: [lotteryId],
   });
 
-  const { data: players, refetch: refetchPlayers } = useReadContract({
+  const { data: players } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
     functionName: "getPlayersByLotteryId",
     args: [lotteryId],
   });
 
-  const { data: ownerAddress } = useReadContract({
+  // isLoading is critical here — without it, isOwner resolves to `false` on
+  // first render because ownerAddress is still undefined while the RPC call
+  // is in flight. Adding isOwnerLoading to the memo prevents that false negative.
+  const { data: ownerAddress, isLoading: isOwnerLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
     functionName: "owner",
@@ -83,9 +88,8 @@ export const useLottery = (lotteryId: bigint) => {
     });
   };
 
-  // --- ALCHEMY getLogs — no block range limit ---
-  // Uses eth_getLogs via Alchemy directly, which supports fromBlock: "earliest"
-  // and doesn't enforce the 1,000-block restriction that thirdweb's RPC does.
+  // HISTORY — fetched directly via Alchemy's eth_getLogs to bypass thirdweb's
+  // 1,000-block RPC limit and get the full history from contract deployment.
   const fetchHistory = useCallback(async () => {
     try {
       const response = await fetch(ALCHEMY_URL, {
@@ -99,7 +103,7 @@ export const useLottery = (lotteryId: bigint) => {
             {
               address: CONTRACT_ADDRESS,
               topics: [WINNER_PAID_TOPIC],
-              fromBlock: "0x9DC513",
+              fromBlock: CONTRACT_DEPLOY_BLOCK,
               toBlock: "latest",
             },
           ],
@@ -115,9 +119,6 @@ export const useLottery = (lotteryId: bigint) => {
       }
 
       const rawLogs: any[] = json.result ?? [];
-
-      // Decode the logs using viem's decodeEventLog
-      const { decodeEventLog } = await import("viem");
 
       const formattedHistory = rawLogs
         .map(log => {
@@ -144,20 +145,19 @@ export const useLottery = (lotteryId: bigint) => {
 
       setWinnerHistory(formattedHistory);
     } catch (error) {
-      console.warn("History fetch failed, but owner check will proceed:", error);
+      console.warn("History fetch failed:", error);
       setWinnerHistory([]);
     }
   }, []);
 
   // OWNER CHECK
+  // Depends on isOwnerLoading so the memo re-runs once ownerAddress has loaded.
+  // Without this, the memo sees ownerAddress=undefined on first render → false,
+  // and may never recompute if no other state changes trigger a re-render.
   const isOwner = useMemo(() => {
-    if (!connectedAddress || !ownerAddress) return false;
-    try {
-      return connectedAddress.toLowerCase() === (ownerAddress as string).toLowerCase();
-    } catch {
-      return false;
-    }
-  }, [connectedAddress, ownerAddress]);
+    if (isOwnerLoading || !connectedAddress || !ownerAddress) return false;
+    return connectedAddress.toLowerCase() === (ownerAddress as string).toLowerCase();
+  }, [connectedAddress, ownerAddress, isOwnerLoading]);
 
   useEffect(() => {
     fetchHistory();
@@ -169,6 +169,7 @@ export const useLottery = (lotteryId: bigint) => {
     winnerHistory,
     treasuryBalance,
     isOwner,
+    isOwnerLoading,
     isJoining,
     isRequesting,
     isCreating,

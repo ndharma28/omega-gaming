@@ -34,6 +34,7 @@ export default function LotteryDapp() {
     winnerHistory,
     treasuryBalance,
     isOwner,
+    isOwnerLoading, // ← use this to avoid flashing "not owner" before data loads
     joinLottery,
     requestWinner,
     createNewLottery,
@@ -61,9 +62,10 @@ export default function LotteryDapp() {
       <LotteryHeader address={connectedAddress} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* --- DEBUG BAR --- */}
+        {/* --- DEBUG BAR — remove before production --- */}
         <div className="text-[10px] font-mono bg-red-500/10 border border-red-500/20 p-2 rounded mb-4">
-          DEBUG: ID={activeLotteryId.toString()} | isOwner={String(isOwner)} | Wallet={connectedAddress?.slice(0, 6)}
+          DEBUG: ID={activeLotteryId.toString()} | isOwner={String(isOwner)} | isOwnerLoading={String(isOwnerLoading)} |
+          Wallet={connectedAddress?.slice(0, 6)}
         </div>
 
         <StatusBar
@@ -95,9 +97,13 @@ export default function LotteryDapp() {
 
         <PlayersList players={players} connectedAddress={connectedAddress} />
 
-        {/* The Owner Panel visibility relies strictly on isOwner */}
-        {/* 1. If we are the owner, show the panel */}
-        {isOwner && (
+        {/*
+          Show the owner panel only once the contract read has resolved.
+          Without isOwnerLoading guard, isOwner is briefly `false` (ownerAddress
+          is undefined in-flight) and the panel never appears if nothing else
+          triggers a re-render after the data loads.
+        */}
+        {!isOwnerLoading && isOwner && (
           <div className="mt-12 pt-8 border-t border-slate-900/50">
             <OwnerPanel
               show={showOwnerPanel}
@@ -116,14 +122,6 @@ export default function LotteryDapp() {
               treasuryBalance={treasuryBalance}
               winnerHistory={winnerHistory}
             />
-          </div>
-        )}
-
-        {/* 2. Debugging: If you ARE the owner but the panel is hidden, show a warning */}
-        {!isOwner && connectedAddress?.toLowerCase() === "0xae54848325a769866418b76b707471850167730d".toLowerCase() && (
-          <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-500 text-xs">
-            <strong>System Note:</strong> Your wallet matches the owner record, but the contract read is still syncing.
-            The Owner Panel will appear as soon as the blockchain responds.
           </div>
         )}
       </main>
