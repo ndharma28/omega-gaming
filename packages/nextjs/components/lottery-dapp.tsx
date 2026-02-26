@@ -17,24 +17,21 @@ export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
   const { address: connectedAddress } = useAccount();
 
-  // 1. Get the current Lottery ID from the contract counter
-  // The counter starts at 1 and increments AFTER a lottery is created.
-  const { data: idCounter } = useReadContract({
+  // 1. Fetch the global lottery counter to identify the latest round
+  const { data: idCounter, refetch: refetchCounter } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
     functionName: "lotteryIdCounter",
-    query: {
-      refetchInterval: 10000, // Check for new rounds every 10s
-    },
   });
 
-  // Calculate the active ID (Counter - 1). If no lottery created yet, default to 1n.
+  // Calculate the most recent ID. If counter is 5, the active/last lottery is 4.
   const activeLotteryId = useMemo(() => {
     if (!idCounter || idCounter === 0n) return 1n;
-    return (idCounter as bigint) - 1n;
+    const current = idCounter as bigint;
+    return current > 0n ? current - 1n : 1n;
   }, [idCounter]);
 
-  // 2. Hook into the Active Lottery
+  // 2. Initialize our custom hook with the current lottery ID
   const {
     lotteryData,
     players,
@@ -43,8 +40,10 @@ export default function LotteryDapp() {
     isOwner,
     joinLottery,
     requestWinner,
+    createNewLottery,
     isJoining,
     isRequesting,
+    isCreating,
   } = useLottery(activeLotteryId);
 
   const [entryAmount, setEntryAmount] = useState("0.02");
@@ -54,15 +53,14 @@ export default function LotteryDapp() {
     setMounted(true);
   }, []);
 
-  // 3. Derived States
+  // 3. Derived UI States
   const status = (lotteryData?.status as LotteryStatus) ?? LotteryStatus.NOT_STARTED;
   const isOpen = status === LotteryStatus.OPEN;
 
-  // Logic to handle "Market Closed" vs "Open" display
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
 
-  // 4. Handlers
+  // 4. Action Handlers
   const handleEnter = async () => {
     try {
       await joinLottery(entryAmount);
@@ -79,9 +77,17 @@ export default function LotteryDapp() {
     }
   };
 
-  const hasPlayers = players.length > 0;
+  const handleCreateNewRound = async (fee: string, start: number, end: number) => {
+    try {
+      await createNewLottery(fee, start, end);
+      // Refresh the counter to switch the UI to the new lottery ID
+      await refetchCounter();
+    } catch (e) {
+      console.error("Create Round Error:", e);
+    }
+  };
 
-  // Prevent Hydration Mismatch
+  // Prevent Hydration Mismatch for Wagmi/ConnectKit
   if (!mounted) return null;
 
   return (
@@ -89,24 +95,21 @@ export default function LotteryDapp() {
       <LotteryHeader address={connectedAddress} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* STATUS BAR: Global state of the current round */}
+        {/* Status indicator for the current round */}
         <div className="animate-in fade-in slide-in-from-top-4 duration-500">
           <StatusBar
             status={status}
-            timeRemaining={""} // You can implement a countdown timer here if desired
+            timeRemaining={""} // Optional: Add countdown logic here
             startTime={lotteryData?.startTime}
             endTime={lotteryData?.endTime}
           />
         </div>
 
-        {/* POT CARD: The main jackpot display */}
+        {/* Main Jackpot Card */}
         <div className="min-h-[120px]">
           {!lotteryData ? (
             <div className="w-full h-32 bg-slate-900/40 rounded-2xl border border-slate-800 animate-pulse flex items-center justify-center">
-              <div className="flex flex-col items-center gap-2">
-                <div className="h-4 w-32 bg-slate-800 rounded" />
-                <div className="h-8 w-48 bg-slate-700 rounded" />
-              </div>
+              <div className="text-slate-600 font-medium italic">Fetching Lottery Data...</div>
             </div>
           ) : (
             <div className="animate-in zoom-in duration-500">
@@ -121,7 +124,7 @@ export default function LotteryDapp() {
           )}
         </div>
 
-        {/* INTERACTION: The Entry Form */}
+        {/* Participation Form */}
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
           <EnterForm
             entryAmount={entryAmount}
@@ -134,20 +137,22 @@ export default function LotteryDapp() {
           />
         </div>
 
-        {/* SOCIAL: List of current participants */}
+        {/* Participants Table */}
         <div className="animate-in fade-in duration-1000">
           <PlayersList players={players} connectedAddress={connectedAddress} />
         </div>
 
-        {/* ADMIN: Only visible to the contract owner */}
+        {/* Owner-Only Administrative Dashboard */}
         {isOwner && (
           <div className="mt-12 pt-8 border-t border-slate-900">
             <OwnerPanel
               show={showOwnerPanel}
-              toggle={() => setShowOwnerPanel(b => !b)}
+              toggle={() => setShowOwnerPanel(prev => !prev)}
               onPick={handlePickWinner}
+              onCreate={handleCreateNewRound}
               isPicking={isRequesting}
-              hasPlayers={hasPlayers}
+              isCreating={isCreating}
+              hasPlayers={players.length > 0}
               status={status}
               treasuryBalance={treasuryBalance}
               winnerHistory={winnerHistory}
@@ -155,12 +160,10 @@ export default function LotteryDapp() {
           </div>
         )}
 
-        {/* FOOTER INFO */}
-        <footer className="text-center py-10">
-          <p className="text-slate-600 text-[10px] uppercase tracking-[0.3em] font-bold">
-            Powered by Chainlink VRF & Automation
-          </p>
-          <p className="text-slate-800 text-[9px] mt-2 font-mono">Contract: {CONTRACT_ADDRESS}</p>
+        {/* Footer info */}
+        <footer className="text-center py-10 opacity-30">
+          <p className="text-[10px] uppercase tracking-[0.3em] font-bold">Verifiable Randomness via Chainlink VRF</p>
+          <p className="text-[9px] mt-2 font-mono">{CONTRACT_ADDRESS}</p>
         </footer>
       </main>
     </div>
