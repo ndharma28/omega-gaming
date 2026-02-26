@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   11155111: {
     OmegaLottery: {
-      address: "0xA486F49487918333245ebBe1F5ED464fE3c50f8F",
+      address: "0xe1Ac11f249Fab32f03A16FB05387c5e30567B695",
       abi: [
         {
           inputs: [
@@ -38,6 +38,11 @@ const deployedContracts = {
         {
           inputs: [],
           name: "InvalidEntryTime",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidTreasuryAddress",
           type: "error",
         },
         {
@@ -220,6 +225,81 @@ const deployedContracts = {
           type: "event",
         },
         {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "oldTreasury",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "newTreasury",
+              type: "address",
+            },
+          ],
+          name: "TreasuryUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "lotteryId",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "winnerAddress",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "winnerPayout",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "treasuryFee",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "totalPot",
+              type: "uint256",
+            },
+          ],
+          name: "WinnerPaid",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "lotteryId",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "winnerAddress",
+              type: "address",
+            },
+          ],
+          name: "WinnerSelected",
+          type: "event",
+        },
+        {
           inputs: [],
           name: "acceptOwnership",
           outputs: [],
@@ -367,6 +447,38 @@ const deployedContracts = {
               internalType: "enum OmegaLottery.LotteryStatus",
               name: "status",
               type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "lotteryId",
+              type: "uint256",
+            },
+          ],
+          name: "getPlayersByLotteryId",
+          outputs: [
+            {
+              internalType: "address[]",
+              name: "players",
+              type: "address[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getTreasuryAddress",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
             },
           ],
           stateMutability: "view",
@@ -575,6 +687,19 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
+              name: "newTreasury",
+              type: "address",
+            },
+          ],
+          name: "setTreasury",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
               name: "to",
               type: "address",
             },
@@ -585,8 +710,17 @@ const deployedContracts = {
           type: "function",
         },
       ],
-      inheritedFunctions: {},
-      deployedOnBlock: 10329918,
+      inheritedFunctions: {
+        acceptOwnership: "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol",
+        owner: "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol",
+        rawFulfillRandomWords: "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol",
+        s_vrfCoordinator: "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol",
+        setCoordinator: "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol",
+        transferOwnership: "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol",
+        checkUpkeep: "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol",
+        performUpkeep: "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol",
+      },
+      deployedOnBlock: 10337865,
     },
   },
 } as const;
