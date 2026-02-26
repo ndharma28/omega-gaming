@@ -54,6 +54,9 @@ export const useLottery = (lotteryId: bigint) => {
 
   const { data: treasuryBalance } = useBalance({
     address: treasuryAddress as `0x${string}`,
+    query: {
+      enabled: !!treasuryAddress && treasuryAddress !== "0x0000000000000000000000000000000000000000",
+    },
   });
 
   // WRITES

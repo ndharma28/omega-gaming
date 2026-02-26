@@ -69,9 +69,9 @@ export default function OwnerPanel({
               <div className="bg-black/30 border border-red-900/20 rounded-xl p-4 space-y-1">
                 <p className="text-[10px] text-slate-500 uppercase font-bold">Current Balance</p>
                 <p className="text-xl font-black text-white">
-                  {treasuryBalance
-                    ? `${parseFloat(treasuryBalance.formatted).toFixed(4)} ${treasuryBalance.symbol}`
-                    : "—"}
+                  {!treasuryBalance || parseFloat(treasuryBalance.formatted) === 0
+                    ? "0.0000 ETH"
+                    : `${parseFloat(treasuryBalance.formatted).toFixed(4)} ${treasuryBalance.symbol}`}
                 </p>
               </div>
               <div className="bg-black/30 border border-red-900/20 rounded-xl p-4 space-y-1">
