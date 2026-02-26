@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import EnterForm from "./EnterForm";
 import LotteryHeader from "./LotteryHeader";
 import OwnerPanel from "./OwnerPanel";
@@ -64,16 +64,31 @@ export default function LotteryDapp() {
     setMounted(true);
   }, []);
 
-  // Poll every 15 seconds to keep status, pot, and players in sync with the chain
+  // Poll every 10 seconds — use refetchCounter from wagmi directly,
+  // and call refetchAll via a ref to avoid stale closure issues
+  const refetchAllRef = useRef(refetchAll);
+  useEffect(() => {
+    refetchAllRef.current = refetchAll;
+  }, [refetchAll]);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      refetchAll();
+      refetchAllRef.current();
       refetchCounter();
-    }, 15000);
+    }, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [refetchCounter]);
 
   const status = (lotteryData?.status as LotteryStatus) ?? LotteryStatus.NOT_STARTED;
+
+  // The contract auto-transitions NOT_STARTED → OPEN on first join,
+  // so we allow entry if the lottery is NOT_STARTED or OPEN and within the time window.
+  const now = Math.floor(Date.now() / 1000);
+  const startTime = Number(lotteryData?.startTime ?? 0n);
+  const endTime = Number(lotteryData?.endTime ?? 0n);
+  const isEntryAllowed =
+    (status === LotteryStatus.NOT_STARTED || status === LotteryStatus.OPEN) && now >= startTime && now < endTime;
+
   const isOpen = status === LotteryStatus.OPEN;
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
@@ -118,7 +133,7 @@ export default function LotteryDapp() {
           onEnter={async () => {
             await joinLottery(entryAmount);
           }}
-          disabled={isJoining || isInvalidAmount || !isOpen}
+          disabled={isJoining || isInvalidAmount || !isEntryAllowed}
           isEntering={isJoining}
           isInvalid={isInvalidAmount}
           isOpen={isOpen}
