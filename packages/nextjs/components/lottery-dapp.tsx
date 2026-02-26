@@ -100,18 +100,6 @@ export default function LotteryDapp() {
       <LotteryHeader address={connectedAddress} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* --- DEBUG BAR --- */}
-        <div className="text-[10px] font-mono bg-red-500/10 border border-red-500/20 p-2 rounded mb-4 space-y-1">
-          <div>
-            hook → isOwner={String(isOwner)} | isOwnerLoading={String(isOwnerLoading)}
-          </div>
-          <div>
-            direct → isOwnerDirect={String(isOwnerDirect)} | rawOwnerLoading={String(rawOwnerLoading)}
-          </div>
-          <div>rawOwnerAddress={String(rawOwnerAddress)}</div>
-          <div>connectedAddress={String(connectedAddress)}</div>
-        </div>
-
         <StatusBar
           status={status}
           timeRemaining={""}
