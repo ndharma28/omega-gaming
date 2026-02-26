@@ -11,6 +11,7 @@ import { useAccount, useReadContract } from "wagmi";
 import { OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
 
+// Ensure this matches your most recent deployment
 const CONTRACT_ADDRESS = "0xf073F96E5Dd3813d16bff9E167600Bc93de20FCc";
 
 export default function LotteryDapp() {
@@ -24,14 +25,15 @@ export default function LotteryDapp() {
     functionName: "lotteryIdCounter",
   });
 
-  // Calculate the most recent ID. If counter is 5, the active/last lottery is 4.
+  // Calculate the active ID (Counter - 1).
+  // If counter is 1, it means No lotteries have been created yet.
   const activeLotteryId = useMemo(() => {
     if (!idCounter || idCounter === 0n) return 1n;
     const current = idCounter as bigint;
     return current > 0n ? current - 1n : 1n;
   }, [idCounter]);
 
-  // 2. Initialize our custom hook with the current lottery ID
+  // 2. Initialize the hook with the dynamic ID
   const {
     lotteryData,
     players,
@@ -80,14 +82,13 @@ export default function LotteryDapp() {
   const handleCreateNewRound = async (fee: string, start: number, end: number) => {
     try {
       await createNewLottery(fee, start, end);
-      // Refresh the counter to switch the UI to the new lottery ID
-      await refetchCounter();
+      await refetchCounter(); // Refresh to switch to the new ID
     } catch (e) {
       console.error("Create Round Error:", e);
     }
   };
 
-  // Prevent Hydration Mismatch for Wagmi/ConnectKit
+  // Prevent Hydration Mismatch
   if (!mounted) return null;
 
   return (
@@ -95,21 +96,28 @@ export default function LotteryDapp() {
       <LotteryHeader address={connectedAddress} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* Status indicator for the current round */}
+        {/* DEBUG PANEL (Uncomment to troubleshoot visibility) */}
+        {/* <div className="bg-white/5 border border-white/10 p-2 text-[10px] font-mono rounded">
+           ID: {activeLotteryId.toString()} | Owner: {String(isOwner)} | Status: {status}
+        </div> 
+        */}
+
         <div className="animate-in fade-in slide-in-from-top-4 duration-500">
           <StatusBar
             status={status}
-            timeRemaining={""} // Optional: Add countdown logic here
+            timeRemaining={""}
             startTime={lotteryData?.startTime}
             endTime={lotteryData?.endTime}
           />
         </div>
 
-        {/* Main Jackpot Card */}
         <div className="min-h-[120px]">
           {!lotteryData ? (
-            <div className="w-full h-32 bg-slate-900/40 rounded-2xl border border-slate-800 animate-pulse flex items-center justify-center">
-              <div className="text-slate-600 font-medium italic">Fetching Lottery Data...</div>
+            <div className="w-full h-32 bg-slate-900/40 rounded-2xl border border-slate-800 flex flex-col items-center justify-center gap-3">
+              <div className="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">
+                {activeLotteryId === 1n && idCounter === 1n ? "No Rounds Created Yet" : "Syncing Blockchain..."}
+              </p>
             </div>
           ) : (
             <div className="animate-in zoom-in duration-500">
@@ -124,28 +132,22 @@ export default function LotteryDapp() {
           )}
         </div>
 
-        {/* Participation Form */}
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <EnterForm
-            entryAmount={entryAmount}
-            setEntryAmount={setEntryAmount}
-            onEnter={handleEnter}
-            disabled={isJoining || isInvalidAmount || !isOpen}
-            isEntering={isJoining}
-            isInvalid={isInvalidAmount}
-            isOpen={isOpen}
-          />
-        </div>
+        <EnterForm
+          entryAmount={entryAmount}
+          setEntryAmount={setEntryAmount}
+          onEnter={handleEnter}
+          disabled={isJoining || isInvalidAmount || !isOpen}
+          isEntering={isJoining}
+          isInvalid={isInvalidAmount}
+          isOpen={isOpen}
+        />
 
-        {/* Participants Table */}
-        <div className="animate-in fade-in duration-1000">
-          <PlayersList players={players} connectedAddress={connectedAddress} />
-        </div>
+        <PlayersList players={players} connectedAddress={connectedAddress} />
 
-        {/* Owner-Only Administrative Dashboard */}
-        {/* Change the logic in lottery-dapp.tsx to this: */}
+        {/* OWNER DASHBOARD SECTION */}
+        {/* We use 'mounted && isOwner' to ensure the client-side wallet check is final */}
         {mounted && isOwner && (
-          <div className="mt-12 pt-8 border-t border-slate-900">
+          <div className="mt-12 pt-8 border-t border-slate-900/50">
             <OwnerPanel
               show={showOwnerPanel}
               toggle={() => setShowOwnerPanel(prev => !prev)}
@@ -161,9 +163,8 @@ export default function LotteryDapp() {
           </div>
         )}
 
-        {/* Footer info */}
-        <footer className="text-center py-10 opacity-30">
-          <p className="text-[10px] uppercase tracking-[0.3em] font-bold">Verifiable Randomness via Chainlink VRF</p>
+        <footer className="text-center py-12 opacity-20">
+          <p className="text-[10px] uppercase tracking-[0.4em] font-black">Secured by Chainlink VRF</p>
           <p className="text-[9px] mt-2 font-mono">{CONTRACT_ADDRESS}</p>
         </footer>
       </main>
