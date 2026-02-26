@@ -69,4 +69,22 @@ export const OMEGA_LOTTERY_ABI = [
     type: "function",
   },
   // ... rest of ABI
+  {
+    inputs: [],
+    name: "lotteryIdCounter",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "uint256", name: "entryFee", type: "uint256" },
+      { internalType: "uint256", name: "startTime", type: "uint256" },
+      { internalType: "uint256", name: "endTime", type: "uint256" },
+    ],
+    name: "createLottery",
+    outputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ] as const; // <--- The "as const" is vital for Wagmi autocomplete!

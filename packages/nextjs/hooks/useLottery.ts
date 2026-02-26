@@ -48,7 +48,11 @@ export const useLottery = (lotteryId: bigint) => {
   // 2. Wrap the owner check in useMemo
   const isOwner = useMemo(() => {
     if (!connectedAddress || !ownerAddress) return false;
-    return connectedAddress.toLowerCase() === ownerAddress.toLowerCase();
+    try {
+      return connectedAddress.toLowerCase() === ownerAddress.toLowerCase();
+    } catch {
+      return false;
+    }
   }, [connectedAddress, ownerAddress]);
 
   const fetchHistory = async () => {
