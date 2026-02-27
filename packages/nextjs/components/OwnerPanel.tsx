@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import { LotteryStatus } from "./StatusBar";
-import { Loader2, PlusCircle, ShieldCheck, Trophy, Vault } from "lucide-react";
+import { Loader2, PlusCircle, ShieldCheck, Trophy, Vault, Wallet } from "lucide-react";
 import { formatEther } from "viem";
+import { useWriteContract } from "wagmi";
+import { OMEGA_LOTTERY_ABI } from "~~/constants/abi";
+
+const CONTRACT_ADDRESS = "0x256aA1F20fEFd5d8E8A4Eab916af17A36323eC97";
 
 interface OwnerPanelProps {
   show: boolean;
@@ -30,6 +34,10 @@ export default function OwnerPanel({
 }: OwnerPanelProps) {
   const [fee, setFee] = useState("0.02");
   const [durationHours, setDurationHours] = useState("24");
+  const [treasuryAddress, setTreasuryAddress] = useState("");
+  const [treasurySuccess, setTreasurySuccess] = useState(false);
+
+  const { writeContractAsync, isPending: isSettingTreasury } = useWriteContract();
 
   const handleCreate = async () => {
     const start = Math.floor(Date.now() / 1000);
@@ -37,11 +45,26 @@ export default function OwnerPanel({
     await onCreate(fee, start, end);
   };
 
-  // Calculate total fees collected from winner history
+  const handleSetTreasury = async () => {
+    if (!treasuryAddress) return;
+    try {
+      await writeContractAsync({
+        address: CONTRACT_ADDRESS,
+        abi: OMEGA_LOTTERY_ABI,
+        functionName: "setTreasury",
+        args: [treasuryAddress],
+      });
+      setTreasurySuccess(true);
+      setTreasuryAddress("");
+    } catch (e) {
+      console.error("Failed to set treasury:", e);
+    }
+  };
+
   const totalFeesCollected = winnerHistory.reduce((acc, entry) => {
     if (!entry?.totalPot) return acc;
     const pot = BigInt(entry.totalPot);
-    const fee = pot - (pot * 98n) / 100n; // 2% treasury cut
+    const fee = pot - (pot * 98n) / 100n;
     return acc + fee;
   }, 0n);
 
@@ -83,6 +106,35 @@ export default function OwnerPanel({
                   across {winnerHistory.length} round{winnerHistory.length !== 1 ? "s" : ""}
                 </p>
               </div>
+            </div>
+
+            {/* SET TREASURY ADDRESS */}
+            <div className="space-y-2">
+              <label className="text-[10px] text-slate-500 uppercase font-bold flex items-center gap-1">
+                <Wallet className="w-3 h-3" /> Set Treasury Address
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={treasuryAddress}
+                  onChange={e => {
+                    setTreasuryAddress(e.target.value);
+                    setTreasurySuccess(false);
+                  }}
+                  placeholder="0x..."
+                  className="flex-1 bg-black/40 border border-red-900/30 rounded-lg p-2 text-white text-sm outline-none focus:border-red-500 font-mono"
+                />
+                <button
+                  onClick={handleSetTreasury}
+                  disabled={isSettingTreasury || !treasuryAddress}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold text-sm flex items-center gap-2 disabled:opacity-50 transition-colors"
+                >
+                  {isSettingTreasury ? <Loader2 className="animate-spin w-4 h-4" /> : "Set"}
+                </button>
+              </div>
+              {treasurySuccess && (
+                <p className="text-[10px] text-green-400 font-bold">✓ Treasury address updated successfully</p>
+              )}
             </div>
           </div>
 

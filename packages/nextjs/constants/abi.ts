@@ -87,4 +87,17 @@ export const OMEGA_LOTTERY_ABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newTreasury",
+        type: "address",
+      },
+    ],
+    name: "setTreasury",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ] as const; // <--- The "as const" is vital for Wagmi autocomplete!
