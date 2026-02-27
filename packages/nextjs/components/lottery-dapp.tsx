@@ -87,6 +87,16 @@ export default function LotteryDapp() {
   const isEntryAllowed =
     (status === LotteryStatus.NOT_STARTED || status === LotteryStatus.OPEN) && now >= startTime && now < endTime;
 
+  const secondsLeft = Math.max(0, endTime - now);
+  const timeRemaining =
+    secondsLeft <= 0
+      ? "0s"
+      : secondsLeft < 3600
+        ? `${Math.floor(secondsLeft / 60)}m ${secondsLeft % 60}s`
+        : `${Math.floor(secondsLeft / 3600)}h ${Math.floor((secondsLeft % 3600) / 60)}m`;
+
+  const displayStatus = secondsLeft <= 0 && status === LotteryStatus.OPEN ? LotteryStatus.CLOSED : status;
+
   const isOpen = status === LotteryStatus.OPEN;
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
@@ -99,8 +109,8 @@ export default function LotteryDapp() {
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <StatusBar
-          status={status}
-          timeRemaining={""}
+          status={displayStatus}
+          timeRemaining={timeRemaining}
           startTime={lotteryData?.startTime}
           endTime={lotteryData?.endTime}
         />
