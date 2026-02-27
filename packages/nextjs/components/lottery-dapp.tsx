@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import EnterForm from "./EnterForm";
 import LotteryHeader from "./LotteryHeader";
 import OwnerPanel from "./OwnerPanel";
@@ -24,10 +24,8 @@ export default function LotteryDapp() {
     functionName: "lotteryIdCounter",
   });
 
-  const activeLotteryId = useMemo(() => {
-    if (!idCounter || idCounter === 0n) return 1n;
-    return (idCounter as bigint) > 0n ? (idCounter as bigint) - 1n : 1n;
-  }, [idCounter]);
+  const activeLotteryId =
+    !idCounter || idCounter === 0n ? 1n : (idCounter as bigint) > 0n ? (idCounter as bigint) - 1n : 1n;
 
   const { data: rawOwnerAddress, isLoading: rawOwnerLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
@@ -103,14 +101,15 @@ export default function LotteryDapp() {
     return () => clearInterval(interval);
   }, [endTime]);
 
-  const secondsLeft = Math.max(0, endTime - Math.floor(Date.now() / 1000));
-  const displayStatus = secondsLeft <= 0 && status === LotteryStatus.OPEN ? LotteryStatus.CLOSED : status;
+  const displayStatus = timeRemaining === "0s" && status === LotteryStatus.OPEN ? LotteryStatus.CLOSED : status;
 
-  const now = Math.floor(Date.now() / 1000);
+  const isOpen = displayStatus === LotteryStatus.OPEN;
   const isEntryAllowed =
-    (status === LotteryStatus.NOT_STARTED || status === LotteryStatus.OPEN) && now >= startTime && now < endTime;
+    (status === LotteryStatus.NOT_STARTED || status === LotteryStatus.OPEN) &&
+    timeRemaining !== "0s" &&
+    endTime > 0 &&
+    Math.floor(Date.now() / 1000) >= startTime;
 
-  const isOpen = status === LotteryStatus.OPEN;
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
 
