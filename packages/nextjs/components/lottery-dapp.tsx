@@ -15,6 +15,7 @@ const CONTRACT_ADDRESS = "0x256aA1F20fEFd5d8E8A4Eab916af17A36323eC97";
 
 export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState("");
   const { address: connectedAddress } = useAccount();
 
   const { data: idCounter, refetch: refetchCounter } = useReadContract({
@@ -28,7 +29,6 @@ export default function LotteryDapp() {
     return (idCounter as bigint) > 0n ? (idCounter as bigint) - 1n : 1n;
   }, [idCounter]);
 
-  // --- INDEPENDENT OWNER CHECK (bypasses useLottery hook entirely) ---
   const { data: rawOwnerAddress, isLoading: rawOwnerLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
@@ -62,8 +62,6 @@ export default function LotteryDapp() {
     setMounted(true);
   }, []);
 
-  // Poll every 10 seconds — use refetchCounter from wagmi directly,
-  // and call refetchAll via a ref to avoid stale closure issues
   const refetchAllRef = useRef(refetchAll);
   useEffect(() => {
     refetchAllRef.current = refetchAll;
@@ -78,24 +76,39 @@ export default function LotteryDapp() {
   }, [refetchCounter]);
 
   const status = (lotteryData?.status as LotteryStatus) ?? LotteryStatus.NOT_STARTED;
-
-  // The contract auto-transitions NOT_STARTED → OPEN on first join,
-  // so we allow entry if the lottery is NOT_STARTED or OPEN and within the time window.
-  const now = Math.floor(Date.now() / 1000);
   const startTime = Number(lotteryData?.startTime ?? 0n);
   const endTime = Number(lotteryData?.endTime ?? 0n);
+
+  // 1-second countdown timer
+  useEffect(() => {
+    const calculate = () => {
+      const secondsLeft = Math.max(0, endTime - Math.floor(Date.now() / 1000));
+      if (secondsLeft <= 0) {
+        setTimeRemaining("0s");
+        return;
+      }
+      if (secondsLeft < 60) {
+        setTimeRemaining(`${secondsLeft}s`);
+      } else if (secondsLeft < 3600) {
+        setTimeRemaining(`${Math.floor(secondsLeft / 60)}m ${secondsLeft % 60}s`);
+      } else {
+        setTimeRemaining(
+          `${Math.floor(secondsLeft / 3600)}h ${Math.floor((secondsLeft % 3600) / 60)}m ${secondsLeft % 60}s`,
+        );
+      }
+    };
+
+    calculate();
+    const interval = setInterval(calculate, 1000);
+    return () => clearInterval(interval);
+  }, [endTime]);
+
+  const secondsLeft = Math.max(0, endTime - Math.floor(Date.now() / 1000));
+  const displayStatus = secondsLeft <= 0 && status === LotteryStatus.OPEN ? LotteryStatus.CLOSED : status;
+
+  const now = Math.floor(Date.now() / 1000);
   const isEntryAllowed =
     (status === LotteryStatus.NOT_STARTED || status === LotteryStatus.OPEN) && now >= startTime && now < endTime;
-
-  const secondsLeft = Math.max(0, endTime - now);
-  const timeRemaining =
-    secondsLeft <= 0
-      ? "0s"
-      : secondsLeft < 3600
-        ? `${Math.floor(secondsLeft / 60)}m ${secondsLeft % 60}s`
-        : `${Math.floor(secondsLeft / 3600)}h ${Math.floor((secondsLeft % 3600) / 60)}m`;
-
-  const displayStatus = secondsLeft <= 0 && status === LotteryStatus.OPEN ? LotteryStatus.CLOSED : status;
 
   const isOpen = status === LotteryStatus.OPEN;
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
@@ -117,7 +130,7 @@ export default function LotteryDapp() {
 
         <PotCard
           potBalance={lotteryData?.totalPot ?? 0n}
-          status={status}
+          status={displayStatus}
           startTime={lotteryData?.startTime ?? 0n}
           endTime={lotteryData?.endTime ?? 0n}
           winner={lotteryData?.winner}
