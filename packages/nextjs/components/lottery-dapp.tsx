@@ -103,7 +103,6 @@ export default function LotteryDapp() {
 
   const displayStatus = timeRemaining === "0s" && status === LotteryStatus.OPEN ? LotteryStatus.CLOSED : status;
 
-  const isOpen = displayStatus === LotteryStatus.OPEN;
   const isEntryAllowed =
     (status === LotteryStatus.NOT_STARTED || status === LotteryStatus.OPEN) &&
     timeRemaining !== "0s" &&
