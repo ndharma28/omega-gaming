@@ -144,7 +144,6 @@ export default function LotteryDapp() {
           disabled={isJoining || isInvalidAmount || !isEntryAllowed}
           isEntering={isJoining}
           isInvalid={isInvalidAmount}
-          isOpen={isOpen}
           minEntry={minEntry}
           status={displayStatus}
         />

@@ -10,7 +10,6 @@ interface EnterFormProps {
   disabled: boolean;
   isEntering: boolean;
   isInvalid: boolean;
-  isOpen: boolean;
   minEntry: number;
   status: LotteryStatus;
 }
@@ -22,7 +21,6 @@ export default function EnterForm({
   disabled,
   isEntering,
   isInvalid,
-  isOpen,
   minEntry,
   status,
 }: EnterFormProps) {
