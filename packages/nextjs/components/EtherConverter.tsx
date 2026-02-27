@@ -4,10 +4,20 @@ import { useEffect, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 import { ArrowsRightLeftIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
+type Unit = "eth" | "gwei" | "wei" | "usd";
+
+const toStateKey = (unit: "ether" | "gwei" | "wei" | "usd"): Unit => (unit === "ether" ? "eth" : unit);
+
+const FIELDS = [
+  { label: "USD ($)", key: "usd" as const, unit: "usd" as const, colorClass: "text-success" },
+  { label: "Ether", key: "eth" as const, unit: "ether" as const, colorClass: "text-gray-500" },
+  { label: "Gwei", key: "gwei" as const, unit: "gwei" as const, colorClass: "text-gray-500" },
+  { label: "Wei", key: "wei" as const, unit: "wei" as const, colorClass: "text-gray-500" },
+];
+
 export const EtherConverter = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [ethPrice, setEthPrice] = useState(0);
-
   const [values, setValues] = useState({
     eth: "1",
     gwei: "1000000000",
@@ -15,66 +25,56 @@ export const EtherConverter = () => {
     usd: "0.00",
   });
 
-  // 1. Fetch Price Locally (No hooks needed!)
   useEffect(() => {
     const fetchPrice = async () => {
       try {
-        const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd");
-        const data = await response.json();
-        const price = data.ethereum.usd;
-        setEthPrice(price);
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd");
+        const data = await res.json();
+        setEthPrice(data.ethereum.usd);
       } catch {
-        // Silently fail if API is down
         console.log("Price fetch failed");
       }
     };
-
     fetchPrice();
   }, []);
 
-  // 2. Update USD when price loads
   useEffect(() => {
-    if (ethPrice > 0 && values.eth) {
-      const usdVal = (parseFloat(values.eth) * ethPrice).toFixed(2);
-
-      setValues(prev => {
-        if (prev.usd !== usdVal) return { ...prev, usd: usdVal };
-        return prev;
-      });
+    if (ethPrice > 0) {
+      setValues(prev => ({
+        ...prev,
+        usd: (parseFloat(prev.eth) * ethPrice).toFixed(2),
+      }));
     }
-  }, [ethPrice, values.eth]);
+  }, [ethPrice]);
 
   const handleChange = (amount: string, unit: "ether" | "gwei" | "wei" | "usd") => {
+    const key = toStateKey(unit);
+
     if (!amount || amount === ".") {
-      setValues({ ...values, [unit === "ether" ? "eth" : unit]: amount });
+      setValues(prev => ({ ...prev, [key]: amount }));
       return;
     }
 
     try {
-      let weiValue = 0n;
-      let ethValueStr = "";
+      let weiValue: bigint;
 
       if (unit === "usd") {
-        if (ethPrice > 0) {
-          const ethNum = parseFloat(amount) / ethPrice;
-          ethValueStr = ethNum.toFixed(18);
-          weiValue = parseUnits(ethValueStr, 18);
-        }
+        if (ethPrice <= 0) return;
+        weiValue = parseUnits((parseFloat(amount) / ethPrice).toFixed(18), 18);
       } else {
-        weiValue = parseUnits(amount, unit === "ether" ? 18 : unit === "gwei" ? 9 : 0);
+        const decimals = unit === "ether" ? 18 : unit === "gwei" ? 9 : 0;
+        weiValue = parseUnits(amount, decimals);
       }
 
       const eth = formatUnits(weiValue, 18);
-      const usd = ethPrice > 0 ? (parseFloat(eth) * ethPrice).toFixed(2) : "0.00";
-
       setValues({
-        eth: eth,
+        eth,
         gwei: formatUnits(weiValue, 9),
         wei: formatUnits(weiValue, 0),
-        usd: unit === "usd" ? amount : usd,
+        usd: unit === "usd" ? amount : ethPrice > 0 ? (parseFloat(eth) * ethPrice).toFixed(2) : "0.00",
       });
     } catch {
-      setValues({ ...values, [unit === "ether" ? "eth" : unit]: amount });
+      setValues(prev => ({ ...prev, [key]: amount }));
     }
   };
 
@@ -95,54 +95,20 @@ export const EtherConverter = () => {
           </div>
 
           <div className="space-y-3">
-            <div className="form-control">
-              <label className="label pt-0 pb-1">
-                <span className="label-text text-xs font-bold text-success">USD ($)</span>
-              </label>
-              <input
-                type="number"
-                value={values.usd}
-                onChange={e => handleChange(e.target.value, "usd")}
-                className="input input-bordered input-sm w-full font-mono focus:outline-none focus:border-success"
-                placeholder="0.00"
-              />
-            </div>
-            <div className="form-control">
-              <label className="label pt-0 pb-1">
-                <span className="label-text text-xs font-bold text-gray-500">Ether</span>
-              </label>
-              <input
-                type="number"
-                value={values.eth}
-                onChange={e => handleChange(e.target.value, "ether")}
-                className="input input-bordered input-sm w-full font-mono focus:outline-none focus:border-primary"
-                placeholder="ETH"
-              />
-            </div>
-            <div className="form-control">
-              <label className="label pt-0 pb-1">
-                <span className="label-text text-xs font-bold text-gray-500">Gwei</span>
-              </label>
-              <input
-                type="number"
-                value={values.gwei}
-                onChange={e => handleChange(e.target.value, "gwei")}
-                className="input input-bordered input-sm w-full font-mono focus:outline-none focus:border-primary"
-                placeholder="Gwei"
-              />
-            </div>
-            <div className="form-control">
-              <label className="label pt-0 pb-1">
-                <span className="label-text text-xs font-bold text-gray-500">Wei</span>
-              </label>
-              <input
-                type="number"
-                value={values.wei}
-                onChange={e => handleChange(e.target.value, "wei")}
-                className="input input-bordered input-sm w-full font-mono focus:outline-none focus:border-primary"
-                placeholder="Wei"
-              />
-            </div>
+            {FIELDS.map(({ label, key, unit, colorClass }) => (
+              <div className="form-control" key={key}>
+                <label className="label pt-0 pb-1">
+                  <span className={`label-text text-xs font-bold ${colorClass}`}>{label}</span>
+                </label>
+                <input
+                  type="number"
+                  value={values[key]}
+                  onChange={e => handleChange(e.target.value, unit)}
+                  className="input input-bordered input-sm w-full font-mono focus:outline-none focus:border-primary"
+                  placeholder={label}
+                />
+              </div>
+            ))}
           </div>
         </div>
       )}
