@@ -153,7 +153,7 @@ export default function LotteryDapp() {
               }}
               isPicking={isRequesting}
               isCreating={isCreating}
-              status={status}
+              status={displayStatus}
               treasuryBalance={treasuryBalance}
               winnerHistory={winnerHistory}
             />
