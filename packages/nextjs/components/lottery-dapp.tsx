@@ -134,6 +134,7 @@ export default function LotteryDapp() {
           isInvalid={isInvalidAmount}
           isOpen={isOpen}
           minEntry={minEntry}
+          status={displayStatus}
         />
 
         <PlayersList players={players} connectedAddress={connectedAddress} />

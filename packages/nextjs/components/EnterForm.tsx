@@ -1,5 +1,6 @@
 "use client";
 
+import { LotteryStatus } from "./StatusBar";
 import { AlertCircle, RefreshCw } from "lucide-react";
 
 interface EnterFormProps {
@@ -11,6 +12,7 @@ interface EnterFormProps {
   isInvalid: boolean;
   isOpen: boolean;
   minEntry: number;
+  status: LotteryStatus;
 }
 
 export default function EnterForm({
@@ -22,8 +24,24 @@ export default function EnterForm({
   isInvalid,
   isOpen,
   minEntry,
+  status,
 }: EnterFormProps) {
   const minEntryDisplay = minEntry.toFixed(4).replace(/\.?0+$/, "") || "0";
+
+  const getButtonLabel = () => {
+    if (isEntering)
+      return (
+        <span className="flex items-center justify-center gap-2">
+          <RefreshCw className="w-5 h-5 animate-spin" /> Processing...
+        </span>
+      );
+    if (status === LotteryStatus.DRAWING) return "Selecting Winner...";
+    if (status === LotteryStatus.RESOLVED) return "Lottery Completed";
+    if (status === LotteryStatus.CLOSED) return "Lottery Closed";
+    if (status === LotteryStatus.NOT_STARTED) return "Not Started Yet";
+    if (isInvalid) return "Invalid Amount";
+    return "Enter Lottery";
+  };
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-lg">
@@ -47,11 +65,11 @@ export default function EnterForm({
               value={entryAmount}
               onChange={e => setEntryAmount(e.target.value)}
               className={`w-full bg-slate-950 border rounded-lg h-12 px-4 text-lg text-white transition-all outline-none
-                    ${
-                      isInvalid
-                        ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
-                        : "border-slate-800 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/50"
-                    }`}
+                ${
+                  isInvalid
+                    ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                    : "border-slate-800 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/50"
+                }`}
             />
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">ETH</span>
           </div>
@@ -74,23 +92,13 @@ export default function EnterForm({
           onClick={onEnter}
           disabled={disabled}
           className={`w-full h-12 rounded-lg font-bold text-lg transition-all active:scale-[0.98] 
-              ${
-                disabled
-                  ? "bg-slate-700 text-white cursor-not-allowed shadow-none opacity-100"
-                  : "bg-yellow-500 text-slate-900 hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]"
-              }`}
+            ${
+              disabled
+                ? "bg-slate-700 text-white cursor-not-allowed shadow-none opacity-100"
+                : "bg-yellow-500 text-slate-900 hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]"
+            }`}
         >
-          {isEntering ? (
-            <span className="flex items-center justify-center gap-2">
-              <RefreshCw className="w-5 h-5 animate-spin" /> Processing...
-            </span>
-          ) : !isOpen ? (
-            "Market Closed"
-          ) : isInvalid ? (
-            "Invalid Amount"
-          ) : (
-            "Enter Lottery"
-          )}
+          {getButtonLabel()}
         </button>
       </div>
     </div>
