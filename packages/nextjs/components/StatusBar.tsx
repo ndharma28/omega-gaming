@@ -1,5 +1,7 @@
 "use client";
 
+const CLOSING_SOON_THRESHOLD = 5 * 60; // 5 minutes in seconds
+
 // Mirrors the Solidity enum exactly
 export enum LotteryStatus {
   NOT_STARTED = 0,
@@ -77,8 +79,9 @@ export default function StatusBar({ status, timeRemaining, startTime, endTime }:
   const isOpen = status === LotteryStatus.OPEN;
   const isDrawing = status === LotteryStatus.DRAWING;
   const isResolved = status === LotteryStatus.RESOLVED;
-  const isClosingSoon = isOpen && !!timeRemaining && timeRemaining !== "0s";
-
+  const secondsRemaining = endTime ? Number(endTime) - Math.floor(Date.now() / 1000) : null;
+  const isClosingSoon =
+    isOpen && secondsRemaining !== null && secondsRemaining > 0 && secondsRemaining <= CLOSING_SOON_THRESHOLD;
   const config = getStatusConfig(status, isClosingSoon);
 
   return (
