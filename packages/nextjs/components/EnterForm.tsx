@@ -11,6 +11,7 @@ interface EnterFormProps {
   isEntering: boolean;
   isInvalid: boolean;
   minEntry: number;
+  walletBalance: number; // add this prop
   status: LotteryStatus;
 }
 
@@ -22,9 +23,20 @@ export default function EnterForm({
   isEntering,
   isInvalid,
   minEntry,
+  walletBalance,
   status,
 }: EnterFormProps) {
   const minEntryDisplay = minEntry.toFixed(4).replace(/\.?0+$/, "") || "0";
+  const parsedAmount = parseFloat(entryAmount);
+  const isTooHigh = !!entryAmount && !isNaN(parsedAmount) && parsedAmount > walletBalance;
+  const hasError = isInvalid || isTooHigh;
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    // Allow only digits and a single decimal point
+    const sanitized = raw.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1");
+    setEntryAmount(sanitized);
+  };
 
   const getButtonLabel = () => {
     if (isEntering)
@@ -37,9 +49,18 @@ export default function EnterForm({
     if (status === LotteryStatus.RESOLVED) return "Lottery Completed";
     if (status === LotteryStatus.CLOSED) return "Lottery Closed";
     if (status === LotteryStatus.NOT_STARTED) return "Not Started Yet";
+    if (isTooHigh) return "Insufficient Balance";
     if (isInvalid) return "Invalid Amount";
     return "Enter Lottery";
   };
+
+  const getErrorMessage = () => {
+    if (isTooHigh) return `Insufficient balance — max ${walletBalance.toFixed(4).replace(/\.?0+$/, "")} ETH`;
+    if (isInvalid) return `Minimum entry: ${minEntryDisplay} ETH required`;
+    return null;
+  };
+
+  const errorMessage = getErrorMessage();
 
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-lg">
@@ -57,14 +78,13 @@ export default function EnterForm({
           <div className="relative">
             <input
               id="amount"
-              type="number"
-              step="0.01"
-              min={minEntry}
+              type="text"
+              inputMode="decimal"
               value={entryAmount}
-              onChange={e => setEntryAmount(e.target.value)}
+              onChange={handleAmountChange}
               className={`w-full bg-slate-950 border rounded-lg h-12 px-4 text-lg text-white transition-all outline-none
                 ${
-                  isInvalid
+                  hasError
                     ? "border-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.2)]"
                     : "border-slate-800 focus:border-yellow-500/50 focus:ring-2 focus:ring-yellow-500/50"
                 }`}
@@ -73,11 +93,11 @@ export default function EnterForm({
           </div>
 
           <div className="flex items-center gap-2 min-h-[20px] mt-2">
-            {isInvalid ? (
+            {errorMessage ? (
               <div className="flex items-center gap-1.5 animate-in fade-in duration-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 w-full">
                 <AlertCircle className="w-4 h-4 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
                 <p className="text-xs font-black text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,1)] tracking-widest uppercase">
-                  Minimum entry: {minEntryDisplay} ETH required
+                  {errorMessage}
                 </p>
               </div>
             ) : (
@@ -88,10 +108,10 @@ export default function EnterForm({
 
         <button
           onClick={onEnter}
-          disabled={disabled}
+          disabled={disabled || isTooHigh}
           className={`w-full h-12 rounded-lg font-bold text-lg transition-all active:scale-[0.98] 
             ${
-              disabled
+              disabled || isTooHigh
                 ? "bg-slate-700 text-white cursor-not-allowed shadow-none opacity-100"
                 : "bg-yellow-500 text-slate-900 hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.3)]"
             }`}

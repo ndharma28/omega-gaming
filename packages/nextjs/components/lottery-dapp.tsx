@@ -7,7 +7,7 @@ import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
 import StatusBar, { LotteryStatus } from "./StatusBar";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount, useBalance, useReadContract } from "wagmi";
 import { OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
 
@@ -17,6 +17,8 @@ export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState("");
   const { address: connectedAddress } = useAccount();
+  const { data: balanceData } = useBalance({ address: connectedAddress });
+  const walletBalance = balanceData ? Number(balanceData.value) / 1e18 : 0;
 
   const { data: idCounter, refetch: refetchCounter } = useReadContract({
     address: CONTRACT_ADDRESS,
@@ -144,6 +146,7 @@ export default function LotteryDapp() {
           isEntering={isJoining}
           isInvalid={isInvalidAmount}
           minEntry={minEntry}
+          walletBalance={walletBalance}
           status={displayStatus}
         />
 
