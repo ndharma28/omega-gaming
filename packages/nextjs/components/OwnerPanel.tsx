@@ -181,14 +181,16 @@ export default function OwnerPanel({
           <div>
             <button
               onClick={onPick}
-              disabled={isPicking || status !== LotteryStatus.CLOSED}
+              disabled={isPicking || status !== LotteryStatus.DRAWING}
               className="w-full py-4 bg-slate-800 border border-slate-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-30 hover:bg-slate-700 transition-colors"
             >
               <Trophy className="w-5 h-5 text-yellow-500" />
               Pick Winner (Requires VRF)
             </button>
-            {status !== LotteryStatus.CLOSED && (
-              <p className="text-[10px] text-slate-600 text-center mt-2">Only available when lottery is closed</p>
+            {status !== LotteryStatus.DRAWING && (
+              <p className="text-[10px] text-slate-600 text-center mt-2">
+                Only available when lottery is in drawing state
+              </p>
             )}
           </div>
         </div>
