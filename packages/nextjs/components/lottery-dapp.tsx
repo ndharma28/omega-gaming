@@ -64,7 +64,6 @@ export default function LotteryDapp() {
 
   // Default to OPEN (0) since NOT_STARTED no longer exists
   const status = (lotteryData?.status as LotteryStatus) ?? LotteryStatus.OPEN;
-  const startTime = Number(lotteryData?.startTime ?? 0n);
   const endTime = Number(lotteryData?.endTime ?? 0n);
 
   useEffect(() => {
