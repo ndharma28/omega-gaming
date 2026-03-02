@@ -7,10 +7,15 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   11155111: {
     OmegaLottery: {
-      address: "0x59229045882D0d30E6618C04D5bd844fc82f5F27",
+      address: "0x20d1747F94e4397570d94C28A841D9A2dD5B7eCb",
       abi: [
         {
           inputs: [
+            {
+              internalType: "address",
+              name: "treasuryAddress",
+              type: "address",
+            },
             {
               internalType: "uint256",
               name: "subscriptionId",
@@ -25,6 +30,16 @@ const deployedContracts = {
               internalType: "bytes32",
               name: "_keyHash",
               type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "_defaultEntryFee",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_lotteryDuration",
+              type: "uint256",
             },
           ],
           stateMutability: "nonpayable",
@@ -308,19 +323,6 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "activeLotteryId",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
           name: "callbackGasLimit",
           outputs: [
             {
@@ -386,6 +388,19 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [],
+          name: "defaultEntryFee",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -437,6 +452,11 @@ const deployedContracts = {
                   name: "randomValue",
                   type: "uint256",
                 },
+                {
+                  internalType: "uint256",
+                  name: "requestId",
+                  type: "uint256",
+                },
               ],
               internalType: "struct OmegaLottery.Lottery",
               name: "lottery",
@@ -485,6 +505,40 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "lotteryId",
+              type: "uint256",
+            },
+          ],
+          name: "getRandomnessDetails",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "randomValue",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes32",
+              name: "vrfKeyHash",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "subscriptionId",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "getTreasuryAddress",
           outputs: [
@@ -526,6 +580,19 @@ const deployedContracts = {
         {
           inputs: [],
           name: "lastRequestId",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "lotteryDuration",
           outputs: [
             {
               internalType: "uint256",
@@ -639,25 +706,6 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "lotteryId",
-              type: "uint256",
-            },
-          ],
-          name: "requestWinner",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
           inputs: [],
           name: "s_subscriptionId",
           outputs: [
@@ -733,7 +781,7 @@ const deployedContracts = {
         checkUpkeep: "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol",
         performUpkeep: "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol",
       },
-      deployedOnBlock: 10370290,
+      deployedOnBlock: 10370678,
     },
   },
 } as const;
