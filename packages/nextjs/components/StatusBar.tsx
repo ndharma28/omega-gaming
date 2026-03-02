@@ -10,7 +10,6 @@ export enum LotteryStatus {
 interface StatusBarProps {
   status: LotteryStatus;
   timeRemaining: string;
-  startTime?: bigint;
   endTime?: bigint;
 }
 
@@ -67,7 +66,7 @@ function getStatusConfig(status: LotteryStatus, isClosingSoon: boolean, isTimeEx
   }
 }
 
-export default function StatusBar({ status, timeRemaining, startTime, endTime }: StatusBarProps) {
+export default function StatusBar({ status, timeRemaining, endTime }: StatusBarProps) {
   const isOpen = status === LotteryStatus.OPEN;
   const isDrawing = status === LotteryStatus.DRAWING;
   const isResolved = status === LotteryStatus.RESOLVED;

@@ -51,7 +51,7 @@ export default function OwnerPanel({ show, toggle, treasuryBalance, winnerHistor
       const pot = BigInt(entry.totalPot);
       const feeAmount = (pot * 2n) / 100n; // 2% fee
       return acc + feeAmount;
-    } catch (e) {
+    } catch {
       return acc;
     }
   }, 0n);

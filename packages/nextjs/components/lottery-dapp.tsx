@@ -103,12 +103,7 @@ export default function LotteryDapp() {
       <LotteryHeader address={connectedAddress} />
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        <StatusBar
-          status={status}
-          timeRemaining={timeRemaining}
-          startTime={lotteryData?.startTime}
-          endTime={lotteryData?.endTime}
-        />
+        <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
 
         <PotCard
           potBalance={lotteryData?.totalPot ?? 0n}
