@@ -7,7 +7,7 @@ import { formatEther } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 
-const CONTRACT_ADDRESS = "0x256aA1F20fEFd5d8E8A4Eab916af17A36323eC97";
+const CONTRACT_ADDRESS = "0x59229045882D0d30E6618C04D5bd844fc82f5F27";
 
 interface OwnerPanelProps {
   show: boolean;
