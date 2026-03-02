@@ -115,7 +115,7 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface
         keyHash = _keyHash;
 
         lotteryIdCounter = 1;
-        callbackGasLimit = 200_000;
+        callbackGasLimit = 500_000;
         requestConfirmations = 3;
         numWords = 1;
 
