@@ -158,7 +158,8 @@ export default function LotteryDapp() {
               show={showOwnerPanel}
               toggle={() => setShowOwnerPanel(prev => !prev)}
               onPick={async () => {
-                await requestWinner();
+                const idToDraw = lotteryData?.id ?? activeLotteryId;
+                await requestWinner(idToDraw);
               }}
               onCreate={async (f, s, e) => {
                 await createNewLottery(f, s, e);

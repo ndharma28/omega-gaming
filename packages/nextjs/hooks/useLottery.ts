@@ -59,7 +59,7 @@ export const useLottery = (lotteryId: bigint) => {
     },
   });
 
-  // WRITES
+  // WRITES (Uniquely named so they don't clash!)
   const { writeContractAsync: joinTx, isPending: isJoining } = useWriteContract();
   const { writeContractAsync: requestTx, isPending: isRequesting } = useWriteContract();
   const { writeContractAsync: createTx, isPending: isCreating } = useWriteContract();
@@ -74,13 +74,18 @@ export const useLottery = (lotteryId: bigint) => {
     });
   };
 
-  const requestWinner = async () => {
-    return await requestTx({
-      address: CONTRACT_ADDRESS,
-      abi: OMEGA_LOTTERY_ABI,
-      functionName: "requestWinner",
-      args: [lotteryId],
-    });
+  const requestWinner = async (idToDraw: bigint) => {
+    try {
+      // Swapped to use 'requestTx' instead of the generic 'writeContractAsync'
+      await requestTx({
+        address: CONTRACT_ADDRESS,
+        abi: OMEGA_LOTTERY_ABI,
+        functionName: "requestWinner",
+        args: [idToDraw],
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const createNewLottery = async (fee: string, start: number, end: number) => {
