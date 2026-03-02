@@ -1,14 +1,10 @@
 "use client";
 
-const CLOSING_SOON_THRESHOLD = 5 * 60; // 5 minutes in seconds
-
-// Mirrors the Solidity enum exactly
+// Mirrors the NEW Solidity enum exactly
 export enum LotteryStatus {
-  NOT_STARTED = 0,
-  OPEN = 1,
-  CLOSED = 2,
-  DRAWING = 3,
-  RESOLVED = 4,
+  OPEN = 0,
+  DRAWING = 1,
+  RESOLVED = 2,
 }
 
 interface StatusBarProps {
@@ -25,8 +21,18 @@ function formatTime(timestamp: bigint): string {
   });
 }
 
-function getStatusConfig(status: LotteryStatus, isClosingSoon: boolean) {
-  if (isClosingSoon) {
+function getStatusConfig(status: LotteryStatus, isClosingSoon: boolean, isTimeExpired: boolean) {
+  // If time has passed but Chainlink hasn't updated the state to DRAWING yet
+  if (status === LotteryStatus.OPEN && isTimeExpired) {
+    return {
+      label: "Awaiting Draw",
+      containerClass: "bg-purple-900/20 border-purple-500/40",
+      dotClass: "bg-purple-500 animate-pulse",
+      textClass: "text-purple-400",
+    };
+  }
+
+  if (isClosingSoon && status === LotteryStatus.OPEN) {
     return {
       label: "Closing Soon",
       containerClass: "bg-yellow-500/10 border-yellow-500/40 shadow-[0_0_20px_rgba(234,179,8,0.2)]",
@@ -51,26 +57,12 @@ function getStatusConfig(status: LotteryStatus, isClosingSoon: boolean) {
         textClass: "text-orange-400",
       };
     case LotteryStatus.RESOLVED:
+    default:
       return {
         label: "Lottery Completed",
         containerClass: "bg-blue-900/20 border-blue-500/40",
         dotClass: "bg-blue-400",
         textClass: "text-blue-300",
-      };
-    case LotteryStatus.NOT_STARTED:
-      return {
-        label: "Awaiting Start",
-        containerClass: "bg-slate-900/40 border-slate-700",
-        dotClass: "bg-slate-600",
-        textClass: "text-slate-400",
-      };
-    case LotteryStatus.CLOSED:
-    default:
-      return {
-        label: "Entries Closed",
-        containerClass: "bg-red-900/20 border-red-500/40",
-        dotClass: "bg-red-500",
-        textClass: "text-red-400",
       };
   }
 }
@@ -79,10 +71,14 @@ export default function StatusBar({ status, timeRemaining, startTime, endTime }:
   const isOpen = status === LotteryStatus.OPEN;
   const isDrawing = status === LotteryStatus.DRAWING;
   const isResolved = status === LotteryStatus.RESOLVED;
-  const secondsRemaining = endTime ? Number(endTime) - Math.floor(Date.now() / 1000) : null;
-  const isClosingSoon =
-    isOpen && secondsRemaining !== null && secondsRemaining > 0 && secondsRemaining <= CLOSING_SOON_THRESHOLD;
-  const config = getStatusConfig(status, isClosingSoon);
+
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+  const secondsRemaining = endTime ? Number(endTime) - currentTimestamp : null;
+
+  const isTimeExpired = isOpen && secondsRemaining !== null && secondsRemaining <= 0;
+  const isClosingSoon = isOpen && !isTimeExpired && secondsRemaining !== null && secondsRemaining <= 5 * 60;
+
+  const config = getStatusConfig(status, isClosingSoon, isTimeExpired);
 
   return (
     <div
@@ -93,11 +89,10 @@ export default function StatusBar({ status, timeRemaining, startTime, endTime }:
       <div className="flex flex-col">
         <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${config.textClass}`}>{config.label}</p>
         <p className="text-xs text-slate-400 font-medium mt-0.5">
-          {isOpen && endTime && `Ends at ${formatTime(endTime)}`}
-          {status === LotteryStatus.NOT_STARTED && startTime && `Starts at ${formatTime(startTime)}`}
+          {isOpen && !isTimeExpired && endTime && `Ends at ${formatTime(endTime)}`}
+          {isTimeExpired && "Time expired. Chainlink Automation will draw shortly."}
           {isDrawing && "Chainlink VRF is generating randomness..."}
           {isResolved && "Grand prize has been distributed"}
-          {status === LotteryStatus.CLOSED && "Awaiting winner selection draw"}
         </p>
       </div>
 
@@ -112,9 +107,11 @@ export default function StatusBar({ status, timeRemaining, startTime, endTime }:
         ) : (
           <div className="flex flex-col">
             <span className="text-slate-500 text-[9px] block uppercase font-bold">
-              {isResolved ? "Final Payout" : "Next Draw"}
+              {isResolved ? "Final Payout" : isTimeExpired ? "Draw Processing" : "Next Draw"}
             </span>
-            <span className={`font-black text-sm uppercase ${isResolved ? "text-blue-400" : "text-white"}`}>
+            <span
+              className={`font-black text-sm uppercase ${isResolved ? "text-blue-400" : isTimeExpired ? "text-purple-400" : "text-white"}`}
+            >
               {endTime ? formatTime(endTime) : "TBD"}
             </span>
           </div>

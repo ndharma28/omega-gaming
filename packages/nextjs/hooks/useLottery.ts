@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { OMEGA_LOTTERY_ABI } from "../constants/abi";
+import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "../constants/abi";
 import { decodeEventLog, keccak256, parseEther, toBytes } from "viem";
 import { useAccount, useBalance, usePublicClient, useReadContract, useWriteContract } from "wagmi";
-
-const CONTRACT_ADDRESS = "0x20d1747F94e4397570d94C28A841D9A2dD5B7eCb";
 
 // Your Alchemy API key & base URL for Sepolia
 const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!;
@@ -71,29 +69,6 @@ export const useLottery = (lotteryId: bigint) => {
       functionName: "joinLottery",
       args: [lotteryId],
       value: parseEther(amount),
-    });
-  };
-
-  const requestWinner = async (idToDraw: bigint) => {
-    try {
-      // Swapped to use 'requestTx' instead of the generic 'writeContractAsync'
-      await requestTx({
-        address: CONTRACT_ADDRESS,
-        abi: OMEGA_LOTTERY_ABI,
-        functionName: "requestWinner",
-        args: [idToDraw],
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const createNewLottery = async (fee: string, start: number, end: number) => {
-    return await createTx({
-      address: CONTRACT_ADDRESS,
-      abi: OMEGA_LOTTERY_ABI,
-      functionName: "createLottery",
-      args: [parseEther(fee), BigInt(start), BigInt(end)],
     });
   };
 
@@ -187,8 +162,6 @@ export const useLottery = (lotteryId: bigint) => {
     isRequesting,
     isCreating,
     joinLottery,
-    requestWinner,
-    createNewLottery,
     refetchHistory: fetchHistory,
     refetchAll,
   };

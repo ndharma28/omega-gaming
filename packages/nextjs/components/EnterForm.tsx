@@ -11,7 +11,7 @@ interface EnterFormProps {
   isEntering: boolean;
   isInvalid: boolean;
   minEntry: number;
-  walletBalance: number; // add this prop
+  walletBalance: number;
   status: LotteryStatus;
 }
 
@@ -47,8 +47,9 @@ export default function EnterForm({
       );
     if (status === LotteryStatus.DRAWING) return "Selecting Winner...";
     if (status === LotteryStatus.RESOLVED) return "Lottery Completed";
-    if (status === LotteryStatus.CLOSED) return "Lottery Closed";
-    if (status === LotteryStatus.NOT_STARTED) return "Not Started Yet";
+
+    // NOTE: CLOSED and NOT_STARTED have been successfully removed from here!
+
     if (isTooHigh) return "Insufficient Balance";
     if (isInvalid) return "Invalid Amount";
     return "Enter Lottery";

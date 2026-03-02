@@ -1,55 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LotteryStatus } from "./StatusBar";
-import { Loader2, PlusCircle, ShieldCheck, Trophy, Vault, Wallet } from "lucide-react";
+import { Loader2, ShieldCheck, Vault, Wallet } from "lucide-react";
 import { formatEther } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { OMEGA_LOTTERY_ABI } from "~~/constants/abi";
-
-const CONTRACT_ADDRESS = "0x20d1747F94e4397570d94C28A841D9A2dD5B7eCb";
+import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 
 interface OwnerPanelProps {
   show: boolean;
   toggle: () => void;
-  onPick: () => Promise<void>;
-  onCreate: (fee: string, start: number, end: number) => Promise<void>;
-  isPicking: boolean;
-  isCreating: boolean;
-  status: LotteryStatus;
   treasuryBalance?: { formatted: string; symbol: string };
   winnerHistory?: any[];
-  endTime: bigint;
 }
 
-export default function OwnerPanel({
-  show,
-  toggle,
-  onPick,
-  onCreate,
-  isPicking,
-  isCreating,
-  status,
-  treasuryBalance,
-  winnerHistory = [],
-  endTime,
-}: OwnerPanelProps) {
-  const [fee, setFee] = useState("0.02");
-  const [durationHours, setDurationHours] = useState("24");
+export default function OwnerPanel({ show, toggle, treasuryBalance, winnerHistory = [] }: OwnerPanelProps) {
   const [treasuryAddress, setTreasuryAddress] = useState("");
   const [treasurySuccess, setTreasurySuccess] = useState(false);
-
-  // Track the transaction hash for the receipt listener
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
 
   const { writeContractAsync, isPending: isSettingTreasury } = useWriteContract();
+  const { isLoading: isWaitingForTx, isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 
-  // Wait for block confirmation
-  const { isLoading: isWaitingForTx, isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({
-    hash: txHash,
-  });
-
-  // Automatically clear the input and show success once the block is confirmed
   useEffect(() => {
     if (isTxConfirmed) {
       setTreasurySuccess(true);
@@ -58,54 +29,37 @@ export default function OwnerPanel({
     }
   }, [isTxConfirmed]);
 
-  const handleCreate = async () => {
-    const duration = parseFloat(durationHours);
-    if (isNaN(duration) || duration <= 0 || !fee) return;
-
-    const start = Math.floor(Date.now() / 1000);
-    const end = start + Math.floor(duration * 3600);
-    await onCreate(fee, start, end);
-  };
-
   const handleSetTreasury = async () => {
     if (!treasuryAddress) return;
     try {
-      setTreasurySuccess(false); // Reset success state
+      setTreasurySuccess(false);
       const hash = await writeContractAsync({
         address: CONTRACT_ADDRESS,
         abi: OMEGA_LOTTERY_ABI,
         functionName: "setTreasury",
         args: [treasuryAddress],
       });
-      setTxHash(hash); // Pass hash to the receipt listener
+      setTxHash(hash);
     } catch (e) {
       console.error("Failed to set treasury:", e);
     }
   };
 
-  // Safe BigInt parsing with try/catch to prevent crashes
   const totalFeesCollected = winnerHistory.reduce((acc, entry) => {
     if (!entry?.totalPot) return acc;
     try {
       const pot = BigInt(entry.totalPot);
-      // Assuming a 2% fee based on previous logic (pot - pot * 98 / 100)
-      const feeAmount = (pot * 2n) / 100n;
+      const feeAmount = (pot * 2n) / 100n; // 2% fee
       return acc + feeAmount;
     } catch (e) {
-      console.error("Invalid totalPot format:", entry.totalPot);
       return acc;
     }
   }, 0n);
 
-  // Derived state to disable the Create button safely
-  const isCreateDisabled = isCreating || !fee || !durationHours || parseFloat(durationHours) <= 0;
   const isTreasuryDisabled = isSettingTreasury || isWaitingForTx || !treasuryAddress;
-
-  const isReadyToDraw = status === LotteryStatus.OPEN && Math.floor(Date.now() / 1000) > Number(endTime);
 
   return (
     <div className="rounded-2xl border border-red-900/30 bg-red-950/10 overflow-hidden">
-      {/* Header */}
       <div className="p-4 flex items-center justify-between cursor-pointer bg-red-950/20" onClick={toggle}>
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-5 h-5 text-red-500" />
@@ -115,8 +69,7 @@ export default function OwnerPanel({
       </div>
 
       {show && (
-        <div className="p-6 space-y-8 animate-in slide-in-from-top-4">
-          {/* TREASURY SECTION */}
+        <div className="p-6 space-y-6 animate-in slide-in-from-top-4">
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-red-400 uppercase flex items-center gap-2">
               <Vault className="w-4 h-4" /> Treasury
@@ -143,8 +96,7 @@ export default function OwnerPanel({
               </div>
             </div>
 
-            {/* SET TREASURY ADDRESS */}
-            <div className="space-y-2">
+            <div className="space-y-2 mt-4">
               <label
                 htmlFor="treasury-input"
                 className="text-[10px] text-slate-500 uppercase font-bold flex items-center gap-1"
@@ -186,70 +138,10 @@ export default function OwnerPanel({
             </div>
           </div>
 
-          <div className="border-t border-red-900/20" />
-
-          {/* CREATE NEW ROUND SECTION */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-bold text-red-400 uppercase flex items-center gap-2">
-              <PlusCircle className="w-4 h-4" /> Start New Lottery Round
-            </h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label htmlFor="fee-input" className="text-[10px] text-slate-500 uppercase font-bold">
-                  Entry Fee (ETH)
-                </label>
-                <input
-                  id="fee-input"
-                  type="number"
-                  min="0"
-                  step="0.001"
-                  value={fee}
-                  onChange={e => setFee(e.target.value)}
-                  className="w-full bg-black/40 border border-red-900/30 rounded-lg p-2 text-white outline-none focus:border-red-500"
-                />
-              </div>
-              <div className="space-y-1">
-                <label htmlFor="duration-input" className="text-[10px] text-slate-500 uppercase font-bold">
-                  Duration (Hours)
-                </label>
-                <input
-                  id="duration-input"
-                  type="number"
-                  min="0.1"
-                  step="0.1"
-                  value={durationHours}
-                  onChange={e => setDurationHours(e.target.value)}
-                  className="w-full bg-black/40 border border-red-900/30 rounded-lg p-2 text-white outline-none focus:border-red-500"
-                />
-              </div>
-            </div>
-            <button
-              onClick={handleCreate}
-              disabled={isCreateDisabled}
-              className="w-full py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
-            >
-              {isCreating ? <Loader2 className="animate-spin w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
-              Deploy New Round
-            </button>
-          </div>
-
-          <div className="border-t border-red-900/20" />
-
-          {/* PICK WINNER SECTION */}
-          <div>
-            <button
-              onClick={onPick}
-              disabled={isPicking || !isReadyToDraw}
-              className="w-full py-4 bg-slate-800 border border-slate-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-30 hover:bg-slate-700 transition-colors"
-            >
-              <Trophy className="w-5 h-5 text-yellow-500" />
-              Pick Winner (Requires VRF)
-            </button>
-            {status !== LotteryStatus.DRAWING && (
-              <p className="text-[10px] text-slate-600 text-center mt-2">
-                Only available when lottery is in drawing state
-              </p>
-            )}
+          <div className="border-t border-red-900/20 pt-4">
+            <p className="text-xs text-slate-400 text-center">
+              Lottery rounds and winner selection are now 100% automated by Chainlink VRF and Automation.
+            </p>
           </div>
         </div>
       )}

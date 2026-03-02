@@ -8,10 +8,8 @@ import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
 import StatusBar, { LotteryStatus } from "./StatusBar";
 import { useAccount, useBalance, useReadContract } from "wagmi";
-import { OMEGA_LOTTERY_ABI } from "~~/constants/abi";
+import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
-
-const CONTRACT_ADDRESS = "0x20d1747F94e4397570d94C28A841D9A2dD5B7eCb";
 
 export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
@@ -41,19 +39,8 @@ export default function LotteryDapp() {
     !!rawOwnerAddress &&
     connectedAddress.toLowerCase() === (rawOwnerAddress as string).toLowerCase();
 
-  const {
-    lotteryData,
-    players,
-    winnerHistory,
-    treasuryBalance,
-    joinLottery,
-    requestWinner,
-    createNewLottery,
-    isJoining,
-    isRequesting,
-    isCreating,
-    refetchAll,
-  } = useLottery(activeLotteryId);
+  const { lotteryData, players, winnerHistory, treasuryBalance, joinLottery, isJoining, refetchAll } =
+    useLottery(activeLotteryId);
 
   const [entryAmount, setEntryAmount] = useState("0.02");
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
@@ -75,11 +62,11 @@ export default function LotteryDapp() {
     return () => clearInterval(interval);
   }, [refetchCounter]);
 
-  const status = (lotteryData?.status as LotteryStatus) ?? LotteryStatus.NOT_STARTED;
+  // Default to OPEN (0) since NOT_STARTED no longer exists
+  const status = (lotteryData?.status as LotteryStatus) ?? LotteryStatus.OPEN;
   const startTime = Number(lotteryData?.startTime ?? 0n);
   const endTime = Number(lotteryData?.endTime ?? 0n);
 
-  // 1-second countdown timer
   useEffect(() => {
     const calculate = () => {
       const secondsLeft = Math.max(0, endTime - Math.floor(Date.now() / 1000));
@@ -103,13 +90,8 @@ export default function LotteryDapp() {
     return () => clearInterval(interval);
   }, [endTime]);
 
-  const displayStatus = timeRemaining === "0s" && status === LotteryStatus.OPEN ? LotteryStatus.CLOSED : status;
-
-  const isEntryAllowed =
-    (status === LotteryStatus.NOT_STARTED || status === LotteryStatus.OPEN) &&
-    timeRemaining !== "0s" &&
-    endTime > 0 &&
-    Math.floor(Date.now() / 1000) >= startTime;
+  // Simplify entry logic: only enter if status is OPEN and timer is running
+  const isEntryAllowed = status === LotteryStatus.OPEN && timeRemaining !== "0s" && endTime > 0;
 
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
@@ -122,7 +104,7 @@ export default function LotteryDapp() {
 
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         <StatusBar
-          status={displayStatus}
+          status={status}
           timeRemaining={timeRemaining}
           startTime={lotteryData?.startTime}
           endTime={lotteryData?.endTime}
@@ -130,7 +112,7 @@ export default function LotteryDapp() {
 
         <PotCard
           potBalance={lotteryData?.totalPot ?? 0n}
-          status={displayStatus}
+          status={status}
           startTime={lotteryData?.startTime ?? 0n}
           endTime={lotteryData?.endTime ?? 0n}
           winner={lotteryData?.winner}
@@ -147,7 +129,7 @@ export default function LotteryDapp() {
           isInvalid={isInvalidAmount}
           minEntry={minEntry}
           walletBalance={walletBalance}
-          status={displayStatus}
+          status={status}
         />
 
         <PlayersList players={players} connectedAddress={connectedAddress} />
@@ -157,21 +139,8 @@ export default function LotteryDapp() {
             <OwnerPanel
               show={showOwnerPanel}
               toggle={() => setShowOwnerPanel(prev => !prev)}
-              onPick={async () => {
-                const idToDraw = lotteryData?.id ?? activeLotteryId;
-                await requestWinner(idToDraw);
-              }}
-              onCreate={async (f, s, e) => {
-                await createNewLottery(f, s, e);
-                refetchCounter();
-                refetchAll();
-              }}
-              isPicking={isRequesting}
-              isCreating={isCreating}
-              status={status}
               treasuryBalance={treasuryBalance}
               winnerHistory={winnerHistory}
-              endTime={lotteryData?.endTime ?? 0n}
             />
           </div>
         )}
