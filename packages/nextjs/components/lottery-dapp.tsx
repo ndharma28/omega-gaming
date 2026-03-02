@@ -167,9 +167,10 @@ export default function LotteryDapp() {
               }}
               isPicking={isRequesting}
               isCreating={isCreating}
-              status={displayStatus}
+              status={status}
               treasuryBalance={treasuryBalance}
               winnerHistory={winnerHistory}
+              endTime={lotteryData?.endTime ?? 0n}
             />
           </div>
         )}

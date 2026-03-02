@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LotteryStatus } from "./StatusBar";
 import { Loader2, PlusCircle, ShieldCheck, Trophy, Vault, Wallet } from "lucide-react";
 import { formatEther } from "viem";
-import { useWriteContract } from "wagmi";
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 
 const CONTRACT_ADDRESS = "0x256aA1F20fEFd5d8E8A4Eab916af17A36323eC97";
@@ -19,6 +19,7 @@ interface OwnerPanelProps {
   status: LotteryStatus;
   treasuryBalance?: { formatted: string; symbol: string };
   winnerHistory?: any[];
+  endTime: bigint;
 }
 
 export default function OwnerPanel({
@@ -31,42 +32,76 @@ export default function OwnerPanel({
   status,
   treasuryBalance,
   winnerHistory = [],
+  endTime,
 }: OwnerPanelProps) {
   const [fee, setFee] = useState("0.02");
   const [durationHours, setDurationHours] = useState("24");
   const [treasuryAddress, setTreasuryAddress] = useState("");
   const [treasurySuccess, setTreasurySuccess] = useState(false);
 
+  // Track the transaction hash for the receipt listener
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
+
   const { writeContractAsync, isPending: isSettingTreasury } = useWriteContract();
 
+  // Wait for block confirmation
+  const { isLoading: isWaitingForTx, isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({
+    hash: txHash,
+  });
+
+  // Automatically clear the input and show success once the block is confirmed
+  useEffect(() => {
+    if (isTxConfirmed) {
+      setTreasurySuccess(true);
+      setTreasuryAddress("");
+      setTxHash(undefined);
+    }
+  }, [isTxConfirmed]);
+
   const handleCreate = async () => {
+    const duration = parseFloat(durationHours);
+    if (isNaN(duration) || duration <= 0 || !fee) return;
+
     const start = Math.floor(Date.now() / 1000);
-    const end = start + parseInt(durationHours) * 3600;
+    const end = start + Math.floor(duration * 3600);
     await onCreate(fee, start, end);
   };
 
   const handleSetTreasury = async () => {
     if (!treasuryAddress) return;
     try {
-      await writeContractAsync({
+      setTreasurySuccess(false); // Reset success state
+      const hash = await writeContractAsync({
         address: CONTRACT_ADDRESS,
         abi: OMEGA_LOTTERY_ABI,
         functionName: "setTreasury",
         args: [treasuryAddress],
       });
-      setTreasurySuccess(true);
-      setTreasuryAddress("");
+      setTxHash(hash); // Pass hash to the receipt listener
     } catch (e) {
       console.error("Failed to set treasury:", e);
     }
   };
 
+  // Safe BigInt parsing with try/catch to prevent crashes
   const totalFeesCollected = winnerHistory.reduce((acc, entry) => {
     if (!entry?.totalPot) return acc;
-    const pot = BigInt(entry.totalPot);
-    const fee = pot - (pot * 98n) / 100n;
-    return acc + fee;
+    try {
+      const pot = BigInt(entry.totalPot);
+      // Assuming a 2% fee based on previous logic (pot - pot * 98 / 100)
+      const feeAmount = (pot * 2n) / 100n;
+      return acc + feeAmount;
+    } catch (e) {
+      console.error("Invalid totalPot format:", entry.totalPot);
+      return acc;
+    }
   }, 0n);
+
+  // Derived state to disable the Create button safely
+  const isCreateDisabled = isCreating || !fee || !durationHours || parseFloat(durationHours) <= 0;
+  const isTreasuryDisabled = isSettingTreasury || isWaitingForTx || !treasuryAddress;
+
+  const isReadyToDraw = status === LotteryStatus.OPEN && Math.floor(Date.now() / 1000) > Number(endTime);
 
   return (
     <div className="rounded-2xl border border-red-900/30 bg-red-950/10 overflow-hidden">
@@ -110,11 +145,15 @@ export default function OwnerPanel({
 
             {/* SET TREASURY ADDRESS */}
             <div className="space-y-2">
-              <label className="text-[10px] text-slate-500 uppercase font-bold flex items-center gap-1">
+              <label
+                htmlFor="treasury-input"
+                className="text-[10px] text-slate-500 uppercase font-bold flex items-center gap-1"
+              >
                 <Wallet className="w-3 h-3" /> Set Treasury Address
               </label>
               <div className="flex gap-2">
                 <input
+                  id="treasury-input"
                   type="text"
                   value={treasuryAddress}
                   onChange={e => {
@@ -126,14 +165,23 @@ export default function OwnerPanel({
                 />
                 <button
                   onClick={handleSetTreasury}
-                  disabled={isSettingTreasury || !treasuryAddress}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold text-sm flex items-center gap-2 disabled:opacity-50 transition-colors"
+                  disabled={isTreasuryDisabled}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold text-sm flex items-center justify-center min-w-[100px] gap-2 disabled:opacity-50 transition-colors"
                 >
-                  {isSettingTreasury ? <Loader2 className="animate-spin w-4 h-4" /> : "Set"}
+                  {isSettingTreasury || isWaitingForTx ? (
+                    <>
+                      <Loader2 className="animate-spin w-4 h-4" />
+                      {isWaitingForTx ? "Mining..." : "Signing..."}
+                    </>
+                  ) : (
+                    "Set"
+                  )}
                 </button>
               </div>
               {treasurySuccess && (
-                <p className="text-[10px] text-green-400 font-bold">✓ Treasury address updated successfully</p>
+                <p className="text-[10px] text-green-400 font-bold animate-in fade-in">
+                  ✓ Treasury address updated successfully
+                </p>
               )}
             </div>
           </div>
@@ -147,18 +195,28 @@ export default function OwnerPanel({
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-[10px] text-slate-500 uppercase font-bold">Entry Fee (ETH)</label>
+                <label htmlFor="fee-input" className="text-[10px] text-slate-500 uppercase font-bold">
+                  Entry Fee (ETH)
+                </label>
                 <input
+                  id="fee-input"
                   type="number"
+                  min="0"
+                  step="0.001"
                   value={fee}
                   onChange={e => setFee(e.target.value)}
                   className="w-full bg-black/40 border border-red-900/30 rounded-lg p-2 text-white outline-none focus:border-red-500"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] text-slate-500 uppercase font-bold">Duration (Hours)</label>
+                <label htmlFor="duration-input" className="text-[10px] text-slate-500 uppercase font-bold">
+                  Duration (Hours)
+                </label>
                 <input
+                  id="duration-input"
                   type="number"
+                  min="0.1"
+                  step="0.1"
                   value={durationHours}
                   onChange={e => setDurationHours(e.target.value)}
                   className="w-full bg-black/40 border border-red-900/30 rounded-lg p-2 text-white outline-none focus:border-red-500"
@@ -167,7 +225,7 @@ export default function OwnerPanel({
             </div>
             <button
               onClick={handleCreate}
-              disabled={isCreating}
+              disabled={isCreateDisabled}
               className="w-full py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
             >
               {isCreating ? <Loader2 className="animate-spin w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
@@ -181,7 +239,7 @@ export default function OwnerPanel({
           <div>
             <button
               onClick={onPick}
-              disabled={isPicking || status !== LotteryStatus.DRAWING}
+              disabled={isPicking || !isReadyToDraw}
               className="w-full py-4 bg-slate-800 border border-slate-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-30 hover:bg-slate-700 transition-colors"
             >
               <Trophy className="w-5 h-5 text-yellow-500" />
