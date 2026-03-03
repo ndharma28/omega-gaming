@@ -39,8 +39,7 @@ export default function LotteryDapp() {
     !!rawOwnerAddress &&
     connectedAddress.toLowerCase() === (rawOwnerAddress as string).toLowerCase();
 
-  const { lotteryData, players, winnerHistory, treasuryBalance, joinLottery, isJoining, refetchAll } =
-    useLottery(activeLotteryId);
+  const { lotteryData, players, treasuryBalance, joinLottery, isJoining, refetchAll } = useLottery(activeLotteryId);
 
   const [entryAmount, setEntryAmount] = useState("0.02");
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
