@@ -3,29 +3,28 @@ import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "../constants/abi";
 import { decodeEventLog, keccak256, parseEther, toBytes } from "viem";
 import { useAccount, useBalance, usePublicClient, useReadContract, useWriteContract } from "wagmi";
 
-// Your Alchemy API key & base URL for Sepolia
 const ALCHEMY_API_KEY = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!;
 const ALCHEMY_URL = `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`;
 
-// Contract deployment block (hex). Find on Etherscan by looking up tx:
-// 0x2afcac3ae887629545ae6096978c885a3291d62baa31a5d05c42d71bcef9eeed
-const CONTRACT_DEPLOY_BLOCK = "0x9DC513"; // ← update this with the new deployment block
+const CONTRACT_DEPLOY_BLOCK = "0x9DC513";
 
-// keccak256 of the WinnerPaid event signature — used to filter eth_getLogs.
-// toBytes() converts the string to a Uint8Array which is what keccak256 expects.
-const WINNER_PAID_TOPIC = keccak256(toBytes("WinnerPaid(uint256,address,uint256,uint256)"));
+// FIX 1: correct 5-param signature — was missing treasuryFee
+const WINNER_PAID_TOPIC = keccak256(toBytes("WinnerPaid(uint256,address,uint256,uint256,uint256)"));
 
 export const useLottery = (lotteryId: bigint) => {
   const { address: connectedAddress } = useAccount();
   const publicClient = usePublicClient();
   const [winnerHistory, setWinnerHistory] = useState<any[]>([]);
 
-  // READS
+  // FIX 2: disable reads until lotteryId is valid (> 0n)
+  const enabled = lotteryId > 0n;
+
   const { data: lotteryData, refetch: refetchLottery } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
     functionName: "getLottery",
     args: [lotteryId],
+    query: { enabled },
   });
 
   const { data: players, refetch: refetchPlayers } = useReadContract({
@@ -33,11 +32,9 @@ export const useLottery = (lotteryId: bigint) => {
     abi: OMEGA_LOTTERY_ABI,
     functionName: "getPlayersByLotteryId",
     args: [lotteryId],
+    query: { enabled },
   });
 
-  // isLoading is critical here — without it, isOwner resolves to `false` on
-  // first render because ownerAddress is still undefined while the RPC call
-  // is in flight. Adding isOwnerLoading to the memo prevents that false negative.
   const { data: ownerAddress, isLoading: isOwnerLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
@@ -57,7 +54,6 @@ export const useLottery = (lotteryId: bigint) => {
     },
   });
 
-  // WRITES (Uniquely named so they don't clash!)
   const { writeContractAsync: joinTx, isPending: isJoining } = useWriteContract();
   const { writeContractAsync: requestTx, isPending: isRequesting } = useWriteContract();
   const { writeContractAsync: createTx, isPending: isCreating } = useWriteContract();
@@ -72,8 +68,6 @@ export const useLottery = (lotteryId: bigint) => {
     });
   };
 
-  // HISTORY — fetched directly via Alchemy's eth_getLogs to bypass thirdweb's
-  // 1,000-block RPC limit and get the full history from contract deployment.
   const fetchHistory = useCallback(async () => {
     try {
       const response = await fetch(ALCHEMY_URL, {
@@ -118,6 +112,7 @@ export const useLottery = (lotteryId: bigint) => {
               lotteryId: args.lotteryId,
               winnerAddress: args.winnerAddress,
               winnerPayout: args.winnerPayout,
+              treasuryFee: args.treasuryFee,
               totalPot: args.totalPot,
             };
           } catch {
@@ -134,8 +129,6 @@ export const useLottery = (lotteryId: bigint) => {
     }
   }, []);
 
-  // OWNER CHECK — plain derived value, no useMemo.
-  // useMemo was caching a stale `false` from before ownerAddress loaded.
   const isOwner =
     !isOwnerLoading &&
     !!connectedAddress &&

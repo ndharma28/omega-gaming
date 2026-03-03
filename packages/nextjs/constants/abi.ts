@@ -101,6 +101,18 @@ export const OMEGA_LOTTERY_ABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    anyonymous: false,
+    inputs: [
+      { indexed: true, internalType: "uint256", name: "lotteryId", type: "uint256" },
+      { indexed: true, internalType: "address", name: "winnerAddress", type: "address" },
+      { indexed: false, internalType: "uint256", name: "winnerPayout", type: "uint256" },
+      { indexed: false, internalType: "uint256", name: "treasuryFee", type: "uint256" },
+      { indexed: false, internalType: "uint256", name: "totalPot", type: "uint256" },
+    ],
+    name: "WinnerPaid",
+    type: "event",
+  },
 ] as const; // <--- The "as const" is vital for Wagmi autocomplete!
 
 export const CONTRACT_ADDRESS = "0x66A0203895593e39873B15771e77208FccbbB81b";
