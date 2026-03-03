@@ -21,7 +21,13 @@ function shortenAddress(addr?: string) {
 function formatTimestamp(ts?: bigint) {
   if (!ts) return "—";
   const date = new Date(Number(ts) * 1000);
-  return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export default function OwnerPanel({ show, toggle, treasuryBalance }: OwnerPanelProps) {
