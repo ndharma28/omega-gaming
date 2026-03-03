@@ -134,7 +134,6 @@ export default function LotteryDapp() {
               show={showOwnerPanel}
               toggle={() => setShowOwnerPanel(prev => !prev)}
               treasuryBalance={treasuryBalance}
-              winnerHistory={winnerHistory}
             />
           </div>
         )}

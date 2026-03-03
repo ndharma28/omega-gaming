@@ -23,6 +23,7 @@ export const OMEGA_LOTTERY_ABI = [
           { internalType: "uint8", name: "status", type: "uint8" },
           { internalType: "address", name: "winner", type: "address" },
           { internalType: "uint256", name: "randomValue", type: "uint256" },
+          { internalType: "uint256", name: "requestId", type: "uint256" },
         ],
         internalType: "struct OmegaLottery.Lottery",
         name: "lottery",
