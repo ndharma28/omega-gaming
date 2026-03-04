@@ -4,6 +4,7 @@ import { CalendarDays, Trophy } from "lucide-react";
 import { formatEther } from "viem";
 
 interface PotCardProps {
+  lotteryId?: bigint | number; // <-- Added lotteryId
   potBalance: bigint;
   status: number;
   startTime: bigint;
@@ -24,7 +25,7 @@ function formatDate(timestamp: bigint): string {
   });
 }
 
-export default function PotCard({ potBalance, status, startTime, endTime, winner }: PotCardProps) {
+export default function PotCard({ lotteryId, potBalance, status, startTime, endTime, winner }: PotCardProps) {
   const isResolved = status === 4;
   const isDrawing = status === 3;
   const isNotStarted = status === 0;
@@ -36,16 +37,24 @@ export default function PotCard({ potBalance, status, startTime, endTime, winner
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 relative z-10">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          {/* HEADER ROW: Title & Epoch Badge */}
+          <div className="flex items-center gap-3 mb-1">
             <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">
               {isResolved ? "Total Payout" : "Current Jackpot"}
             </p>
+
+            {/* The New Lottery Number Badge */}
+            {lotteryId !== undefined && (
+              <div className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-mono text-slate-300 shadow-sm">
+                EPOCH #{lotteryId.toString()}
+              </div>
+            )}
           </div>
+
           <h2 className="text-4xl font-black text-yellow-500 tracking-tight">
             {formatEther(potBalance)} <span className="text-xl text-slate-500 font-medium">ETH</span>
           </h2>
 
-          {/* Using startTime and endTime here to clear linting warnings */}
           <div className="flex items-center gap-2 mt-2 text-slate-500">
             <CalendarDays className="w-3.5 h-3.5" />
             <span className="text-xs font-medium">

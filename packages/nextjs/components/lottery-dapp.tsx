@@ -106,6 +106,7 @@ export default function LotteryDapp() {
         <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
 
         <PotCard
+          lotteryId={activeLotteryId}
           potBalance={lotteryData?.totalPot ?? 0n}
           status={status}
           startTime={lotteryData?.startTime ?? 0n}
