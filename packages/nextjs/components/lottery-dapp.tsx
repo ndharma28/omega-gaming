@@ -100,7 +100,7 @@ export default function LotteryDapp() {
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-50 font-sans">
       <LotteryHeader address={connectedAddress} />
 
-      <main className="flex-growmax-w-4xl mx-auto px-4 py-8 space-y-6">
+      <main className="flex-grow max-w-4xl mx-auto px-4 py-8 space-y-6">
         <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
 
         <PotCard
