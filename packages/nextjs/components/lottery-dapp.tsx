@@ -98,56 +98,46 @@ export default function LotteryDapp() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-50 font-sans">
+      {/* Ensure your LotteryHeader has 'sticky top-0 z-50' to fix that overlap in your first screenshot */}
       <LotteryHeader address={connectedAddress} />
 
-      {/* Changed max-w-4xl to max-w-7xl for a wider desktop footprint */}
-      <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-8">
-        {/* CSS Grid: 1 column on mobile, 12 columns on large screens */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-12">
-          {/* LEFT COLUMN (Takes up 7/12 of the screen on desktop) */}
-          {/* Houses the visual state of the lottery */}
-          <div className="lg:col-span-7 flex flex-col space-y-6">
-            <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
+      {/* Changed to max-w-5xl for a wide, full-screen feel that remains readable */}
+      <main className="flex-grow w-full max-w-5xl mx-auto px-4 py-8 flex flex-col space-y-8">
+        <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
 
-            <PotCard
-              potBalance={lotteryData?.totalPot ?? 0n}
-              status={status}
-              startTime={lotteryData?.startTime ?? 0n}
-              endTime={lotteryData?.endTime ?? 0n}
-              winner={lotteryData?.winner}
+        <PotCard
+          potBalance={lotteryData?.totalPot ?? 0n}
+          status={status}
+          startTime={lotteryData?.startTime ?? 0n}
+          endTime={lotteryData?.endTime ?? 0n}
+          winner={lotteryData?.winner}
+        />
+
+        <EnterForm
+          entryAmount={entryAmount}
+          setEntryAmount={setEntryAmount}
+          onEnter={async () => {
+            await joinLottery(entryAmount);
+          }}
+          disabled={isJoining || isInvalidAmount || !isEntryAllowed}
+          isEntering={isJoining}
+          isInvalid={isInvalidAmount}
+          minEntry={minEntry}
+          walletBalance={walletBalance}
+          status={status}
+        />
+
+        <PlayersList players={players} connectedAddress={connectedAddress} />
+
+        {isOwnerDirect && (
+          <div className="pt-8 mt-4 border-t border-slate-800/50">
+            <OwnerPanel
+              show={showOwnerPanel}
+              toggle={() => setShowOwnerPanel(prev => !prev)}
+              treasuryBalance={treasuryBalance}
             />
-
-            <PlayersList players={players} connectedAddress={connectedAddress} />
           </div>
-
-          {/* RIGHT COLUMN (Takes up 5/12 of the screen on desktop) */}
-          {/* Houses the interactive forms and admin panels */}
-          <div className="lg:col-span-5 flex flex-col space-y-6">
-            <EnterForm
-              entryAmount={entryAmount}
-              setEntryAmount={setEntryAmount}
-              onEnter={async () => {
-                await joinLottery(entryAmount);
-              }}
-              disabled={isJoining || isInvalidAmount || !isEntryAllowed}
-              isEntering={isJoining}
-              isInvalid={isInvalidAmount}
-              minEntry={minEntry}
-              walletBalance={walletBalance}
-              status={status}
-            />
-
-            {isOwnerDirect && (
-              <div className="pt-6 mt-6 border-t border-slate-800/50">
-                <OwnerPanel
-                  show={showOwnerPanel}
-                  toggle={() => setShowOwnerPanel(prev => !prev)}
-                  treasuryBalance={treasuryBalance}
-                />
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </main>
     </div>
   );
