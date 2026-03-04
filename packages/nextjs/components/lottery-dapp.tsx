@@ -97,10 +97,10 @@ export default function LotteryDapp() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 font-sans">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-50 font-sans">
       <LotteryHeader address={connectedAddress} />
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <main className="flex-growmax-w-4xl mx-auto px-4 py-8 space-y-6">
         <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
 
         <PotCard
