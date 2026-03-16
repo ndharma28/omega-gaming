@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { formatEther } from "viem";
 import { type Address } from "viem";
 import { CONTRACT_ADDRESS } from "~~/constants/abi";
@@ -113,6 +114,7 @@ export default function ChronicleePage() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [filterRank, setFilterRank] = useState<string>("All");
   const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const { winnerHistory, totalFeesCollected, isLoading } = useWinnerHistoryForAddress(
     CONTRACT_SOURCES[activeSource].address,
@@ -164,13 +166,13 @@ export default function ChronicleePage() {
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-16 space-y-16">
         {/* ── Back nav ───────────────────────────────────────────────────────── */}
         <div className="flex items-center">
-          <Link
-            href="/"
+          <button
+            onClick={() => router.push("/")}
             className="group flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-yellow-500 transition-colors duration-200"
           >
             <span className="group-hover:-translate-x-1 transition-transform duration-200">←</span>
             Omega Gaming
-          </Link>
+          </button>
         </div>
 
         {/* ── Header ─────────────────────────────────────────────────────────── */}
