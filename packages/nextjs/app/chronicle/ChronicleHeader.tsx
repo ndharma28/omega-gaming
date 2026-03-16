@@ -1,0 +1,62 @@
+"use client";
+
+function Sigil() {
+  return (
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-yellow-700/60">
+      <polygon points="24,4 44,36 4,36" stroke="currentColor" strokeWidth="1" fill="none" />
+      <circle cx="24" cy="24" r="8" stroke="currentColor" strokeWidth="0.75" fill="none" />
+      <line x1="24" y1="4" x2="24" y2="44" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 3" />
+      <line x1="4" y1="36" x2="44" y2="36" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 3" />
+      <line x1="4" y1="36" x2="44" y2="12" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 3" />
+    </svg>
+  );
+}
+
+function GlyphRow() {
+  return (
+    <div className="flex items-center justify-center gap-3 text-yellow-700/80 text-xs tracking-[0.4em] select-none my-1">
+      <span>◆</span>
+      <span className="opacity-50">· · · · · · · · · · · · · · ·</span>
+      <span>◆</span>
+    </div>
+  );
+}
+
+export default function ChronicleHeader() {
+  return (
+    <div className="space-y-6">
+      {/* Back nav */}
+      <div className="flex items-center">
+        <button
+          onClick={() => {
+            window.location.href = "/";
+          }}
+          className="group flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-yellow-500 transition-colors duration-200"
+        >
+          <span className="group-hover:-translate-x-1 transition-transform duration-200">←</span>
+          Omega Gaming
+        </button>
+      </div>
+
+      {/* Title block */}
+      <div className="text-center space-y-6">
+        <div className="flex justify-center">
+          <Sigil />
+        </div>
+
+        <div className="space-y-1">
+          <p className="text-[10px] tracking-[0.5em] text-yellow-600 uppercase font-bold">
+            Omega Gaming · Restricted Archive
+          </p>
+          <h1 className="text-5xl font-black tracking-tight text-white">The Chronicle</h1>
+          <p className="text-sm text-slate-400 max-w-sm mx-auto leading-relaxed">
+            A ledger of those who have walked away with the pot. You&apos;re here. That means you already know more than
+            most.
+          </p>
+        </div>
+
+        <GlyphRow />
+      </div>
+    </div>
+  );
+}
