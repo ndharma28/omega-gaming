@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Wallet } from "lucide-react";
 
 interface LotteryHeaderProps {
@@ -12,15 +13,32 @@ export default function LotteryHeader({ address }: LotteryHeaderProps) {
       <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20">
-            {/* logo could be passed as prop if needed */}
             <span className="font-bold text-xl">🎱</span>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-white">Omega Gaming</h1>
         </div>
-        {/* Wallet Display */}
-        <div className="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm font-medium flex items-center gap-2">
-          <Wallet className="w-4 h-4 text-slate-400" />
-          {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Not Connected"}
+
+        <div className="flex items-center gap-3">
+          {/* Chronicle nav */}
+          <Link
+            href="/chronicle"
+            className="group relative px-4 py-2 rounded-full border border-red-900/40 bg-red-950/20 hover:bg-red-950/40 hover:border-red-700/60 transition-all duration-300 flex items-center gap-2"
+          >
+            {/* Pulse dot */}
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-40" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600" />
+            </span>
+            <span className="text-xs font-bold tracking-widest uppercase text-red-400 group-hover:text-red-300 transition-colors">
+              The Chronicle
+            </span>
+          </Link>
+
+          {/* Wallet display */}
+          <div className="px-4 py-2 bg-slate-800 rounded-full border border-slate-700 text-sm font-medium flex items-center gap-2">
+            <Wallet className="w-4 h-4 text-slate-400" />
+            {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Not Connected"}
+          </div>
         </div>
       </div>
     </header>

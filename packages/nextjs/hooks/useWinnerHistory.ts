@@ -1,4 +1,5 @@
 // hooks/useWinnerHistory.ts
+import { type Address } from "viem";
 import { useReadContract, useReadContracts } from "wagmi";
 import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 
@@ -12,10 +13,10 @@ export interface WinnerEntry {
   endTime: bigint;
 }
 
-export function useWinnerHistory() {
+export function useWinnerHistory(address: Address = CONTRACT_ADDRESS) {
   // Step 1: get total number of lotteries created
   const { data: counterData } = useReadContract({
-    address: CONTRACT_ADDRESS,
+    address,
     abi: OMEGA_LOTTERY_ABI,
     functionName: "lotteryIdCounter",
   });
@@ -31,7 +32,7 @@ export function useWinnerHistory() {
   // Step 2: batch-fetch all past lotteries in one multicall
   const { data: lotteriesData, isLoading } = useReadContracts({
     contracts: completedIds.map(id => ({
-      address: CONTRACT_ADDRESS,
+      address,
       abi: OMEGA_LOTTERY_ABI,
       functionName: "getLottery" as const,
       args: [BigInt(id)] as const,
@@ -70,7 +71,7 @@ export function useWinnerHistory() {
         prizeAmount,
         treasuryFee,
         startTime: lottery.startTime,
-        endTime: lottery.endTime, // endTime doubles as the round completion timestamp
+        endTime: lottery.endTime,
       } satisfies WinnerEntry;
     })
     .filter((e): e is WinnerEntry => e !== null);
