@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ALL_RANKS, RANK_COLORS, classifyPrize, formatTimestamp, shortenAddress } from "./lib";
+import { ALL_RANKS, RANK_COLORS, classifyPrize, formatTimestamp, shortenAddress } from "./lib.ts";
 import { formatEther } from "viem";
 import { type WinnerEntry } from "~~/hooks/useWinnerHistory";
 
