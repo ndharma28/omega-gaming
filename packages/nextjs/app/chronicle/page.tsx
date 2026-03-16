@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { formatEther } from "viem";
 import { type Address } from "viem";
 import { CONTRACT_ADDRESS } from "~~/constants/abi";
-import { type WinnerEntry, useWinnerHistory } from "~~/hooks/useWinnerHistory";
+import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
 
 interface ContractSource {
   label: string;

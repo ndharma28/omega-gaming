@@ -22,14 +22,14 @@ export default function LotteryHeader({ address }: LotteryHeaderProps) {
           {/* Chronicle nav */}
           <Link
             href="/chronicle"
-            className="group relative px-4 py-2 rounded-full border border-red-900/40 bg-red-950/20 hover:bg-red-950/40 hover:border-red-700/60 transition-all duration-300 flex items-center gap-2"
+            className="group relative px-4 py-2 rounded-full border border-yellow-800/40 bg-yellow-950/20 hover:bg-yellow-950/40 hover:border-yellow-700/50 transition-all duration-300 flex items-center gap-2"
           >
             {/* Pulse dot */}
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-40" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-500 opacity-30" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-600" />
             </span>
-            <span className="text-xs font-bold tracking-widest uppercase text-red-400 group-hover:text-red-300 transition-colors">
+            <span className="text-xs font-bold tracking-widest uppercase text-yellow-600 group-hover:text-yellow-500 transition-colors">
               The Chronicle
             </span>
           </Link>
