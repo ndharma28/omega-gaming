@@ -37,6 +37,17 @@ export function formatTimestamp(ts?: bigint) {
   });
 }
 
+export function formatTimestampShort(ts?: bigint) {
+  if (!ts) return "—";
+  const date = new Date(Number(ts) * 1000);
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function classifyPrize(eth: number): string {
   if (eth >= 1) return "Sovereign";
   if (eth >= 0.5) return "Titan";
