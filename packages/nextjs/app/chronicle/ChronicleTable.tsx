@@ -112,7 +112,7 @@ function AddressChronicle({
       <div className="px-6 py-4 border-b border-yellow-900/20 bg-yellow-950/10">
         <p className="text-[10px] text-yellow-700 uppercase tracking-widest font-bold mb-3">Address Chronicle</p>
         <p className="text-xs text-slate-400 mb-4">
-          Enter any wallet address to pull its complete win record from the ledger.
+          Every address leaves a trail. Drop one in and we&apos;ll pull everything the ledger has on it.
         </p>
         <div className="flex gap-2">
           <input
