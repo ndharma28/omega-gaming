@@ -30,7 +30,7 @@ export default function ChroniclePage() {
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-16 space-y-16">
         <ChronicleHeader />
 
-        <ChronicleStats winnerHistory={winnerHistory} totalFeesCollected={totalFeesCollected} />
+        <ChronicleStats winnerHistory={winnerHistory} />
 
         {/* Era tabs — only rendered when multiple contract sources exist */}
         {CONTRACT_SOURCES.length > 1 && (

@@ -16,20 +16,20 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 
 interface ChronicleStatsProps {
   winnerHistory: WinnerEntry[];
-  totalFeesCollected: bigint;
 }
 
-export default function ChronicleStats({ winnerHistory, totalFeesCollected }: ChronicleStatsProps) {
+export default function ChronicleStats({ winnerHistory }: ChronicleStatsProps) {
   const uniqueWinners = new Set(winnerHistory.map(e => e.winner)).size;
   const topPrize =
     winnerHistory.length > 0 ? Math.max(...winnerHistory.map(e => parseFloat(formatEther(e.prizeAmount)))) : 0;
+  const totalDistributed = winnerHistory.reduce((acc, e) => acc + e.prizeAmount, 0n);
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <StatCard label="Rounds Completed" value={winnerHistory.length.toString()} sub="verified on-chain" />
       <StatCard
         label="Total Distributed"
-        value={`${parseFloat(formatEther(totalFeesCollected)).toFixed(4)} ETH`}
+        value={`${parseFloat(formatEther(totalDistributed)).toFixed(4)} ETH`}
         sub="to winners"
       />
       <StatCard
