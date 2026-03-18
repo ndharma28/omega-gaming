@@ -54,12 +54,7 @@ export default function ChroniclePage() {
           </div>
         )}
 
-        <ChronicleTable
-          winnerHistory={winnerHistory}
-          totalFeesCollected={totalFeesCollected}
-          isLoading={isLoading}
-          activeSource={activeSource}
-        />
+        <ChronicleTable winnerHistory={winnerHistory} isLoading={isLoading} activeSource={activeSource} />
 
         {/* Footer */}
         <div className="text-center space-y-4 pb-8">

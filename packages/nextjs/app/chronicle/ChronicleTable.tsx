@@ -88,15 +88,7 @@ function TableRow({
 
 // ─── Address Chronicle ────────────────────────────────────────────────────────
 
-function AddressChronicle({
-  winnerHistory,
-  totalFeesCollected,
-  activeSource,
-}: {
-  winnerHistory: WinnerEntry[];
-  totalFeesCollected: bigint;
-  activeSource: number;
-}) {
+function AddressChronicle({ winnerHistory, activeSource }: { winnerHistory: WinnerEntry[]; activeSource: number }) {
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState("");
 
@@ -130,7 +122,7 @@ function AddressChronicle({
             disabled={!query.trim()}
             className="px-4 py-2 bg-yellow-900/40 hover:bg-yellow-900/60 border border-yellow-700/40 rounded-xl text-xs font-bold text-yellow-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
-            Search
+            Pull the File
           </button>
           {submitted && (
             <button
@@ -221,17 +213,11 @@ function AddressChronicle({
 
 interface ChronicleTableProps {
   winnerHistory: WinnerEntry[];
-  totalFeesCollected: bigint;
   isLoading: boolean;
   activeSource: number;
 }
 
-export default function ChronicleTable({
-  winnerHistory,
-  totalFeesCollected,
-  isLoading,
-  activeSource,
-}: ChronicleTableProps) {
+export default function ChronicleTable({ winnerHistory, isLoading, activeSource }: ChronicleTableProps) {
   const [revealedRows, setRevealedRows] = useState<Set<number>>(new Set());
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [filterRank, setFilterRank] = useState("All");
@@ -335,7 +321,8 @@ export default function ChronicleTable({
               {processedHistory.length} entr{processedHistory.length === 1 ? "y" : "ies"} shown
             </span>
             <span className="text-[10px] text-yellow-600 font-bold">
-              {parseFloat(formatEther(totalFeesCollected)).toFixed(4)} ETH total
+              {parseFloat(formatEther(processedHistory.reduce((acc, e) => acc + e.prizeAmount, 0n))).toFixed(4)} ETH
+              paid out
             </span>
           </div>
         )}
@@ -343,11 +330,7 @@ export default function ChronicleTable({
 
       {/* Address Chronicle */}
       {!isLoading && winnerHistory.length > 0 && (
-        <AddressChronicle
-          winnerHistory={winnerHistory}
-          totalFeesCollected={totalFeesCollected}
-          activeSource={activeSource}
-        />
+        <AddressChronicle winnerHistory={winnerHistory} activeSource={activeSource} />
       )}
 
       {/* Rank legend */}
