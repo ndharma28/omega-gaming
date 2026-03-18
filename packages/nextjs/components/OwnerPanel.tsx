@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, ShieldCheck, Vault, Wallet } from "lucide-react";
+import { formatEther } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
+import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
 
 interface OwnerPanelProps {
   show: boolean;
@@ -15,6 +17,8 @@ export default function OwnerPanel({ show, toggle, treasuryBalance }: OwnerPanel
   const [treasuryAddress, setTreasuryAddress] = useState("");
   const [treasurySuccess, setTreasurySuccess] = useState(false);
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
+
+  const { totalFeesCollected, winnerHistory, isLoading: isLoadingFees } = useWinnerHistory();
 
   const { writeContractAsync, isPending: isSettingTreasury } = useWriteContract();
   const { isLoading: isWaitingForTx, isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
@@ -62,13 +66,38 @@ export default function OwnerPanel({ show, toggle, treasuryBalance }: OwnerPanel
               <Vault className="w-4 h-4" /> Treasury
             </h4>
 
-            <div className="bg-black/30 border border-red-900/20 rounded-xl p-4 space-y-1">
-              <p className="text-[10px] text-slate-500 uppercase font-bold">Current Balance</p>
-              <p className="text-xl font-black text-white">
-                {!treasuryBalance || parseFloat(treasuryBalance.formatted) === 0
-                  ? "0.0000 ETH"
-                  : `${parseFloat(treasuryBalance.formatted).toFixed(4)} ${treasuryBalance.symbol}`}
-              </p>
+            <div className="grid grid-cols-2 gap-3">
+              {/* Current balance */}
+              <div className="bg-black/30 border border-red-900/20 rounded-xl p-4 space-y-1">
+                <p className="text-[10px] text-slate-500 uppercase font-bold">Current Balance</p>
+                <p className="text-xl font-black text-white">
+                  {!treasuryBalance || parseFloat(treasuryBalance.formatted) === 0
+                    ? "0.0000 ETH"
+                    : `${parseFloat(treasuryBalance.formatted).toFixed(4)} ${treasuryBalance.symbol}`}
+                </p>
+              </div>
+
+              {/* Fees collected */}
+              <div className="bg-black/30 border border-red-900/20 rounded-xl p-4 space-y-1">
+                <p className="text-[10px] text-slate-500 uppercase font-bold">Total Fees Collected</p>
+                {isLoadingFees ? (
+                  <div className="flex items-center gap-2 pt-1">
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
+                    <span className="text-sm text-slate-500">Loading...</span>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-xl font-black text-white">
+                      {parseFloat(formatEther(totalFeesCollected)).toFixed(4)} ETH
+                    </p>
+                    <p className="text-[10px] text-slate-600">
+                      {winnerHistory.length > 0
+                        ? `across ${winnerHistory.length} round${winnerHistory.length !== 1 ? "s" : ""}`
+                        : "no rounds yet"}
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2 mt-4">
