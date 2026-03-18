@@ -28,8 +28,8 @@ function ProgressBar({ onComplete }: { onComplete: () => void }) {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const phraseRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const DURATION = 2800;
-  const TICK = 40;
+  const DURATION = 6500;
+  const TICK = 50;
 
   useEffect(() => {
     const steps = DURATION / TICK;
@@ -37,12 +37,24 @@ function ProgressBar({ onComplete }: { onComplete: () => void }) {
 
     intervalRef.current = setInterval(() => {
       current += 1;
-      // Ease-out: fast at start, slow near 100
-      const eased = Math.min(100, Math.round((1 - Math.pow(1 - current / steps, 2)) * 100));
+      const t = current / steps;
+      // Heavy cubic ease-out — fast start, then drags hard before 100
+      // Also stalls artificially between 70-90% to feel like it's working
+      let eased: number;
+      if (t < 0.6) {
+        eased = Math.round((1 - Math.pow(1 - t / 0.6, 3)) * 70);
+      } else if (t < 0.85) {
+        // Crawl through 70–88%
+        eased = Math.round(70 + ((t - 0.6) / 0.25) * 18);
+      } else {
+        // Final push to 100
+        eased = Math.round(88 + ((t - 0.85) / 0.15) * 12);
+      }
+      eased = Math.min(100, eased);
       setProgress(eased);
-      if (eased >= 100) {
+      if (current >= steps) {
         clearInterval(intervalRef.current!);
-        setTimeout(onComplete, 200);
+        setTimeout(onComplete, 350);
       }
     }, TICK);
 
