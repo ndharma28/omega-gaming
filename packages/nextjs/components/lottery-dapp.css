@@ -83,10 +83,15 @@
 
 /* ── Hero / PotCard zone ────────────────────────────────── */
 .og-hero {
-  padding: 3rem 2rem 2.5rem;
+  padding: 3rem 0 2.5rem;
   border-bottom: var(--og-b-dim);
   position: relative;
   overflow: hidden;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 .og-hero::after {
@@ -106,11 +111,16 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   border-bottom: var(--og-b-dim);
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .og-stat-cell {
-  padding: 1.25rem 2rem;
+  padding: 1.25rem 0;
   border-right: var(--og-b-dim);
+  padding-right: 1.5rem;
 }
 
 .og-stat-cell:last-child { border-right: none; }
@@ -142,24 +152,28 @@
   letter-spacing: 0.04em;
 }
 
-/* ── Two-Column Main ────────────────────────────────────── */
+/* ── Single-Column Main ─────────────────────────────────── */
 .og-main-layout {
-  display: grid;
-  grid-template-columns: 1fr 380px;
+  display: flex;
+  flex-direction: column;
   border-bottom: var(--og-b-dim);
   flex: 1;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .og-main-left {
-  padding: 2.5rem 2rem;
-  border-right: var(--og-b-dim);
+  padding: 2.5rem 0;
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
 .og-main-right {
-  padding: 2.5rem 2rem;
+  padding: 0 0 2.5rem;
+  border-top: var(--og-b-dim);
 }
 
 /* ── Section Label ──────────────────────────────────────── */
@@ -484,25 +498,16 @@
 }
 
 /* ── Responsive ─────────────────────────────────────────── */
-@media (max-width: 960px) {
-  .og-main-layout {
-    grid-template-columns: 1fr;
-  }
-  .og-main-right { border-top: var(--og-b-dim); }
-  .og-main-left  { border-right: none; }
+@media (max-width: 600px) {
+  .og-hero,
+  .og-main-layout,
+  .og-stat-row { padding-left: 1.25rem; padding-right: 1.25rem; }
 
   .og-stat-row { grid-template-columns: repeat(2, 1fr); }
   .og-stat-cell:nth-child(2) { border-right: none; }
   .og-stat-cell:nth-child(1),
   .og-stat-cell:nth-child(2) { border-bottom: var(--og-b-dim); }
-}
 
-@media (max-width: 600px) {
-  .og-hero,
-  .og-main-left,
-  .og-main-right,
   .og-owner-zone,
   .og-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
-
-  .og-stat-cell { padding: 1rem 1.25rem; }
 }
