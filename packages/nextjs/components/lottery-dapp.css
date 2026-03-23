@@ -1,0 +1,508 @@
+/* ============================================================
+   OMEGA GAMING — Global Design System
+   
+   Setup:
+     1. Add to <head> in layout.tsx (or @import in globals.css):
+          https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900
+            &family=IBM+Plex+Mono:wght@300;400;500
+            &family=Libre+Baskerville:ital@1&display=swap
+     2. In globals.css:
+          @import './lottery-dapp.css';
+   ============================================================ */
+
+/* ── Design Tokens ──────────────────────────────────────── */
+:root {
+  --og-amber:        #EF9F27;
+  --og-amber-dim:    #BA7517;
+  --og-amber-faint:  rgba(239, 159, 39, 0.08);
+  --og-amber-border: rgba(239, 159, 39, 0.20);
+  --og-amber-glow:   rgba(239, 159, 39, 0.04);
+
+  --og-green:        #97C459;
+  --og-green-dim:    #639922;
+
+  --og-red:          #A32D2D;
+  --og-red-faint:    rgba(163, 45, 45, 0.06);
+  --og-red-border:   rgba(163, 45, 45, 0.18);
+  --og-red-text:     #E24B4A;
+
+  --og-black:        #0A0A09;
+  --og-surface-2:    #141410;
+  --og-surface-3:    #1A1A16;
+  --og-surface-4:    #201F1A;
+
+  --og-border:       rgba(239, 159, 39, 0.14);
+  --og-border-dim:   rgba(239, 159, 39, 0.07);
+  --og-b:            0.5px solid rgba(239, 159, 39, 0.14);
+  --og-b-dim:        0.5px solid rgba(239, 159, 39, 0.07);
+
+  --og-text:         #C8C4B4;
+  --og-text-bright:  #E8DFC8;
+  --og-text-muted:   #5F5E58;
+  --og-text-dim:     #888780;
+
+  --og-display:      'Playfair Display', Georgia, serif;
+  --og-mono:         'IBM Plex Mono', 'Courier New', monospace;
+  --og-serif:        'Libre Baskerville', Georgia, serif;
+
+  --og-r:    4px;
+  --og-r-md: 6px;
+  --og-r-lg: 8px;
+}
+
+/* ── Keyframes ──────────────────────────────────────────── */
+@keyframes og-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+@keyframes og-fade-up {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Root Shell ─────────────────────────────────────────── */
+.og-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--og-black);
+  color: var(--og-text);
+  font-family: var(--og-mono);
+}
+
+/* ── Status Banner ──────────────────────────────────────── */
+/* StatusBar child fills 100% width here */
+.og-status-banner {
+  border-bottom: var(--og-b-dim);
+}
+
+.og-status-banner > * {
+  width: 100%;
+}
+
+/* ── Hero / PotCard zone ────────────────────────────────── */
+.og-hero {
+  padding: 3rem 2rem 2.5rem;
+  border-bottom: var(--og-b-dim);
+  position: relative;
+  overflow: hidden;
+}
+
+.og-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 55% 60% at 50% -5%,
+    rgba(239,159,39,0.045) 0%,
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+/* ── Stat Row ───────────────────────────────────────────── */
+.og-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: var(--og-b-dim);
+}
+
+.og-stat-cell {
+  padding: 1.25rem 2rem;
+  border-right: var(--og-b-dim);
+}
+
+.og-stat-cell:last-child { border-right: none; }
+
+.og-stat-label {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--og-text-muted);
+  margin-bottom: 6px;
+}
+
+.og-stat-value {
+  font-family: var(--og-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--og-text-bright);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.og-stat-value--green { color: var(--og-green); }
+.og-stat-value--amber { color: var(--og-amber); }
+
+.og-stat-meta {
+  font-size: 10px;
+  color: var(--og-text-muted);
+  margin-top: 5px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Two-Column Main ────────────────────────────────────── */
+.og-main-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  border-bottom: var(--og-b-dim);
+  flex: 1;
+}
+
+.og-main-left {
+  padding: 2.5rem 2rem;
+  border-right: var(--og-b-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.og-main-right {
+  padding: 2.5rem 2rem;
+}
+
+/* ── Section Label ──────────────────────────────────────── */
+.og-section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--og-amber-dim);
+  padding-bottom: 0.75rem;
+  border-bottom: var(--og-b-dim);
+  margin-bottom: 1.25rem;
+}
+
+.og-section-label::before {
+  content: '//';
+  color: var(--og-text-muted);
+}
+
+/* ── Entry Form ─────────────────────────────────────────── */
+.og-field-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--og-text-muted);
+  margin-bottom: 8px;
+}
+
+.og-input-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--og-surface-3);
+  border: var(--og-b);
+  border-radius: var(--og-r-md);
+  overflow: hidden;
+  transition: border-color 0.2s;
+  margin-bottom: 8px;
+}
+
+.og-input-wrap:focus-within { border-color: var(--og-amber-dim); }
+
+.og-input-wrap--error { border-color: rgba(162, 45, 45, 0.5) !important; }
+
+.og-eth-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 14px 16px;
+  font-family: var(--og-mono);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--og-text-bright);
+  width: 100%;
+}
+
+.og-eth-input::placeholder { color: var(--og-text-muted); }
+.og-eth-input::-webkit-inner-spin-button,
+.og-eth-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.og-eth-input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+.og-input-unit {
+  padding: 14px 16px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--og-text-muted);
+  border-left: var(--og-b-dim);
+  flex-shrink: 0;
+}
+
+.og-min-note {
+  font-size: 10px;
+  color: var(--og-text-muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 1.25rem;
+}
+
+.og-min-note--error { color: var(--og-red-text); }
+
+/* ── Enter Button ───────────────────────────────────────── */
+.og-btn-enter {
+  width: 100%;
+  padding: 15px;
+  background: var(--og-surface-4);
+  border: var(--og-b);
+  color: var(--og-text-bright);
+  font-family: var(--og-mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: var(--og-r-md);
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.og-btn-enter::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(239,159,39,0.08), transparent);
+  transition: left 0.45s;
+  pointer-events: none;
+}
+
+.og-btn-enter:hover:not(:disabled) {
+  border-color: var(--og-amber-dim);
+  color: var(--og-amber);
+  background: var(--og-amber-glow);
+}
+
+.og-btn-enter:hover:not(:disabled)::before { left: 100%; }
+.og-btn-enter:disabled { opacity: 0.32; cursor: not-allowed; }
+.og-btn-enter--loading { color: var(--og-amber-dim); }
+
+/* ── Chronicle Teaser ───────────────────────────────────── */
+.og-chronicle-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--og-amber-faint);
+  border: 0.5px solid rgba(239,159,39,0.22);
+  padding: 4px 12px;
+  border-radius: var(--og-r);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--og-amber-dim);
+  margin-bottom: 1.25rem;
+}
+
+.og-chronicle-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--og-amber);
+  flex-shrink: 0;
+  animation: og-pulse 2.2s ease-in-out infinite;
+}
+
+.og-teaser-quote {
+  font-family: var(--og-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--og-text-dim);
+  line-height: 1.75;
+  margin-bottom: 1.5rem;
+  border-left: 2px solid var(--og-amber-dim);
+  padding-left: 14px;
+}
+
+/* ── Mini Ledger ────────────────────────────────────────── */
+.og-mini-ledger { margin-top: 0.25rem; }
+
+.og-ledger-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: var(--og-b-dim);
+  opacity: 0;
+  animation: og-fade-up 0.32s forwards;
+}
+
+.og-ledger-row:nth-child(1) { animation-delay: 0.08s; }
+.og-ledger-row:nth-child(2) { animation-delay: 0.18s; }
+.og-ledger-row:nth-child(3) { animation-delay: 0.28s; }
+.og-ledger-row:nth-child(4) { animation-delay: 0.38s; }
+.og-ledger-row:nth-child(5) { animation-delay: 0.48s; }
+
+.og-ledger-num {
+  font-size: 10px;
+  color: var(--og-text-muted);
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.og-ledger-addr {
+  font-size: 11px;
+  color: var(--og-text-dim);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.og-ledger-addr--redacted {
+  background: var(--og-surface-4);
+  color: transparent;
+  border-radius: 2px;
+  user-select: none;
+}
+
+.og-ledger-prize {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--og-green);
+  min-width: 74px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.og-ledger-rank {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  background: var(--og-surface-4);
+  border: var(--og-b-dim);
+  color: var(--og-text-muted);
+  padding: 2px 7px;
+  border-radius: var(--og-r);
+  width: 60px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.og-ledger-footer {
+  margin-top: 0.75rem;
+  font-size: 10px;
+  color: var(--og-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  letter-spacing: 0.05em;
+}
+
+.og-ledger-total {
+  color: var(--og-amber-dim);
+  font-weight: 500;
+}
+
+/* ── Chronicle CTA ──────────────────────────────────────── */
+.og-chronicle-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  padding: 14px 16px;
+  background: var(--og-amber-faint);
+  border: 0.5px solid var(--og-amber-border);
+  border-radius: var(--og-r-lg);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.og-chronicle-cta:hover {
+  background: rgba(239,159,39,0.12);
+  border-color: rgba(239,159,39,0.38);
+}
+
+.og-cta-sub {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--og-text-muted);
+  margin-bottom: 3px;
+}
+
+.og-cta-title {
+  font-family: var(--og-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--og-amber);
+  letter-spacing: 0.02em;
+}
+
+.og-cta-arrow {
+  font-size: 20px;
+  color: var(--og-amber-dim);
+  font-family: var(--og-mono);
+  transition: transform 0.2s;
+}
+
+.og-chronicle-cta:hover .og-cta-arrow { transform: translateX(4px); }
+
+/* ── Owner Zone ─────────────────────────────────────────── */
+/* OwnerPanel keeps its own Tailwind styling (red/slate).
+   This zone wrapper just anchors it to the page's border system. */
+.og-owner-zone {
+  border-top: 0.5px solid var(--og-red-border);
+  background: var(--og-red-faint);
+}
+
+/* ── Footer ─────────────────────────────────────────────── */
+.og-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 1.5rem 2rem;
+  border-top: var(--og-b-dim);
+}
+
+.og-footer a {
+  font-size: 11px;
+  color: var(--og-text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.og-footer a:hover { color: var(--og-amber-dim); }
+
+.og-footer-sep {
+  font-size: 11px;
+  color: var(--og-text-muted);
+}
+
+.og-footer-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--og-text-muted);
+  display: inline-block;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .og-main-layout {
+    grid-template-columns: 1fr;
+  }
+  .og-main-right { border-top: var(--og-b-dim); }
+  .og-main-left  { border-right: none; }
+
+  .og-stat-row { grid-template-columns: repeat(2, 1fr); }
+  .og-stat-cell:nth-child(2) { border-right: none; }
+  .og-stat-cell:nth-child(1),
+  .og-stat-cell:nth-child(2) { border-bottom: var(--og-b-dim); }
+}
+
+@media (max-width: 600px) {
+  .og-hero,
+  .og-main-left,
+  .og-main-right,
+  .og-owner-zone,
+  .og-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+
+  .og-stat-cell { padding: 1rem 1.25rem; }
+}
