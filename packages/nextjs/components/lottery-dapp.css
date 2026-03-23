@@ -36,10 +36,10 @@
   --og-b:            0.5px solid rgba(239, 159, 39, 0.14);
   --og-b-dim:        0.5px solid rgba(239, 159, 39, 0.07);
 
-  --og-text:         #C8C4B4;
-  --og-text-bright:  #E8DFC8;
-  --og-text-muted:   #5F5E58;
-  --og-text-dim:     #888780;
+  --og-text:         #D8D4C4;
+  --og-text-bright:  #F0E8D0;
+  --og-text-muted:   #8A897F;
+  --og-text-dim:     #A8A49A;
 
   --og-display:      'Playfair Display', Georgia, serif;
   --og-mono:         'IBM Plex Mono', 'Courier New', monospace;
@@ -131,7 +131,7 @@
 .og-stat-cell:last-child { border-right: none; }
 
 .og-stat-label {
-  font-size: 9px;
+  font-size: 14px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--og-text-muted);
@@ -151,7 +151,7 @@
 .og-stat-value--amber { color: var(--og-amber); }
 
 .og-stat-meta {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--og-text-muted);
   margin-top: 5px;
   letter-spacing: 0.04em;
@@ -186,7 +186,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--og-amber-dim);
@@ -202,7 +202,7 @@
 
 /* ── Entry Form ─────────────────────────────────────────── */
 .og-field-label {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--og-text-muted);
@@ -245,7 +245,7 @@
 
 .og-input-unit {
   padding: 14px 16px;
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0.12em;
   color: var(--og-text-muted);
   border-left: var(--og-b-dim);
@@ -253,7 +253,7 @@
 }
 
 .og-min-note {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--og-text-muted);
   letter-spacing: 0.05em;
   margin-bottom: 1.25rem;
@@ -269,7 +269,7 @@
   border: var(--og-b);
   color: var(--og-text-bright);
   font-family: var(--og-mono);
-  font-size: 11px;
+  font-size: 14px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   cursor: pointer;
@@ -308,7 +308,7 @@
   border: 0.5px solid rgba(239,159,39,0.22);
   padding: 4px 12px;
   border-radius: var(--og-r);
-  font-size: 9px;
+  font-size: 14px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--og-amber-dim);
@@ -328,7 +328,7 @@
 .og-teaser-quote {
   font-family: var(--og-serif);
   font-style: italic;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--og-text-dim);
   line-height: 1.75;
   margin-bottom: 1.5rem;
@@ -356,14 +356,14 @@
 .og-ledger-row:nth-child(5) { animation-delay: 0.48s; }
 
 .og-ledger-num {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--og-text-muted);
   width: 32px;
   flex-shrink: 0;
 }
 
 .og-ledger-addr {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--og-text-dim);
   flex: 1;
   min-width: 0;
@@ -380,7 +380,7 @@
 }
 
 .og-ledger-prize {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--og-green);
   min-width: 74px;
@@ -389,7 +389,7 @@
 }
 
 .og-ledger-rank {
-  font-size: 9px;
+  font-size: 14px;
   letter-spacing: 0.08em;
   background: var(--og-surface-4);
   border: var(--og-b-dim);
@@ -403,7 +403,7 @@
 
 .og-ledger-footer {
   margin-top: 0.75rem;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--og-text-muted);
   display: flex;
   align-items: center;
@@ -438,7 +438,7 @@
 }
 
 .og-cta-sub {
-  font-size: 9px;
+  font-size: 14px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--og-text-muted);
@@ -490,7 +490,7 @@
 }
 
 .og-footer a {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--og-text-muted);
   text-decoration: none;
   transition: color 0.2s;
@@ -499,7 +499,7 @@
 .og-footer a:hover { color: var(--og-amber-dim); }
 
 .og-footer-sep {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--og-text-muted);
 }
 
