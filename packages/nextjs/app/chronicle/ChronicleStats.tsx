@@ -6,10 +6,10 @@ import { type WinnerEntry } from "~~/hooks/useWinnerHistory";
 
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="bg-black/40 border border-yellow-900/20 rounded-2xl p-5 space-y-1 backdrop-blur-sm">
-      <p className="text-[10px] text-yellow-700 uppercase tracking-widest font-bold">{label}</p>
-      <p className="text-2xl font-black text-white">{value}</p>
-      {sub && <p className="text-[11px] text-slate-400">{sub}</p>}
+    <div className="chronicle-card p-5 space-y-1">
+      <p className="chronicle-label">{label}</p>
+      <p className="chronicle-text-primary">{value}</p>
+      {sub && <p className="chronicle-text-secondary">{sub}</p>}
     </div>
   );
 }

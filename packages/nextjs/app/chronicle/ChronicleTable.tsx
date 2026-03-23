@@ -51,10 +51,8 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
             <button
               key={rank}
               onClick={() => setFilterRank(rank)}
-              className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all ${
-                filterRank === rank
-                  ? "bg-yellow-900/30 border-yellow-700/50 text-yellow-300"
-                  : "bg-black/40 border-yellow-900/20 text-slate-500 hover:text-slate-300"
+              className={`chronicle-btn-secondary ${
+                filterRank === rank ? "chronicle-btn-secondary-active" : "chronicle-btn-secondary-inactive"
               }`}
             >
               {rank}
@@ -70,15 +68,15 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
       </div>
 
       {/* Main table */}
-      <div className="rounded-2xl border border-yellow-900/20 overflow-hidden backdrop-blur-sm">
+      <div className="chronicle-container">
         {/* Column headers */}
-        <div className="grid grid-cols-[2.5rem_1fr_5rem_5rem] md:grid-cols-[2.5rem_1fr_6rem_6rem_7rem] gap-3 px-4 md:px-6 py-3 bg-yellow-950/20 border-b border-yellow-900/20">
+        <div className="chronicle-table-header">
           {TABLE_COLS.map(col => (
-            <span key={col} className="text-[10px] text-yellow-700 uppercase tracking-widest font-bold">
+            <span key={col} className="chronicle-label">
               {col}
             </span>
           ))}
-          <span className="hidden md:block text-[10px] text-yellow-700 uppercase tracking-widest font-bold">Date</span>
+          <span className="hidden md:block chronicle-label">Date</span>
         </div>
 
         {isLoading && (
@@ -90,10 +88,10 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
         )}
 
         {!isLoading && winnerHistory.length === 0 && (
-          <div className="py-20 text-center space-y-3">
+          <div className="chronicle-empty-container-large">
             <EmptySigil />
-            <p className="text-sm text-slate-500">The ledger awaits its first entry.</p>
-            <p className="text-[11px] text-slate-600">No rounds have concluded on this contract yet.</p>
+            <p className="chronicle-text-secondary">The ledger awaits its first entry.</p>
+            <p className="chronicle-text-muted">No rounds have concluded on this contract yet.</p>
           </div>
         )}
 

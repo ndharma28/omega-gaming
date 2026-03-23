@@ -35,16 +35,14 @@ export default function ChroniclePage() {
         {/* Era tabs — only rendered when multiple contract sources exist */}
         {CONTRACT_SOURCES.length > 1 && (
           <div className="space-y-3">
-            <p className="text-[10px] text-yellow-700 uppercase tracking-widest font-bold">Contract Era</p>
+            <p className="chronicle-label">Contract Era</p>
             <div className="flex gap-2">
               {CONTRACT_SOURCES.map((src, i) => (
                 <button
                   key={src.address}
                   onClick={() => setActiveSource(i)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
-                    activeSource === i
-                      ? "bg-yellow-900/40 border-yellow-700/50 text-yellow-300"
-                      : "bg-black/40 border-yellow-900/20 text-slate-500 hover:text-slate-300 hover:border-yellow-900/40"
+                  className={`chronicle-btn-secondary ${
+                    activeSource === i ? "chronicle-btn-secondary-active" : "chronicle-btn-secondary-inactive"
                   }`}
                 >
                   {src.label}

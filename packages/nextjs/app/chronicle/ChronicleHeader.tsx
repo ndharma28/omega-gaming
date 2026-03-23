@@ -2,7 +2,7 @@
 
 function Sigil() {
   return (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-yellow-700/60">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="chronicle-sigil">
       <polygon points="24,4 44,36 4,36" stroke="currentColor" strokeWidth="1" fill="none" />
       <circle cx="24" cy="24" r="8" stroke="currentColor" strokeWidth="0.75" fill="none" />
       <line x1="24" y1="4" x2="24" y2="44" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 3" />
@@ -14,7 +14,7 @@ function Sigil() {
 
 function GlyphRow() {
   return (
-    <div className="flex items-center justify-center gap-3 text-yellow-700/80 text-xs tracking-[0.4em] select-none my-1">
+    <div className="chronicle-glyph-row">
       <span>◆</span>
       <span className="opacity-50">· · · · · · · · · · · · · · ·</span>
       <span>◆</span>

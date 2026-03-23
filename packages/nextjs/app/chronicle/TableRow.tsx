@@ -18,9 +18,9 @@ export default function TableRow({ entry, activeSource, isRevealed, highlightAdd
 
   return (
     <div
-      className={`grid grid-cols-[2.5rem_1fr_5rem_5rem] md:grid-cols-[2.5rem_1fr_6rem_6rem_7rem] gap-3 px-4 md:px-6 py-3 transition-all duration-300 ${
-        isHighlighted ? "bg-yellow-950/30" : "hover:bg-yellow-950/10"
-      } ${isRevealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+      className={`chronicle-table-row transition-all duration-300 ${
+        isHighlighted ? "chronicle-table-row-highlight" : "chronicle-table-row-hover"
+      } ${isRevealed ? "chronicle-fade-in" : "chronicle-fade-out"}`}
     >
       <span className="text-xs font-bold text-slate-500 self-center">#{entry.roundId}</span>
 
