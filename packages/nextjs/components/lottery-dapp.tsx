@@ -102,7 +102,7 @@ export default function LotteryDapp() {
       <LotteryHeader address={connectedAddress} />
 
       {/* Changed to max-w-5xl for a wide, full-screen feel that remains readable */}
-      <main className="flex-grow w-full max-w-5xl mx-auto px-4 py-8 flex flex-col space-y-8">
+      <main className="grow w-full max-w-5xl mx-auto px-4 py-8 flex flex-col space-y-8">
         <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
 
         <PotCard
