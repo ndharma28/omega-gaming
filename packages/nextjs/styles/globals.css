@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "./lottery-dapp.css";
+@import "../components/lottery-dapp.css";
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
