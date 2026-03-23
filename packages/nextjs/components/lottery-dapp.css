@@ -78,7 +78,12 @@
 }
 
 .og-status-banner > * {
+  max-width: 860px;
   width: 100%;
+  margin: 0 auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  box-sizing: border-box;
 }
 
 /* ── Hero / PotCard zone ────────────────────────────────── */
@@ -465,6 +470,15 @@
   background: var(--og-red-faint);
 }
 
+.og-owner-zone > * {
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  box-sizing: border-box;
+}
+
 /* ── Footer ─────────────────────────────────────────────── */
 .og-footer {
   display: flex;
@@ -508,6 +522,6 @@
   .og-stat-cell:nth-child(1),
   .og-stat-cell:nth-child(2) { border-bottom: var(--og-b-dim); }
 
-  .og-owner-zone,
-  .og-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .og-status-banner > *,
+  .og-owner-zone > * { padding-left: 1.25rem; padding-right: 1.25rem; }
 }
