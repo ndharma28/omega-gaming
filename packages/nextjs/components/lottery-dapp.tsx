@@ -245,20 +245,6 @@ export default function LotteryDapp() {
           />
         </div>
       )}
-
-      {/* ── Footer ── */}
-      <footer className="og-footer">
-        <a href="https://github.com" target="_blank" rel="noreferrer">
-          Fork me
-        </a>
-        <span className="og-footer-dot" />
-        <span className="og-footer-sep">Built with ♥ at</span>
-        <a href="https://buidlguidl.com" target="_blank" rel="noreferrer">
-          BuidlGuidl
-        </a>
-        <span className="og-footer-dot" />
-        <a href="/support">Support</a>
-      </footer>
     </div>
   );
 }
