@@ -280,8 +280,15 @@
 .og-chronicle-cta:hover .og-cta-arrow { transform: translateX(4px); }
 
 /* ── Owner zone — full-width bg, inner content constrained ── */
-.og-owner-zone { border-top: 0.5px solid var(--og-red-border); background: var(--og-red-faint); }
+.og-owner-zone { border-top: 0.5px solid var(--og-red-border); background: var(--og-red-faint); margin-bottom: 2rem; }
 .og-owner-zone > * { max-width: var(--og-max); width: 100%; margin: 0 auto; padding: 0 var(--og-px); box-sizing: border-box; }
+
+/* ── Footer ── */
+.og-footer { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 1.5rem var(--og-px); border-top: var(--og-b-dim); }
+.og-footer a        { font-size: 14px; color: var(--og-text-muted); text-decoration: none; transition: color 0.2s; }
+.og-footer a:hover  { color: var(--og-amber-dim); }
+.og-footer-sep      { font-size: 14px; color: var(--og-text-muted); }
+.og-footer-dot      { width: 3px; height: 3px; border-radius: 50%; background: var(--og-text-muted); display: inline-block; }
 
 /* ── Mobile ── */
 @media (max-width: 600px) {
