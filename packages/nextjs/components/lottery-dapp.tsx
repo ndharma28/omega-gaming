@@ -2,17 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { classifyPrize } from "../app/chronicle/lib";
 import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
 import StatusBar, { LotteryStatus } from "./StatusBar";
+import { formatEther } from "viem";
 import { useAccount, useBalance, useReadContract } from "wagmi";
 import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
+import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
 
 // ── Chronicle teaser rows ─────────────────────────────────
-// Static snapshot of recent winners — foreshadows the full Chronicle.
-// The last row is deliberately redacted to create intrigue.
 const TEASER_ROWS = [
   { num: "#185", addr: "0x3513...571f", prize: "0.0196 ETH", rank: "INITIATE", redact: false },
   { num: "#177", addr: "0xAE54...730D", prize: "0.0588 ETH", rank: "INITIATE", redact: false },
@@ -29,8 +30,7 @@ export default function LotteryDapp() {
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
 
   const { address: connectedAddress } = useAccount();
-  const { data: balanceData } = useBalance({ address: connectedAddress });
-  const walletBalance = balanceData ? Number(balanceData.value) / 1e18 : 0;
+  useBalance({ address: connectedAddress });
 
   // ── Contract reads ──────────────────────────────────────
   const { data: idCounter, refetch: refetchCounter } = useReadContract({
@@ -55,6 +55,16 @@ export default function LotteryDapp() {
     connectedAddress.toLowerCase() === (rawOwnerAddress as string).toLowerCase();
 
   const { lotteryData, players, treasuryBalance, joinLottery, isJoining, refetchAll } = useLottery(activeLotteryId);
+
+  // ── Winner history — same source as ChronicleStats ──────
+  const { winnerHistory } = useWinnerHistory();
+
+  // Stat calculations — identical to ChronicleStats
+  const uniqueWinners = new Set(winnerHistory.map(e => e.winner)).size;
+  const topPrize =
+    winnerHistory.length > 0 ? Math.max(...winnerHistory.map(e => parseFloat(formatEther(e.prizeAmount)))) : 0;
+  const totalDistributed = winnerHistory.reduce((acc, e) => acc + e.prizeAmount, 0n);
+  const uniquePct = winnerHistory.length > 0 ? ((uniqueWinners / winnerHistory.length) * 100).toFixed(0) : "0";
 
   // ── Polling ─────────────────────────────────────────────
   const refetchAllRef = useRef(refetchAll);
@@ -99,7 +109,6 @@ export default function LotteryDapp() {
   if (!mounted) return null;
 
   // ── Derived ─────────────────────────────────────────────
-  // Only allow entry when OPEN and the timer is still running
   const isEntryAllowed = status === LotteryStatus.OPEN && timeRemaining !== "0s" && endTime > 0;
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
@@ -107,12 +116,14 @@ export default function LotteryDapp() {
   // ── Render ──────────────────────────────────────────────
   return (
     <div className="og-root">
-      {/* ── Status banner — wraps the existing StatusBar component ── */}
-      <div className="og-status-banner">
-        <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
+      {/* ── Margin between header and content ── */}
+      <div className="pt-6">
+        <div className="og-status-banner">
+          <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
+        </div>
       </div>
 
-      {/* ── Hero — PotCard owns jackpot display + epoch + winner ── */}
+      {/* ── Hero ── */}
       <div className="og-hero">
         <PotCard
           lotteryId={activeLotteryId}
@@ -124,27 +135,29 @@ export default function LotteryDapp() {
         />
       </div>
 
-      {/* ── Stat row — Chronicle summary numbers ── */}
+      {/* ── Stat row — identical source to ChronicleStats ── */}
       <div className="og-stat-row">
         <div className="og-stat-cell">
           <div className="og-stat-label">Rounds Completed</div>
-          <div className="og-stat-value">11</div>
+          <div className="og-stat-value">{winnerHistory.length > 0 ? winnerHistory.length : "—"}</div>
           <div className="og-stat-meta">verified on-chain</div>
         </div>
         <div className="og-stat-cell">
           <div className="og-stat-label">Total Distributed</div>
-          <div className="og-stat-value og-stat-value--green">0.3822</div>
+          <div className="og-stat-value og-stat-value--green">
+            {winnerHistory.length > 0 ? `${parseFloat(formatEther(totalDistributed)).toFixed(4)}` : "—"}
+          </div>
           <div className="og-stat-meta">ETH to winners</div>
         </div>
         <div className="og-stat-cell">
           <div className="og-stat-label">Unique Winners</div>
-          <div className="og-stat-value">3</div>
-          <div className="og-stat-meta">27% unique</div>
+          <div className="og-stat-value">{winnerHistory.length > 0 ? uniqueWinners : "—"}</div>
+          <div className="og-stat-meta">{winnerHistory.length > 0 ? `${uniquePct}% unique` : "on-chain"}</div>
         </div>
         <div className="og-stat-cell">
           <div className="og-stat-label">Record Prize</div>
-          <div className="og-stat-value og-stat-value--amber">0.0588</div>
-          <div className="og-stat-meta">ETH — Initiate tier</div>
+          <div className="og-stat-value og-stat-value--amber">{topPrize > 0 ? topPrize.toFixed(4) : "—"}</div>
+          <div className="og-stat-meta">{topPrize > 0 ? `${classifyPrize(topPrize)} tier` : "no rounds yet"}</div>
         </div>
       </div>
 
@@ -152,7 +165,6 @@ export default function LotteryDapp() {
       <div className="og-main-layout">
         {/* LEFT: entry form + players list */}
         <div className="og-main-left">
-          {/* Entry form */}
           <div>
             <div className="og-section-label">Enter the Lottery</div>
 
@@ -170,9 +182,7 @@ export default function LotteryDapp() {
               <span className="og-input-unit">ETH</span>
             </div>
             <div className={`og-min-note${isInvalidAmount && entryAmount !== "" ? " og-min-note--error" : ""}`}>
-              {isInvalidAmount && entryAmount !== ""
-                ? `Minimum entry: ${minEntry} ETH`
-                : `Minimum entry: ${minEntry} ETH`}
+              {`Minimum entry: ${minEntry} ETH`}
             </div>
 
             <button
@@ -186,7 +196,6 @@ export default function LotteryDapp() {
             </button>
           </div>
 
-          {/* Players list — component renders its own header + count badge */}
           <div>
             <PlayersList players={players} connectedAddress={connectedAddress} />
           </div>
@@ -215,8 +224,12 @@ export default function LotteryDapp() {
           </div>
 
           <div className="og-ledger-footer">
-            <span>11 entries total</span>
-            <span className="og-ledger-total">0.3822 ETH paid out →</span>
+            <span>{winnerHistory.length > 0 ? `${winnerHistory.length} rounds total` : "—"}</span>
+            <span className="og-ledger-total">
+              {winnerHistory.length > 0
+                ? `${parseFloat(formatEther(totalDistributed)).toFixed(4)} ETH paid out →`
+                : "—"}
+            </span>
           </div>
 
           <Link href="/chronicle" className="og-chronicle-cta">
@@ -228,9 +241,8 @@ export default function LotteryDapp() {
           </Link>
         </div>
       </div>
-      {/* end og-main-layout */}
 
-      {/* ── Owner panel — only visible to contract owner ── */}
+      {/* ── Owner panel ── */}
       {isOwnerDirect && (
         <div className="og-owner-zone">
           <OwnerPanel

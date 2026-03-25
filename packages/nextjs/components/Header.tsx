@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
@@ -53,9 +52,6 @@ export const HeaderMenuLinks = () => {
   );
 };
 
-/**
- * Site header
- */
 export const Header = () => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
@@ -68,17 +64,16 @@ export const Header = () => {
   });
 
   return (
-    <div className="sticky top-0 z-20 w-full border-b border-slate-800 bg-slate-900/80 backdrop-blur-md shadow-lg shadow-black/30">
+    <div className="sticky top-0 z-20 w-full border-b border-slate-800/60 bg-black/95 backdrop-blur-md shadow-lg shadow-black/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-        {/* Left: logo + mobile menu */}
+        {/* Left: logo + nav */}
         <div className="flex items-center gap-2">
-          {/* Mobile burger */}
           <details className="dropdown lg:hidden" ref={burgerMenuRef}>
-            <summary className="btn btn-ghost btn-sm hover:bg-slate-800 border-none">
+            <summary className="btn btn-ghost btn-sm hover:bg-slate-800/60 border-none">
               <Bars3Icon className="h-5 w-5 text-slate-300" />
             </summary>
             <ul
-              className="menu menu-compact dropdown-content mt-3 p-2 shadow-xl bg-slate-900 border border-slate-800 rounded-xl w-52"
+              className="menu menu-compact dropdown-content mt-3 p-2 shadow-xl bg-black border border-slate-800/60 rounded-xl w-52"
               onClick={() => burgerMenuRef?.current?.removeAttribute("open")}
             >
               <HeaderMenuLinks />
@@ -97,7 +92,6 @@ export const Header = () => {
             </ul>
           </details>
 
-          {/* Logo */}
           <Link href="/" passHref className="flex items-center gap-3 shrink-0">
             <div className="w-9 h-9 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
               <span className="text-lg">🎱</span>
@@ -108,7 +102,6 @@ export const Header = () => {
             </div>
           </Link>
 
-          {/* Desktop nav links */}
           <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-1 ml-4">
             <HeaderMenuLinks />
           </ul>
@@ -116,7 +109,6 @@ export const Header = () => {
 
         {/* Right: Chronicle + wallet */}
         <div className="flex items-center gap-3">
-          {/* Chronicle button */}
           <Link
             href="/chronicle"
             className={`group hidden sm:flex relative px-4 py-1.5 rounded-full border transition-all duration-300 items-center gap-2
@@ -133,7 +125,6 @@ export const Header = () => {
             <span className="text-xs font-bold tracking-widest uppercase transition-colors">The Chronicle</span>
           </Link>
 
-          {/* Wallet connect */}
           <RainbowKitCustomConnectButton />
           {isLocalNetwork && <FaucetButton />}
         </div>
