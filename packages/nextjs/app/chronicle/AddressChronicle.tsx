@@ -5,7 +5,7 @@ import { EmptySigil } from "./ChronicleShared";
 import TableRow from "./TableRow";
 import { classifyPrize } from "./lib";
 import { formatEther } from "viem";
-import { type WinnerEntry, useWinnerHistory } from "~~/hooks/useWinnerHistory";
+import { type WinnerEntry } from "~~/hooks/useWinnerHistory";
 
 interface AddressChronicleProps {
   winnerHistory: WinnerEntry[];
@@ -30,17 +30,6 @@ function ProgressBar({ onComplete }: { onComplete: () => void }) {
   const phraseRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const DURATION = 6500;
   const TICK = 50;
-  const { winnerHistory } = useWinnerHistory();
-
-  const totalsByAddress = winnerHistory.reduce(
-    (acc, entry) => {
-      const addr = entry.winner.toLowerCase();
-      const amount = parseFloat(formatEther(entry.prizeAmount));
-      acc[addr] = (acc[addr] || 0) + amount;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
 
   useEffect(() => {
     const steps = DURATION / TICK;
@@ -210,7 +199,7 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
               { label: "Wins", value: matches.length.toString() },
               { label: "Total Won", value: `${parseFloat(formatEther(totalWon)).toFixed(4)} ETH` },
               {
-                label: "Best Rank",
+                label: "Classification",
                 value: classifyPrize(parseFloat(formatEther(totalWon))).toUpperCase(),
               },
             ].map(({ label, value }) => (
