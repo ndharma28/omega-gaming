@@ -11,7 +11,7 @@ interface TableRowProps {
   highlightAddress?: string;
 }
 
-export default function TableRow({ entry, activeSource, isRevealed, highlightAddress }: TableRowProps) {
+export default function TableRow({ entry, isRevealed, highlightAddress }: TableRowProps) {
   const ethAmount = parseFloat(formatEther(entry.prizeAmount));
   const rank = classifyPrize(ethAmount);
   const isHighlighted = highlightAddress && entry.winner.toLowerCase() === highlightAddress.toLowerCase();

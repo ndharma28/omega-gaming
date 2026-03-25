@@ -10,7 +10,7 @@ import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
 export default function ChroniclePage() {
   const [activeSource, setActiveSource] = useState(0);
 
-  const { winnerHistory, totalFeesCollected, isLoading } = useWinnerHistory(CONTRACT_SOURCES[activeSource].address);
+  const { winnerHistory, isLoading } = useWinnerHistory(CONTRACT_SOURCES[activeSource].address);
 
   return (
     <main className="min-h-screen bg-black text-white relative overflow-hidden">
