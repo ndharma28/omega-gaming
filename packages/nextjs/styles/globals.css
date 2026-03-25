@@ -1,57 +1,123 @@
 @import "tailwindcss";
 @import "../components/lottery-dapp.css";
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-
-@theme {
-  --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
-  --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* Disable DaisyUI default themes */
+@plugin "daisyui" {
+  themes: false;
 }
 
+/* Custom Light Theme */
+@plugin "daisyui/theme" {
+  name: "light";
+
+  --p: #93bbfb;
+  --pc: #212638;
+
+  --s: #dae8ff;
+  --sc: #212638;
+
+  --a: #93bbfb;
+  --ac: #212638;
+
+  --n: #212638;
+  --nc: #ffffff;
+
+  --b1: #ffffff;
+  --b2: #f4f8ff;
+  --b3: #dae8ff;
+  --bc: #212638;
+
+  --in: #93bbfb;
+  --su: #34eeb6;
+  --wa: #ffcf72;
+  --er: #ff8863;
+
+  --rounded-box: 1rem;
+  --rounded-btn: 9999rem;
+  --rounded-badge: 9999rem;
+}
+
+/* Custom Dark Theme */
 @plugin "daisyui/theme" {
   name: "dark";
- 
-  --color-base-100: #0a0a0a;
-  --color-base-200: #000000;
-  --color-base-300: #111111;
-  --color-base-content: #e2e8f0;
+
+  --p: #212638;
+  --pc: #f9fbff;
+
+  --s: #323f61;
+  --sc: #f9fbff;
+
+  --a: #4969a6;
+  --ac: #f9fbff;
+
+  --n: #f9fbff;
+  --nc: #385183;
+
+  --b1: #385183;
+  --b2: #2a3655;
+  --b3: #212638;
+  --bc: #f9fbff;
+
+  --in: #385183;
+  --su: #34eeb6;
+  --wa: #ffcf72;
+  --er: #ff8863;
+
+  --rounded-box: 1rem;
+  --rounded-btn: 9999rem;
+  --rounded-badge: 9999rem;
 }
- 
-/* 2. Explicit body + html background so no blue bleeds through
-      on overscroll bounce or behind fixed elements. */
+
+/* Tailwind v4 compatibility */
 @layer base {
-  html,
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  p {
+    margin: 1rem 0;
+  }
+
   body {
-    background-color: #000000;
+    min-height: 100vh;
   }
- 
-  /* 3. Scrollbar — Webkit (Chrome, Safari, Edge) */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
- 
-  ::-webkit-scrollbar-track {
-    background: #000000;
-  }
- 
-  ::-webkit-scrollbar-thumb {
-    background: #1e293b; /* slate-800 */
-    border-radius: 4px;
-  }
- 
-  ::-webkit-scrollbar-thumb:hover {
-    background: #334155; /* slate-700 */
-  }
- 
-  /* 4. Scrollbar — Firefox */
-  * {
-    scrollbar-color: #1e293b #000000;
-    scrollbar-width: thin;
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin-bottom: 0.5rem;
+    line-height: 1;
   }
 }
 
+/* Background sync */
+:root,
+[data-theme] {
+  background: var(--b2);
+}
 
+/* Buttons */
+.btn {
+  @apply shadow-md;
+}
+
+.btn.btn-ghost {
+  @apply shadow-none;
+}
+
+/* Links */
+.link {
+  text-underline-offset: 2px;
+}
+
+.link:hover {
+  opacity: 80%;
+}
 
 /* ===== CHRONICLE THEME CLASSES ===== */
 
