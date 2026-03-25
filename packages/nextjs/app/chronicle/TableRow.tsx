@@ -9,11 +9,13 @@ interface TableRowProps {
   activeSource: number;
   isRevealed: boolean;
   highlightAddress?: string;
+  totalsByAddress: Record<string, number>;
 }
 
-export default function TableRow({ entry, isRevealed, highlightAddress }: TableRowProps) {
+export default function TableRow({ entry, isRevealed, highlightAddress, totalsByAddress }: TableRowProps) {
   const ethAmount = parseFloat(formatEther(entry.prizeAmount));
-  const rank = classifyPrize(ethAmount);
+  const totalWon = totalsByAddress[entry.winner.toLowerCase()] || 0;
+  const rank = classifyPrize(totalWon);
   const isHighlighted = highlightAddress && entry.winner.toLowerCase() === highlightAddress.toLowerCase();
 
   return (

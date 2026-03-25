@@ -5,7 +5,7 @@ import { EmptySigil } from "./ChronicleShared";
 import TableRow from "./TableRow";
 import { classifyPrize } from "./lib";
 import { formatEther } from "viem";
-import { type WinnerEntry } from "~~/hooks/useWinnerHistory";
+import { type WinnerEntry, useWinnerHistory } from "~~/hooks/useWinnerHistory";
 
 interface AddressChronicleProps {
   winnerHistory: WinnerEntry[];
@@ -30,6 +30,17 @@ function ProgressBar({ onComplete }: { onComplete: () => void }) {
   const phraseRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const DURATION = 6500;
   const TICK = 50;
+  const { winnerHistory } = useWinnerHistory();
+
+  const totalsByAddress = winnerHistory.reduce(
+    (acc, entry) => {
+      const addr = entry.winner.toLowerCase();
+      const amount = parseFloat(formatEther(entry.prizeAmount));
+      acc[addr] = (acc[addr] || 0) + amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   useEffect(() => {
     const steps = DURATION / TICK;
@@ -113,6 +124,16 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
 
   const matches = submitted ? winnerHistory.filter(e => e.winner.toLowerCase().includes(submitted.toLowerCase())) : [];
 
+  const totalsByAddress = winnerHistory.reduce(
+    (acc, entry) => {
+      const addr = entry.winner.toLowerCase();
+      const amount = parseFloat(formatEther(entry.prizeAmount));
+      acc[addr] = (acc[addr] || 0) + amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
   const totalWon = matches.reduce((acc, e) => acc + e.prizeAmount, 0n);
   const hasResults = submitted && matches.length > 0;
   const hasNoResults = submitted && matches.length === 0;
@@ -190,9 +211,7 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
               { label: "Total Won", value: `${parseFloat(formatEther(totalWon)).toFixed(4)} ETH` },
               {
                 label: "Best Rank",
-                value: classifyPrize(
-                  Math.max(...matches.map(e => parseFloat(formatEther(e.prizeAmount)))),
-                ).toUpperCase(),
+                value: classifyPrize(parseFloat(formatEther(totalWon))).toUpperCase(),
               },
             ].map(({ label, value }) => (
               <div key={label} className="chronicle-stat-card">
@@ -223,6 +242,7 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
                   activeSource={activeSource}
                   isRevealed={true}
                   highlightAddress={submitted}
+                  totalsByAddress={totalsByAddress}
                 />
               ))}
           </div>

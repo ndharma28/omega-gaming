@@ -31,13 +31,24 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
     });
   }, [isLoading, winnerHistory]);
 
+  const totalsByAddress = winnerHistory.reduce(
+    (acc, entry) => {
+      const addr = entry.winner.toLowerCase();
+      const amount = parseFloat(formatEther(entry.prizeAmount));
+      acc[addr] = (acc[addr] || 0) + amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
   const processedHistory = [...winnerHistory]
     .sort((a, b) =>
       sortDir === "desc" ? Number(b.endTime) - Number(a.endTime) : Number(a.endTime) - Number(b.endTime),
     )
     .filter(entry => {
       if (filterRank === "All") return true;
-      return classifyPrize(parseFloat(formatEther(entry.prizeAmount))) === filterRank;
+      const total = totalsByAddress[entry.winner.toLowerCase()] || 0;
+      return classifyPrize(total) === filterRank;
     });
 
   const totalPaidOut = processedHistory.reduce((acc, e) => acc + e.prizeAmount, 0n);
@@ -109,6 +120,7 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
                 entry={entry}
                 activeSource={activeSource}
                 isRevealed={revealedRows.has(i)}
+                totalsByAddress={totalsByAddress}
               />
             ))}
           </div>
