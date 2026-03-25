@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { hardhat } from "viem/chains";
-import { HeartIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { EtherConverter } from "~~/components/EtherConverter";
-import { SwitchTheme } from "~~/components/SwitchTheme";
-import { BuidlGuidlLogo } from "~~/components/assets/BuidlGuidlLogo";
 import { Faucet } from "~~/components/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
@@ -17,50 +15,67 @@ export const Footer = () => {
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
   return (
-    <div className="min-h-0 py-5 px-1 mb-11 lg:mb-0">
-      <div className="fixed flex justify-between items-center w-full z-10 p-4 bottom-0 left-0 pointer-events-none">
-        <div className="flex flex-col md:flex-row gap-2 pointer-events-auto">
-          <EtherConverter />
-          {isLocalNetwork && (
-            <>
-              <Faucet />
-              <Link href="/blockexplorer" passHref className="btn btn-primary btn-sm font-normal gap-1">
-                <MagnifyingGlassIcon className="h-4 w-4" />
-                <span>Block Explorer</span>
-              </Link>
-            </>
-          )}
-        </div>
-        <SwitchTheme className={`pointer-events-auto ${isLocalNetwork ? "self-end md:self-auto" : ""}`} />
-      </div>
-
-      <div className="w-full">
-        <div className="flex justify-center items-center gap-2 text-sm w-full">
-          <a href="https://github.com/scaffold-eth/se-2" target="_blank" rel="noreferrer" className="link">
-            Fork me
-          </a>
-          <span>·</span>
-          <div className="flex justify-center items-center gap-2">
-            <p className="m-0 text-center">
-              Built with <HeartIcon className="inline-block h-4 w-4" /> at
-            </p>
-
+    <>
+      {/* Dev tools bar — only visible on local network */}
+      {isLocalNetwork && (
+        <div className="fixed bottom-0 left-0 w-full z-10 pointer-events-none">
+          <div className="flex justify-start items-center gap-2 p-3 pointer-events-auto">
+            <EtherConverter />
+            <Faucet />
             <Link
-              className="flex justify-center items-center gap-1"
+              href="/blockexplorer"
+              passHref
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-700 bg-slate-900/90 text-slate-400 hover:text-slate-200 hover:border-slate-600 transition-all duration-200 backdrop-blur-sm"
+            >
+              <MagnifyingGlassIcon className="h-3.5 w-3.5" />
+              Block Explorer
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Footer bar */}
+      <footer className="w-full border-t border-slate-800 bg-slate-900/60 backdrop-blur-sm mt-auto">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+          {/* Left: branding */}
+          <div className="flex items-center gap-2">
+            <span className="text-base">🎱</span>
+            <span className="text-sm font-semibold text-slate-400 tracking-tight">Omega Gaming</span>
+            <span className="hidden sm:inline text-slate-700 text-xs">·</span>
+            <span className="hidden sm:inline text-xs text-slate-600">Decentralized Lottery on Ethereum</span>
+          </div>
+
+          {/* Right: links */}
+          <div className="flex items-center gap-4 text-xs text-slate-600">
+            <a
+              href="https://github.com/scaffold-eth/se-2"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-slate-400 transition-colors duration-200"
+            >
+              GitHub
+            </a>
+            <span className="text-slate-800">·</span>
+            <a
               href="https://buidlguidl.com/"
               target="_blank"
               rel="noreferrer"
+              className="hover:text-slate-400 transition-colors duration-200"
             >
-              <BuidlGuidlLogo className="w-3 h-5 pb-1" />
-              <span className="link">BuidlGuidl</span>
-            </Link>
+              BuidlGuidl
+            </a>
+            <span className="text-slate-800">·</span>
+            <a
+              href="https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-slate-400 transition-colors duration-200"
+            >
+              Support
+            </a>
           </div>
-          <span>·</span>
-          <a href="https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA" target="_blank" rel="noreferrer" className="link">
-            Support
-          </a>
         </div>
-      </div>
-    </div>
+      </footer>
+    </>
   );
 };

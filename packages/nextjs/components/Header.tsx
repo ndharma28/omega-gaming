@@ -40,8 +40,8 @@ export const HeaderMenuLinks = () => {
               href={href}
               passHref
               className={`${
-                isActive ? "bg-secondary shadow-md" : ""
-              } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
+                isActive ? "bg-yellow-950/40 text-yellow-500" : "text-slate-400"
+              } hover:bg-yellow-950/30 hover:text-yellow-400 transition-all duration-200 py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col items-center`}
             >
               {icon}
               <span>{label}</span>
@@ -59,6 +59,8 @@ export const HeaderMenuLinks = () => {
 export const Header = () => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
+  const pathname = usePathname();
+  const isChronicleActive = pathname === "/chronicle";
 
   const burgerMenuRef = useRef<HTMLDetailsElement>(null);
   useOutsideClick(burgerMenuRef, () => {
@@ -66,37 +68,75 @@ export const Header = () => {
   });
 
   return (
-    <div className="sticky lg:static top-0 navbar bg-base-100 min-h-0 shrink-0 justify-between z-20 shadow-md shadow-secondary px-0 sm:px-2">
-      <div className="navbar-start w-auto lg:w-1/2">
-        <details className="dropdown" ref={burgerMenuRef}>
-          <summary className="ml-1 btn btn-ghost lg:hidden hover:bg-transparent">
-            <Bars3Icon className="h-1/2" />
-          </summary>
-          <ul
-            className="menu menu-compact dropdown-content mt-3 p-2 shadow-sm bg-base-100 rounded-box w-52"
-            onClick={() => {
-              burgerMenuRef?.current?.removeAttribute("open");
-            }}
-          >
+    <div className="sticky top-0 z-20 w-full border-b border-slate-800 bg-slate-900/80 backdrop-blur-md shadow-lg shadow-black/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+        {/* Left: logo + mobile menu */}
+        <div className="flex items-center gap-2">
+          {/* Mobile burger */}
+          <details className="dropdown lg:hidden" ref={burgerMenuRef}>
+            <summary className="btn btn-ghost btn-sm hover:bg-slate-800 border-none">
+              <Bars3Icon className="h-5 w-5 text-slate-300" />
+            </summary>
+            <ul
+              className="menu menu-compact dropdown-content mt-3 p-2 shadow-xl bg-slate-900 border border-slate-800 rounded-xl w-52"
+              onClick={() => burgerMenuRef?.current?.removeAttribute("open")}
+            >
+              <HeaderMenuLinks />
+              <li>
+                <Link
+                  href="/chronicle"
+                  className="text-yellow-600 hover:text-yellow-500 hover:bg-yellow-950/30 transition-all duration-200 py-1.5 px-3 text-sm rounded-full flex items-center gap-2"
+                >
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-500 opacity-40" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-600" />
+                  </span>
+                  The Chronicle
+                </Link>
+              </li>
+            </ul>
+          </details>
+
+          {/* Logo */}
+          <Link href="/" passHref className="flex items-center gap-3 shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
+              <span className="text-lg">🎱</span>
+            </div>
+            <div className="hidden sm:flex flex-col leading-tight">
+              <span className="font-bold text-white tracking-tight">Omega Gaming</span>
+              <span className="text-xs text-slate-500 tracking-wide">Decentralized Lottery</span>
+            </div>
+          </Link>
+
+          {/* Desktop nav links */}
+          <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-1 ml-4">
             <HeaderMenuLinks />
           </ul>
-        </details>
-        <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
-          <div className="flex relative w-10 h-10">
-            <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold leading-tight">Omega Gaming</span>
-            <span className="text-xs">Decentralized Lottery</span>
-          </div>
-        </Link>
-        <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">
-          <HeaderMenuLinks />
-        </ul>
-      </div>
-      <div className="navbar-end grow mr-4">
-        <RainbowKitCustomConnectButton />
-        {isLocalNetwork && <FaucetButton />}
+        </div>
+
+        {/* Right: Chronicle + wallet */}
+        <div className="flex items-center gap-3">
+          {/* Chronicle button */}
+          <Link
+            href="/chronicle"
+            className={`group hidden sm:flex relative px-4 py-1.5 rounded-full border transition-all duration-300 items-center gap-2
+              ${
+                isChronicleActive
+                  ? "border-yellow-600/60 bg-yellow-950/40 text-yellow-400"
+                  : "border-yellow-800/40 bg-yellow-950/20 hover:bg-yellow-950/40 hover:border-yellow-700/50 text-yellow-600 hover:text-yellow-500"
+              }`}
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-500 opacity-30" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-600" />
+            </span>
+            <span className="text-xs font-bold tracking-widest uppercase transition-colors">The Chronicle</span>
+          </Link>
+
+          {/* Wallet connect */}
+          <RainbowKitCustomConnectButton />
+          {isLocalNetwork && <FaucetButton />}
+        </div>
       </div>
     </div>
   );

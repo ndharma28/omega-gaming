@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import EnterForm from "./EnterForm";
-import LotteryHeader from "./LotteryHeader";
 import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
@@ -109,9 +107,6 @@ export default function LotteryDapp() {
   // ── Render ──────────────────────────────────────────────
   return (
     <div className="og-root">
-      {/* ── Nav — LotteryHeader owns its own sticky + Chronicle link ── */}
-      <LotteryHeader address={connectedAddress} />
-
       {/* ── Status banner — wraps the existing StatusBar component ── */}
       <div className="og-status-banner">
         <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
