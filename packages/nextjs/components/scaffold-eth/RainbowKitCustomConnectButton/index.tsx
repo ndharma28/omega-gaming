@@ -27,13 +27,17 @@ export const RainbowKitCustomConnectButton = () => {
 
         // 1. Show loading state during initial connection or wallet wake-up
         if (isConnecting || isReconnecting) {
-          return <button className="btn btn-primary btn-sm loading">Connecting...</button>;
+          return (
+            <button className="chronicle-btn-primary h-10 px-6 rounded-2xl loading" type="button">
+              Connecting...
+            </button>
+          );
         }
 
         // 2. Show connect button if not connected
         if (!connected) {
           return (
-            <button className="btn btn-primary btn-sm" onClick={openConnectModal} type="button">
+            <button className="chronicle-btn-primary h-10 px-6 rounded-2xl" onClick={openConnectModal} type="button">
               Connect Wallet
             </button>
           );
