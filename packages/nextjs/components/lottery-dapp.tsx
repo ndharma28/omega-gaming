@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import ChronicleTableInline from "../app/chronicle/ChronicleTableInline";
 import { classifyPrize } from "../app/chronicle/lib";
 import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
@@ -12,15 +13,6 @@ import { useAccount, useBalance, useReadContract } from "wagmi";
 import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
 import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
-
-// ── Chronicle teaser rows ─────────────────────────────────
-const TEASER_ROWS = [
-  { num: "#185", addr: "0x3513...571f", prize: "0.0196 ETH", rank: "INITIATE", redact: false },
-  { num: "#177", addr: "0xAE54...730D", prize: "0.0588 ETH", rank: "INITIATE", redact: false },
-  { num: "#60", addr: "0xAE54...730D", prize: "0.0196 ETH", rank: "INITIATE", redact: false },
-  { num: "#46", addr: "0x3513...571f", prize: "0.0294 ETH", rank: "INITIATE", redact: false },
-  { num: "#40", addr: "——— ——— ———", prize: "0.0392 ETH", rank: "INITIATE", redact: true },
-] as const;
 
 // ── Component ─────────────────────────────────────────────
 export default function LotteryDapp() {
@@ -56,10 +48,10 @@ export default function LotteryDapp() {
 
   const { lotteryData, players, treasuryBalance, joinLottery, isJoining, refetchAll } = useLottery(activeLotteryId);
 
-  // ── Winner history — same source as ChronicleStats ──────
-  const { winnerHistory } = useWinnerHistory();
+  // ── Winner history ──────────────────────────────────────
+  const { winnerHistory, isLoading } = useWinnerHistory();
 
-  // Stat calculations — identical to ChronicleStats
+  // Stat calculations
   const uniqueWinners = new Set(winnerHistory.map(e => e.winner)).size;
   const topPrize =
     winnerHistory.length > 0 ? Math.max(...winnerHistory.map(e => parseFloat(formatEther(e.prizeAmount)))) : 0;
@@ -135,7 +127,7 @@ export default function LotteryDapp() {
         />
       </div>
 
-      {/* ── Stat row — identical source to ChronicleStats ── */}
+      {/* ── Stat row ── */}
       <div className="og-stat-row">
         <div className="og-stat-cell">
           <div className="og-stat-label">Rounds Completed</div>
@@ -201,36 +193,11 @@ export default function LotteryDapp() {
           </div>
         </div>
 
-        {/* RIGHT: Chronicle teaser */}
+        {/* RIGHT: inline chronicle */}
         <div className="og-main-right">
           <div className="og-chronicle-badge">Restricted Archive</div>
 
-          <p className="og-teaser-quote">
-            A ledger of those who have walked away with the pot. Every address. Every outcome. Immutable and verifiable
-            on-chain.
-          </p>
-
-          <div className="og-section-label">Recent Entries</div>
-
-          <div className="og-mini-ledger">
-            {TEASER_ROWS.map(row => (
-              <div key={row.num} className="og-ledger-row">
-                <div className="og-ledger-num">{row.num}</div>
-                <div className={`og-ledger-addr${row.redact ? " og-ledger-addr--redacted" : ""}`}>{row.addr}</div>
-                <div className="og-ledger-prize">{row.prize}</div>
-                <div className="og-ledger-rank">{row.rank}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="og-ledger-footer">
-            <span>{winnerHistory.length > 0 ? `${winnerHistory.length} rounds total` : "—"}</span>
-            <span className="og-ledger-total">
-              {winnerHistory.length > 0
-                ? `${parseFloat(formatEther(totalDistributed)).toFixed(4)} ETH paid out →`
-                : "—"}
-            </span>
-          </div>
+          <ChronicleTableInline winnerHistory={winnerHistory} isLoading={isLoading} activeSource={0} />
 
           <Link href="/chronicle" className="og-chronicle-cta">
             <div>
