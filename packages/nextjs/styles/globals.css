@@ -98,7 +98,7 @@
 /* Background sync */
 :root,
 [data-theme] {
-  background: var(--b2);
+  background: black;
 }
 
 /* Buttons */
