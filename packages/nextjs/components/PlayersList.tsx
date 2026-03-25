@@ -22,7 +22,7 @@ export default function PlayersList({ players, connectedAddress }: PlayersListPr
         </span>
       </div>
 
-      <div className="h-[200px] overflow-y-auto pr-2 custom-scrollbar rounded-lg bg-slate-950/50 border border-slate-800/50 p-2">
+      <div className="h-50 overflow-y-auto pr-2 custom-scrollbar rounded-lg bg-slate-950/50 border border-slate-800/50 p-2">
         {!players || players.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-600 space-y-2">
             <UsersIcon className="w-8 h-8 opacity-20" />

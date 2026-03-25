@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import ChronicleTableInline from "../app/chronicle/ChronicleTableInline";
+import ChronicleMysteryTeaser from "../app/chronicle/ChronicleMysteryTeaser";
 import { classifyPrize } from "../app/chronicle/lib";
 import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
@@ -197,7 +197,7 @@ export default function LotteryDapp() {
         <div className="og-main-right">
           <div className="og-chronicle-badge">Restricted Archive</div>
 
-          <ChronicleTableInline winnerHistory={winnerHistory} isLoading={isLoading} activeSource={0} />
+          <ChronicleMysteryTeaser winnerHistory={winnerHistory} isLoading={isLoading} />
 
           <Link href="/chronicle" className="og-chronicle-cta">
             <div>
