@@ -8,6 +8,7 @@ import { type WinnerEntry } from "~~/hooks/useWinnerHistory";
 interface ChronicleMysteryTeaserProps {
   winnerHistory: WinnerEntry[];
   isLoading: boolean;
+  totalsByAddress: Record<string, number>;
 }
 
 const REDACTION_GLYPHS = ["▓▓▓▓▓▓▓▓", "████████", "▒▒▒▒▒▒▒▒"];
@@ -21,7 +22,11 @@ function RedactedAddress() {
   );
 }
 
-export default function ChronicleMysteryTeaser({ winnerHistory, isLoading }: ChronicleMysteryTeaserProps) {
+export default function ChronicleMysteryTeaser({
+  winnerHistory,
+  isLoading,
+  totalsByAddress,
+}: ChronicleMysteryTeaserProps) {
   const [entries, setEntries] = useState<WinnerEntry[]>([]);
 
   // Keep entries updated with latest winnerHistory
@@ -83,7 +88,8 @@ export default function ChronicleMysteryTeaser({ winnerHistory, isLoading }: Chr
       <div className="divide-y divide-yellow-900/10">
         {entries.map((entry, i) => {
           const ethAmount = parseFloat(formatEther(entry.prizeAmount));
-          const rank = classifyPrize(ethAmount);
+          const addrTotal = totalsByAddress[entry.winner] || 0;
+          const rank = classifyPrize(addrTotal);
           const rowOpacity = Math.max(0.25, 1 - i * 0.17);
 
           return (

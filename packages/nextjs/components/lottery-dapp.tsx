@@ -57,6 +57,15 @@ export default function LotteryDapp() {
     winnerHistory.length > 0 ? Math.max(...winnerHistory.map(e => parseFloat(formatEther(e.prizeAmount)))) : 0;
   const totalDistributed = winnerHistory.reduce((acc, e) => acc + e.prizeAmount, 0n);
   const uniquePct = winnerHistory.length > 0 ? ((uniqueWinners / winnerHistory.length) * 100).toFixed(0) : "0";
+  const totalsByAddress = winnerHistory.reduce(
+    (acc, entry) => {
+      const addr = entry.winner.toLowerCase();
+      const amount = parseFloat(formatEther(entry.prizeAmount));
+      acc[addr] = (acc[addr] || 0) + amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   // ── Polling ─────────────────────────────────────────────
   const refetchAllRef = useRef(refetchAll);
@@ -197,7 +206,11 @@ export default function LotteryDapp() {
         <div className="og-main-right">
           <div className="og-chronicle-badge">Restricted Archive</div>
 
-          <ChronicleMysteryTeaser winnerHistory={winnerHistory} isLoading={isLoading} />
+          <ChronicleMysteryTeaser
+            winnerHistory={winnerHistory}
+            isLoading={isLoading}
+            totalsByAddress={totalsByAddress}
+          />
 
           <Link href="/chronicle" className="og-chronicle-cta">
             <div>
