@@ -3,65 +3,61 @@
 import { useEffect, useState } from "react";
 import { formatUnits, parseUnits } from "viem";
 
-type Unit = "eth" | "gwei" | "wei" | "usd";
+type Unit = "ether" | "gwei" | "wei" | "usd";
 
-const toStateKey = (unit: "ether" | "gwei" | "wei" | "usd"): Unit => (unit === "ether" ? "eth" : unit);
-
-const FIELDS = [
-  { label: "USD", key: "usd" as const, unit: "usd" as const, accent: "var(--og-green)" },
-  { label: "ETH", key: "eth" as const, unit: "ether" as const, accent: "var(--og-amber)" },
-  { label: "Gwei", key: "gwei" as const, unit: "gwei" as const, accent: "var(--og-text-dim)" },
-  { label: "Wei", key: "wei" as const, unit: "wei" as const, accent: "var(--og-text-dim)" },
+const UNITS: { label: string; value: Unit }[] = [
+  { label: "ETH", value: "ether" },
+  { label: "Gwei", value: "gwei" },
+  { label: "Wei", value: "wei" },
+  { label: "USD", value: "usd" },
 ];
 
-function initValues(ethAmt: string, ethPrice: number) {
-  const parsed = parseFloat(ethAmt);
-  const safe = isNaN(parsed) || parsed <= 0 ? 1 : parsed;
+function convert(amount: string, from: Unit, to: Unit, ethPrice: number): string {
+  if (!amount || amount === "." || isNaN(parseFloat(amount))) return "";
   try {
-    const weiValue = parseUnits(safe.toFixed(18), 18);
-    return {
-      eth: safe.toString(),
-      gwei: formatUnits(weiValue, 9),
-      wei: formatUnits(weiValue, 0),
-      usd: ethPrice > 0 ? (safe * ethPrice).toFixed(2) : "0.00",
-    };
+    let weiValue: bigint;
+    if (from === "usd") {
+      if (ethPrice <= 0) return "";
+      weiValue = parseUnits((parseFloat(amount) / ethPrice).toFixed(18), 18);
+    } else {
+      const decimals = from === "ether" ? 18 : from === "gwei" ? 9 : 0;
+      weiValue = parseUnits(amount, decimals);
+    }
+    if (to === "usd") {
+      const eth = parseFloat(formatUnits(weiValue, 18));
+      return ethPrice > 0 ? (eth * ethPrice).toFixed(2) : "";
+    }
+    const decimals = to === "ether" ? 18 : to === "gwei" ? 9 : 0;
+    return formatUnits(weiValue, decimals);
   } catch {
-    return { eth: "1", gwei: "1000000000", wei: "1000000000000000000", usd: "0.00" };
+    return "";
   }
 }
 
 interface EtherConverterProps {
-  /** Pre-seed the panel with this ETH amount (e.g. the current entry field value) */
   initialEth?: string;
-  /** Render as a compact icon-only button (no label text) */
   iconOnly?: boolean;
 }
 
 export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConverterProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [ethPrice, setEthPrice] = useState(0);
-  const [values, setValues] = useState({ eth: "1", gwei: "1000000000", wei: "1000000000000000000", usd: "0.00" });
+  const [fromUnit, setFromUnit] = useState<Unit>("ether");
+  const [toUnit, setToUnit] = useState<Unit>("usd");
+  const [inputVal, setInputVal] = useState(initialEth);
   const [scanLine, setScanLine] = useState(0);
 
   useEffect(() => {
-    const fetchPrice = async () => {
-      try {
-        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd");
-        const data = await res.json();
-        setEthPrice(data.ethereum.usd);
-      } catch {
-        console.log("Price fetch failed");
-      }
-    };
-    fetchPrice();
+    fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd")
+      .then(r => r.json())
+      .then(d => setEthPrice(d.ethereum.usd))
+      .catch(() => {});
   }, []);
 
-  // Re-seed values whenever the panel opens with the latest initialEth + price
   useEffect(() => {
-    if (isOpen) setValues(initValues(initialEth, ethPrice));
-  }, [isOpen, initialEth, ethPrice]);
+    if (isOpen) setInputVal(initialEth || "1");
+  }, [isOpen, initialEth]);
 
-  // Scan line animation
   useEffect(() => {
     if (!isOpen) return;
     let frame = 0;
@@ -72,34 +68,25 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
     return () => clearInterval(id);
   }, [isOpen]);
 
-  const handleChange = (amount: string, unit: "ether" | "gwei" | "wei" | "usd") => {
-    const key = toStateKey(unit);
-    if (!amount || amount === ".") {
-      setValues(prev => ({ ...prev, [key]: amount }));
-      return;
-    }
-    try {
-      let weiValue: bigint;
-      if (unit === "usd") {
-        if (ethPrice <= 0) return;
-        weiValue = parseUnits((parseFloat(amount) / ethPrice).toFixed(18), 18);
-      } else {
-        const decimals = unit === "ether" ? 18 : unit === "gwei" ? 9 : 0;
-        weiValue = parseUnits(amount, decimals);
-      }
-      const eth = formatUnits(weiValue, 18);
-      setValues({
-        eth,
-        gwei: formatUnits(weiValue, 9),
-        wei: formatUnits(weiValue, 0),
-        usd: unit === "usd" ? amount : ethPrice > 0 ? (parseFloat(eth) * ethPrice).toFixed(2) : "0.00",
-      });
-    } catch {
-      setValues(prev => ({ ...prev, [key]: amount }));
-    }
+  const result = convert(inputVal, fromUnit, toUnit, ethPrice);
+
+  const selectStyle: React.CSSProperties = {
+    background: "rgba(20,20,16,0.95)",
+    border: "0.5px solid rgba(239,159,39,0.18)",
+    borderRadius: "3px",
+    color: "var(--og-amber)",
+    fontFamily: "var(--og-mono)",
+    fontSize: "11px",
+    letterSpacing: "0.15em",
+    padding: "4px 6px",
+    cursor: "pointer",
+    outline: "none",
+    appearance: "none" as const,
+    WebkitAppearance: "none" as const,
+    width: "62px",
+    textAlign: "center" as const,
   };
 
-  // Signal / broadcast icon shared between both button variants
   const SignalIcon = () => (
     <svg
       width="13"
@@ -130,10 +117,16 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
           0%, 100% { opacity: 1; }
           50%       { opacity: 0.3; }
         }
+        .og-cipher-select:focus { border-color: rgba(239,159,39,0.45) !important; }
+        .og-cipher-select option { background: #0A0A08; color: #EF9F27; }
+        .og-cipher-input:focus {
+          border-color: rgba(239,159,39,0.45) !important;
+          box-shadow: 0 0 0 1px rgba(239,159,39,0.08);
+        }
       `}</style>
 
+      {/* Trigger */}
       {iconOnly ? (
-        /* ── Icon-only trigger (used inside EnterForm label row) ── */
         <button
           onClick={() => setIsOpen(o => !o)}
           title="Value Cipher — decode ETH amounts"
@@ -153,22 +146,22 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
             flexShrink: 0,
           }}
           onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,159,39,0.5)";
-            (e.currentTarget as HTMLButtonElement).style.color = "var(--og-amber)";
-            (e.currentTarget as HTMLButtonElement).style.background = "rgba(239,159,39,0.08)";
+            const b = e.currentTarget as HTMLButtonElement;
+            b.style.borderColor = "rgba(239,159,39,0.5)";
+            b.style.color = "var(--og-amber)";
+            b.style.background = "rgba(239,159,39,0.08)";
           }}
           onMouseLeave={e => {
-            if (!isOpen) {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,159,39,0.2)";
-              (e.currentTarget as HTMLButtonElement).style.color = "rgba(239,159,39,0.45)";
-              (e.currentTarget as HTMLButtonElement).style.background = "transparent";
-            }
+            if (isOpen) return;
+            const b = e.currentTarget as HTMLButtonElement;
+            b.style.borderColor = "rgba(239,159,39,0.2)";
+            b.style.color = "rgba(239,159,39,0.45)";
+            b.style.background = "transparent";
           }}
         >
           <SignalIcon />
         </button>
       ) : (
-        /* ── Full labeled trigger (footer / standalone use) ── */
         <button
           onClick={() => setIsOpen(o => !o)}
           style={{
@@ -187,12 +180,14 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
             transition: "border-color 0.2s, color 0.2s",
           }}
           onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--og-amber-dim)";
-            (e.currentTarget as HTMLButtonElement).style.color = "var(--og-amber)";
+            const b = e.currentTarget as HTMLButtonElement;
+            b.style.borderColor = "var(--og-amber-dim)";
+            b.style.color = "var(--og-amber)";
           }}
           onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,159,39,0.25)";
-            (e.currentTarget as HTMLButtonElement).style.color = "var(--og-text-dim)";
+            const b = e.currentTarget as HTMLButtonElement;
+            b.style.borderColor = "rgba(239,159,39,0.25)";
+            b.style.color = "var(--og-text-dim)";
           }}
         >
           <SignalIcon />
@@ -200,7 +195,7 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
         </button>
       )}
 
-      {/* ── Panel ── */}
+      {/* Panel */}
       {isOpen && (
         <div
           style={{
@@ -208,14 +203,13 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
             bottom: "calc(100% + 6px)",
             left: iconOnly ? "50%" : 0,
             transform: iconOnly ? "translateX(-50%)" : "none",
-            width: "292px",
+            width: "300px",
             background: "#0A0A08",
             border: "0.5px solid rgba(239,159,39,0.22)",
             borderRadius: "6px",
-            padding: "0",
             zIndex: 50,
             animation: "og-fade-up 0.18s ease forwards",
-            boxShadow: "0 8px 40px rgba(0,0,0,0.75), inset 0 0 60px rgba(239,159,39,0.015)",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.75)",
             overflow: "hidden",
           }}
         >
@@ -234,33 +228,35 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
           />
 
           {/* Corner brackets */}
-          {[
-            {
-              top: 6,
-              left: 6,
-              borderTop: "1px solid rgba(239,159,39,0.45)",
-              borderLeft: "1px solid rgba(239,159,39,0.45)",
-            },
-            {
-              top: 6,
-              right: 6,
-              borderTop: "1px solid rgba(239,159,39,0.45)",
-              borderRight: "1px solid rgba(239,159,39,0.45)",
-            },
-            {
-              bottom: 6,
-              left: 6,
-              borderBottom: "1px solid rgba(239,159,39,0.45)",
-              borderLeft: "1px solid rgba(239,159,39,0.45)",
-            },
-            {
-              bottom: 6,
-              right: 6,
-              borderBottom: "1px solid rgba(239,159,39,0.45)",
-              borderRight: "1px solid rgba(239,159,39,0.45)",
-            },
-          ].map((s, i) => (
-            <div key={i} style={{ position: "absolute", width: 12, height: 12, ...s }} />
+          {(
+            [
+              {
+                top: 6,
+                left: 6,
+                borderTop: "1px solid rgba(239,159,39,0.4)",
+                borderLeft: "1px solid rgba(239,159,39,0.4)",
+              },
+              {
+                top: 6,
+                right: 6,
+                borderTop: "1px solid rgba(239,159,39,0.4)",
+                borderRight: "1px solid rgba(239,159,39,0.4)",
+              },
+              {
+                bottom: 6,
+                left: 6,
+                borderBottom: "1px solid rgba(239,159,39,0.4)",
+                borderLeft: "1px solid rgba(239,159,39,0.4)",
+              },
+              {
+                bottom: 6,
+                right: 6,
+                borderBottom: "1px solid rgba(239,159,39,0.4)",
+                borderRight: "1px solid rgba(239,159,39,0.4)",
+              },
+            ] as React.CSSProperties[]
+          ).map((s, i) => (
+            <div key={i} style={{ position: "absolute", width: 10, height: 10, ...s }} />
           ))}
 
           {/* Header */}
@@ -269,17 +265,17 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: "12px 18px 10px",
+              padding: "11px 18px 9px",
               borderBottom: "0.5px solid rgba(239,159,39,0.08)",
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
               <span
                 style={{
-                  fontSize: "9px",
+                  fontSize: "8px",
                   letterSpacing: "0.35em",
                   textTransform: "uppercase",
-                  color: "rgba(239,159,39,0.35)",
+                  color: "rgba(239,159,39,0.3)",
                   fontFamily: "var(--og-mono)",
                 }}
               >
@@ -307,30 +303,32 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
                 color: "var(--og-text-muted)",
                 cursor: "pointer",
                 padding: "3px 7px",
-                lineHeight: 1,
                 fontSize: "10px",
                 fontFamily: "var(--og-mono)",
                 letterSpacing: "0.1em",
                 transition: "border-color 0.15s, color 0.15s",
+                lineHeight: 1,
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,159,39,0.4)";
-                (e.currentTarget as HTMLButtonElement).style.color = "var(--og-amber)";
+                const b = e.currentTarget as HTMLButtonElement;
+                b.style.borderColor = "rgba(239,159,39,0.4)";
+                b.style.color = "var(--og-amber)";
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,159,39,0.15)";
-                (e.currentTarget as HTMLButtonElement).style.color = "var(--og-text-muted)";
+                const b = e.currentTarget as HTMLButtonElement;
+                b.style.borderColor = "rgba(239,159,39,0.15)";
+                b.style.color = "var(--og-text-muted)";
               }}
             >
               ✕ CLOSE
             </button>
           </div>
 
-          {/* Live price */}
+          {/* Live price strip */}
           {ethPrice > 0 && (
             <div
               style={{
-                padding: "8px 18px",
+                padding: "7px 18px",
                 borderBottom: "0.5px solid rgba(239,159,39,0.06)",
                 display: "flex",
                 alignItems: "center",
@@ -339,14 +337,14 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
             >
               <span
                 style={{
-                  display: "inline-block",
                   width: "6px",
                   height: "6px",
                   borderRadius: "50%",
+                  flexShrink: 0,
                   background: "var(--og-green)",
                   boxShadow: "0 0 6px var(--og-green)",
                   animation: "cipher-blink 2s ease-in-out infinite",
-                  flexShrink: 0,
+                  display: "inline-block",
                 }}
               />
               <span
@@ -363,94 +361,181 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
             </div>
           )}
 
-          {/* Instruction strip */}
-          <div style={{ padding: "10px 18px 0" }}>
-            <span
-              style={{
-                fontSize: "9px",
-                letterSpacing: "0.25em",
-                color: "rgba(239,159,39,0.25)",
-                fontFamily: "var(--og-mono)",
-                textTransform: "uppercase",
-              }}
-            >
-              ENTER ANY UNIT · ALL OTHERS DECODE AUTOMATICALLY
-            </span>
-          </div>
-
-          {/* Fields */}
-          <div style={{ padding: "10px 18px 18px", display: "flex", flexDirection: "column", gap: "10px" }}>
-            {FIELDS.map(({ label, key, unit, accent }) => (
-              <div key={key}>
-                <div
+          {/* Two-column converter */}
+          <div style={{ padding: "16px 18px 18px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: "10px" }}>
+              {/* FROM */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <span
                   style={{
-                    fontSize: "9px",
+                    fontSize: "8px",
                     letterSpacing: "0.3em",
                     textTransform: "uppercase",
-                    color: accent,
-                    marginBottom: "5px",
+                    color: "rgba(239,159,39,0.35)",
                     fontFamily: "var(--og-mono)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
                   }}
                 >
-                  <span
-                    style={{
-                      display: "inline-block",
-                      width: "4px",
-                      height: "4px",
-                      background: accent,
-                      borderRadius: "50%",
-                      opacity: 0.6,
-                    }}
-                  />
-                  {label}
-                </div>
+                  FROM
+                </span>
                 <input
+                  className="og-cipher-input"
                   type="number"
-                  value={values[key]}
-                  onChange={e => handleChange(e.target.value, unit)}
+                  value={inputVal}
+                  onChange={e => setInputVal(e.target.value)}
                   style={{
-                    width: "100%",
-                    background: "rgba(20,20,16,0.9)",
-                    border: "0.5px solid rgba(239,159,39,0.12)",
+                    background: "rgba(20,20,16,0.95)",
+                    border: "0.5px solid rgba(239,159,39,0.18)",
                     borderRadius: "3px",
-                    padding: "8px 12px",
+                    padding: "8px 10px",
                     fontFamily: "var(--og-mono)",
-                    fontSize: "13px",
+                    fontSize: "14px",
                     color: "var(--og-text-bright)",
                     outline: "none",
+                    width: "100%",
                     boxSizing: "border-box",
                     transition: "border-color 0.15s, box-shadow 0.15s",
                   }}
-                  onFocus={e => {
-                    e.target.style.borderColor = "var(--og-amber-dim)";
-                    e.target.style.boxShadow = "0 0 0 1px rgba(239,159,39,0.08)";
-                  }}
-                  onBlur={e => {
-                    e.target.style.borderColor = "rgba(239,159,39,0.12)";
-                    e.target.style.boxShadow = "none";
-                  }}
                 />
+                <select
+                  className="og-cipher-select"
+                  value={fromUnit}
+                  onChange={e => setFromUnit(e.target.value as Unit)}
+                  style={selectStyle}
+                >
+                  {UNITS.map(u => (
+                    <option key={u.value} value={u.value}>
+                      {u.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-            ))}
+
+              {/* Arrow + swap */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "6px",
+                  paddingTop: "16px",
+                }}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="rgba(239,159,39,0.35)"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+                <button
+                  onClick={() => {
+                    setFromUnit(toUnit);
+                    setToUnit(fromUnit);
+                  }}
+                  title="Swap units"
+                  style={{
+                    background: "transparent",
+                    border: "0.5px solid rgba(239,159,39,0.12)",
+                    borderRadius: "3px",
+                    color: "rgba(239,159,39,0.3)",
+                    cursor: "pointer",
+                    padding: "3px 5px",
+                    display: "flex",
+                    alignItems: "center",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={e => {
+                    const b = e.currentTarget as HTMLButtonElement;
+                    b.style.borderColor = "rgba(239,159,39,0.35)";
+                    b.style.color = "var(--og-amber)";
+                  }}
+                  onMouseLeave={e => {
+                    const b = e.currentTarget as HTMLButtonElement;
+                    b.style.borderColor = "rgba(239,159,39,0.12)";
+                    b.style.color = "rgba(239,159,39,0.3)";
+                  }}
+                >
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M7 16V4m0 0L3 8m4-4l4 4" />
+                    <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* TO */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <span
+                  style={{
+                    fontSize: "8px",
+                    letterSpacing: "0.3em",
+                    textTransform: "uppercase",
+                    color: "rgba(239,159,39,0.35)",
+                    fontFamily: "var(--og-mono)",
+                  }}
+                >
+                  TO
+                </span>
+                <div
+                  style={{
+                    background: "rgba(12,12,10,0.95)",
+                    border: "0.5px solid rgba(239,159,39,0.1)",
+                    borderRadius: "3px",
+                    padding: "8px 10px",
+                    fontFamily: "var(--og-mono)",
+                    fontSize: "14px",
+                    color: result ? "var(--og-green)" : "var(--og-text-muted)",
+                    minHeight: "38px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    boxSizing: "border-box",
+                  }}
+                >
+                  {result || "—"}
+                </div>
+                <select
+                  className="og-cipher-select"
+                  value={toUnit}
+                  onChange={e => setToUnit(e.target.value as Unit)}
+                  style={selectStyle}
+                >
+                  {UNITS.map(u => (
+                    <option key={u.value} value={u.value}>
+                      {u.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
           {/* Footer stamp */}
           <div
             style={{
-              padding: "6px 18px 10px",
+              padding: "5px 18px 9px",
               borderTop: "0.5px solid rgba(239,159,39,0.06)",
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
             }}
           >
             <span
               style={{
                 fontSize: "8px",
-                color: "rgba(239,159,39,0.2)",
+                color: "rgba(239,159,39,0.18)",
                 fontFamily: "var(--og-mono)",
                 letterSpacing: "0.2em",
               }}
@@ -460,7 +545,7 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
             <span
               style={{
                 fontSize: "8px",
-                color: "rgba(239,159,39,0.2)",
+                color: "rgba(239,159,39,0.18)",
                 fontFamily: "var(--og-mono)",
                 letterSpacing: "0.1em",
               }}
