@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ChronicleMysteryTeaser from "../app/chronicle/ChronicleMysteryTeaser";
 import { classifyPrize } from "../app/chronicle/lib";
+import { EtherConverter } from "./EtherConverter";
 import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
@@ -169,7 +170,13 @@ export default function LotteryDapp() {
           <div>
             <div className="og-section-label">Enter the Lottery</div>
 
-            <div className="og-field-label">Amount (ETH)</div>
+            <div
+              className="og-field-label"
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+            >
+              <span>Amount (ETH)</span>
+              <EtherConverter iconOnly initialEth={entryAmount || "0"} />
+            </div>
             <div className={`og-input-wrap${isInvalidAmount && entryAmount !== "" ? " og-input-wrap--error" : ""}`}>
               <input
                 className="og-eth-input"
