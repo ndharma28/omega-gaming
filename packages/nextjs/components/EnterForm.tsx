@@ -93,7 +93,7 @@ export default function EnterForm({
             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">ETH</span>
           </div>
 
-          <div className="flex items-center gap-2 min-h-[20px] mt-2">
+          <div className="flex items-center gap-2 min-h-5 mt-2">
             {errorMessage ? (
               <div className="flex items-center gap-1.5 animate-in fade-in duration-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 w-full">
                 <AlertCircle className="w-4 h-4 text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]" />

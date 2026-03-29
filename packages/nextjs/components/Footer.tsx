@@ -17,7 +17,6 @@ export const Footer = () => {
       {isLocalNetwork && (
         <div className="fixed bottom-0 left-0 w-full z-10 pointer-events-none">
           <div className="flex justify-start items-center gap-2 p-3 pointer-events-auto">
-            <EtherConverter />
             <Faucet />
             <Link
               href="/blockexplorer"
@@ -42,6 +41,8 @@ export const Footer = () => {
           </div>
 
           <div className="flex items-center gap-4 text-xs text-slate-600">
+            <EtherConverter />
+            <span className="text-slate-800">·</span>
             <a
               href="https://github.com/scaffold-eth/se-2"
               target="_blank"
