@@ -2,6 +2,7 @@
 
 import { LotteryStatus } from "./StatusBar";
 import { AlertCircle, RefreshCw } from "lucide-react";
+import { EtherConverter } from "~~/components/EtherConverter";
 
 interface EnterFormProps {
   entryAmount: string;
@@ -33,7 +34,6 @@ export default function EnterForm({
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
-    // Allow only digits and a single decimal point
     const sanitized = raw.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1");
     setEntryAmount(sanitized);
   };
@@ -47,9 +47,6 @@ export default function EnterForm({
       );
     if (status === LotteryStatus.DRAWING) return "Selecting Winner...";
     if (status === LotteryStatus.RESOLVED) return "Lottery Completed";
-
-    // NOTE: CLOSED and NOT_STARTED have been successfully removed from here!
-
     if (isTooHigh) return "Insufficient Balance";
     if (isInvalid) return "Invalid Amount";
     return "Enter Lottery";
@@ -71,11 +68,20 @@ export default function EnterForm({
         </div>
         <h3 className="font-semibold text-lg text-white">Enter the Lottery</h3>
       </div>
+
       <div className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="amount" className="text-sm font-medium text-white">
-            Amount (ETH)
-          </label>
+          {/* Label row — cipher trigger lives here */}
+          <div className="flex items-center justify-between">
+            <label htmlFor="amount" className="text-sm font-medium text-white">
+              Amount (ETH)
+            </label>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-500 font-mono tracking-wide select-none">decode</span>
+              <EtherConverter iconOnly initialEth={entryAmount || "0"} />
+            </div>
+          </div>
+
           <div className="relative">
             <input
               id="amount"

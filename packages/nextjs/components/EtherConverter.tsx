@@ -14,7 +14,30 @@ const FIELDS = [
   { label: "Wei", key: "wei" as const, unit: "wei" as const, accent: "var(--og-text-dim)" },
 ];
 
-export const EtherConverter = () => {
+function initValues(ethAmt: string, ethPrice: number) {
+  const parsed = parseFloat(ethAmt);
+  const safe = isNaN(parsed) || parsed <= 0 ? 1 : parsed;
+  try {
+    const weiValue = parseUnits(safe.toFixed(18), 18);
+    return {
+      eth: safe.toString(),
+      gwei: formatUnits(weiValue, 9),
+      wei: formatUnits(weiValue, 0),
+      usd: ethPrice > 0 ? (safe * ethPrice).toFixed(2) : "0.00",
+    };
+  } catch {
+    return { eth: "1", gwei: "1000000000", wei: "1000000000000000000", usd: "0.00" };
+  }
+}
+
+interface EtherConverterProps {
+  /** Pre-seed the panel with this ETH amount (e.g. the current entry field value) */
+  initialEth?: string;
+  /** Render as a compact icon-only button (no label text) */
+  iconOnly?: boolean;
+}
+
+export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConverterProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [ethPrice, setEthPrice] = useState(0);
   const [values, setValues] = useState({ eth: "1", gwei: "1000000000", wei: "1000000000000000000", usd: "0.00" });
@@ -33,11 +56,12 @@ export const EtherConverter = () => {
     fetchPrice();
   }, []);
 
+  // Re-seed values whenever the panel opens with the latest initialEth + price
   useEffect(() => {
-    if (ethPrice > 0) setValues(prev => ({ ...prev, usd: (parseFloat(prev.eth) * ethPrice).toFixed(2) }));
-  }, [ethPrice]);
+    if (isOpen) setValues(initValues(initialEth, ethPrice));
+  }, [isOpen, initialEth, ethPrice]);
 
-  // Animate scan line when panel is open
+  // Scan line animation
   useEffect(() => {
     if (!isOpen) return;
     let frame = 0;
@@ -75,8 +99,28 @@ export const EtherConverter = () => {
     }
   };
 
+  // Signal / broadcast icon shared between both button variants
+  const SignalIcon = () => (
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="3" />
+      <path d="M6.3 6.3a8 8 0 0 0 0 11.4" />
+      <path d="M17.7 6.3a8 8 0 0 1 0 11.4" />
+      <path d="M3.5 3.5a14 14 0 0 0 0 17" />
+      <path d="M20.5 3.5a14 14 0 0 1 0 17" />
+    </svg>
+  );
+
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", display: "inline-block" }}>
       <style>{`
         @keyframes og-fade-up {
           from { opacity: 0; transform: translateY(6px); }
@@ -86,66 +130,84 @@ export const EtherConverter = () => {
           0%, 100% { opacity: 1; }
           50%       { opacity: 0.3; }
         }
-        .cipher-btn:hover .cipher-icon { color: var(--og-amber); }
       `}</style>
 
-      {/* Toggle button */}
-      <button
-        className="cipher-btn"
-        onClick={() => setIsOpen(o => !o)}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "6px",
-          padding: "6px 14px",
-          background: "transparent",
-          border: "0.5px solid rgba(239,159,39,0.25)",
-          borderRadius: "4px",
-          color: "var(--og-text-dim)",
-          fontFamily: "var(--og-mono)",
-          fontSize: "12px",
-          letterSpacing: "0.1em",
-          cursor: "pointer",
-          transition: "border-color 0.2s, color 0.2s",
-        }}
-        onMouseEnter={e => {
-          (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--og-amber-dim)";
-          (e.currentTarget as HTMLButtonElement).style.color = "var(--og-amber)";
-        }}
-        onMouseLeave={e => {
-          (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,159,39,0.25)";
-          (e.currentTarget as HTMLButtonElement).style.color = "var(--og-text-dim)";
-        }}
-      >
-        {/* Signal / decode icon */}
-        <svg
-          className="cipher-icon"
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ transition: "color 0.2s" }}
+      {iconOnly ? (
+        /* ── Icon-only trigger (used inside EnterForm label row) ── */
+        <button
+          onClick={() => setIsOpen(o => !o)}
+          title="Value Cipher — decode ETH amounts"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "22px",
+            height: "22px",
+            padding: 0,
+            background: isOpen ? "rgba(239,159,39,0.1)" : "transparent",
+            border: `0.5px solid ${isOpen ? "rgba(239,159,39,0.4)" : "rgba(239,159,39,0.2)"}`,
+            borderRadius: "4px",
+            color: isOpen ? "var(--og-amber)" : "rgba(239,159,39,0.45)",
+            cursor: "pointer",
+            transition: "all 0.15s",
+            flexShrink: 0,
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,159,39,0.5)";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--og-amber)";
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(239,159,39,0.08)";
+          }}
+          onMouseLeave={e => {
+            if (!isOpen) {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,159,39,0.2)";
+              (e.currentTarget as HTMLButtonElement).style.color = "rgba(239,159,39,0.45)";
+              (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+            }
+          }}
         >
-          <circle cx="12" cy="12" r="3" />
-          <path d="M6.3 6.3a8 8 0 0 0 0 11.4" />
-          <path d="M17.7 6.3a8 8 0 0 1 0 11.4" />
-          <path d="M3.5 3.5a14 14 0 0 0 0 17" />
-          <path d="M20.5 3.5a14 14 0 0 1 0 17" />
-        </svg>
-        SIGNAL DECODE
-      </button>
+          <SignalIcon />
+        </button>
+      ) : (
+        /* ── Full labeled trigger (footer / standalone use) ── */
+        <button
+          onClick={() => setIsOpen(o => !o)}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "6px 14px",
+            background: "transparent",
+            border: "0.5px solid rgba(239,159,39,0.25)",
+            borderRadius: "4px",
+            color: "var(--og-text-dim)",
+            fontFamily: "var(--og-mono)",
+            fontSize: "12px",
+            letterSpacing: "0.1em",
+            cursor: "pointer",
+            transition: "border-color 0.2s, color 0.2s",
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--og-amber-dim)";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--og-amber)";
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,159,39,0.25)";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--og-text-dim)";
+          }}
+        >
+          <SignalIcon />
+          SIGNAL DECODE
+        </button>
+      )}
 
-      {/* Panel */}
+      {/* ── Panel ── */}
       {isOpen && (
         <div
           style={{
             position: "absolute",
-            bottom: "calc(100% + 8px)",
-            left: 0,
+            bottom: "calc(100% + 6px)",
+            left: iconOnly ? "50%" : 0,
+            transform: iconOnly ? "translateX(-50%)" : "none",
             width: "292px",
             background: "#0A0A08",
             border: "0.5px solid rgba(239,159,39,0.22)",
@@ -157,7 +219,7 @@ export const EtherConverter = () => {
             overflow: "hidden",
           }}
         >
-          {/* Scan line overlay */}
+          {/* Scan line */}
           <div
             style={{
               position: "absolute",
@@ -171,54 +233,35 @@ export const EtherConverter = () => {
             }}
           />
 
-          {/* Corner brackets — top-left */}
-          <div
-            style={{
-              position: "absolute",
+          {/* Corner brackets */}
+          {[
+            {
               top: 6,
               left: 6,
-              width: 12,
-              height: 12,
               borderTop: "1px solid rgba(239,159,39,0.45)",
               borderLeft: "1px solid rgba(239,159,39,0.45)",
-            }}
-          />
-          {/* Corner brackets — top-right */}
-          <div
-            style={{
-              position: "absolute",
+            },
+            {
               top: 6,
               right: 6,
-              width: 12,
-              height: 12,
               borderTop: "1px solid rgba(239,159,39,0.45)",
               borderRight: "1px solid rgba(239,159,39,0.45)",
-            }}
-          />
-          {/* Corner brackets — bottom-left */}
-          <div
-            style={{
-              position: "absolute",
+            },
+            {
               bottom: 6,
               left: 6,
-              width: 12,
-              height: 12,
               borderBottom: "1px solid rgba(239,159,39,0.45)",
               borderLeft: "1px solid rgba(239,159,39,0.45)",
-            }}
-          />
-          {/* Corner brackets — bottom-right */}
-          <div
-            style={{
-              position: "absolute",
+            },
+            {
               bottom: 6,
               right: 6,
-              width: 12,
-              height: 12,
               borderBottom: "1px solid rgba(239,159,39,0.45)",
               borderRight: "1px solid rgba(239,159,39,0.45)",
-            }}
-          />
+            },
+          ].map((s, i) => (
+            <div key={i} style={{ position: "absolute", width: 12, height: 12, ...s }} />
+          ))}
 
           {/* Header */}
           <div
@@ -283,7 +326,7 @@ export const EtherConverter = () => {
             </button>
           </div>
 
-          {/* ETH price intercept */}
+          {/* Live price */}
           {ethPrice > 0 && (
             <div
               style={{
@@ -320,7 +363,7 @@ export const EtherConverter = () => {
             </div>
           )}
 
-          {/* Field label strip */}
+          {/* Instruction strip */}
           <div style={{ padding: "10px 18px 0" }}>
             <span
               style={{
@@ -338,7 +381,7 @@ export const EtherConverter = () => {
           {/* Fields */}
           <div style={{ padding: "10px 18px 18px", display: "flex", flexDirection: "column", gap: "10px" }}>
             {FIELDS.map(({ label, key, unit, accent }) => (
-              <div key={key} style={{ position: "relative" }}>
+              <div key={key}>
                 <div
                   style={{
                     fontSize: "9px",
