@@ -61,7 +61,7 @@ export default function ChroniclePage() {
             <span className="opacity-50">· · · · · · · · · · · · · · ·</span>
             <span>◆</span>
           </div>
-          <p className="text-[10px] text-slate-500 tracking-widest uppercase">
+          <p className="text-[10px] text-yellow-600/90 tracking-widest uppercase">
             Chainlink VRF reached into the void and pulled out a number that was already there. Pre-ordained by math,
             not by men. Which, in my experience, is the only kind of fair that actually holds up. Immutable. Verifiable.
             Unimpeachable. File your complaints with the blockchain. {"It doesn't read them"}.
