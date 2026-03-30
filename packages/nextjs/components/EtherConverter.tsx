@@ -112,7 +112,7 @@ export const EtherConverter = ({ initialEth = "1" }: EtherConverterProps) => {
               fontSize: "8px",
               letterSpacing: "0.3em",
               textTransform: "uppercase",
-              color: "rgba(239,159,39,0.3)",
+              color: "rgba(239,159,39,0.8)",
               fontFamily: "var(--og-mono)",
             }}
           >
@@ -211,7 +211,7 @@ export const EtherConverter = ({ initialEth = "1" }: EtherConverterProps) => {
                 fontSize: "8px",
                 letterSpacing: "0.28em",
                 textTransform: "uppercase",
-                color: "rgba(239,159,39,0.35)",
+                color: "rgba(239,159,39,0.8)",
                 fontFamily: "var(--og-mono)",
               }}
             >
@@ -314,7 +314,7 @@ export const EtherConverter = ({ initialEth = "1" }: EtherConverterProps) => {
                 fontSize: "8px",
                 letterSpacing: "0.28em",
                 textTransform: "uppercase",
-                color: "rgba(239,159,39,0.35)",
+                color: "rgba(239,159,39,0.8)",
                 fontFamily: "var(--og-mono)",
               }}
             >
