@@ -15,12 +15,12 @@ interface AddressChronicleProps {
 const TABLE_COLS = ["#", "Address", "Prize", "Rank"];
 
 const SCAN_PHRASES = [
-  "Accessing the ledger…",
-  "Cross-referencing known wallets…",
-  "Tracing on-chain activity…",
-  "Pulling transaction history…",
-  "Verifying round records…",
-  "Compiling the file…",
+  "Every address leaves a trail. Finding yours…",
+  "Cross-referencing with the ledger. It remembers everything…",
+  "The blockchain doesn't forget. Neither do we…",
+  "Pulling the file. This always takes longer than it should…",
+  "Corroborating the record. Math doesn't lie…",
+  "Compiling the dossier. Almost there…",
 ];
 
 function ProgressBar({ onComplete }: { onComplete: () => void }) {
