@@ -1,10 +1,9 @@
 "use client";
 
-import { CalendarDays, Trophy } from "lucide-react";
 import { formatEther } from "viem";
 
 interface PotCardProps {
-  lotteryId?: bigint | number; // <-- Added lotteryId
+  lotteryId?: bigint | number;
   potBalance: bigint;
   status: number;
   startTime: bigint;
@@ -12,9 +11,6 @@ interface PotCardProps {
   winner?: string;
 }
 
-/**
- * Formats a Unix timestamp into a readable date string
- */
 function formatDate(timestamp: bigint): string {
   if (timestamp === 0n) return "TBD";
   return new Date(Number(timestamp) * 1000).toLocaleDateString([], {
@@ -29,71 +25,331 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
   const isResolved = status === 4;
   const isDrawing = status === 3;
   const isNotStarted = status === 0;
+  const isLive = status === 1;
+
+  const potEth = parseFloat(formatEther(potBalance));
 
   return (
-    <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
-      {/* Decorative background glow for winners */}
-      {isResolved && <div className="absolute -right-10 -top-10 w-32 h-32 bg-green-500/10 blur-3xl rounded-full" />}
+    <div
+      style={{
+        background: "rgba(10,10,8,0.85)",
+        border: "0.5px solid rgba(239,159,39,0.2)",
+        borderRadius: "8px",
+        padding: "28px 32px",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <style>{`
+        @keyframes og-ping {
+          0%   { transform: scale(1); opacity: 1; }
+          75%, 100% { transform: scale(2); opacity: 0; }
+        }
+        @keyframes og-winner-in {
+          from { opacity: 0; transform: translateX(8px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 relative z-10">
+      {/* Corner brackets */}
+      {(
+        [
+          {
+            top: 8,
+            left: 8,
+            borderTop: "1px solid rgba(239,159,39,0.4)",
+            borderLeft: "1px solid rgba(239,159,39,0.4)",
+          },
+          {
+            top: 8,
+            right: 8,
+            borderTop: "1px solid rgba(239,159,39,0.4)",
+            borderRight: "1px solid rgba(239,159,39,0.4)",
+          },
+          {
+            bottom: 8,
+            left: 8,
+            borderBottom: "1px solid rgba(239,159,39,0.4)",
+            borderLeft: "1px solid rgba(239,159,39,0.4)",
+          },
+          {
+            bottom: 8,
+            right: 8,
+            borderBottom: "1px solid rgba(239,159,39,0.4)",
+            borderRight: "1px solid rgba(239,159,39,0.4)",
+          },
+        ] as React.CSSProperties[]
+      ).map((s, i) => (
+        <div key={i} style={{ position: "absolute", width: 12, height: 12, ...s }} />
+      ))}
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          gap: "24px",
+          flexWrap: "wrap",
+        }}
+      >
+        {/* LEFT: jackpot amount */}
         <div>
-          {/* HEADER ROW: Title & Epoch Badge */}
-          <div className="flex items-center gap-3 mb-1">
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">
-              {isResolved ? "Total Payout" : "Current Jackpot"}
-            </p>
-
-            {/* The New Lottery Number Badge */}
+          {/* Label + epoch */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
+            <span
+              style={{
+                fontSize: "9px",
+                letterSpacing: "0.3em",
+                textTransform: "uppercase",
+                color: "rgba(239,159,39,0.45)",
+                fontFamily: "var(--og-mono)",
+              }}
+            >
+              {isResolved ? "TOTAL PAYOUT" : "CURRENT JACKPOT"}
+            </span>
             {lotteryId !== undefined && (
-              <div className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-mono text-slate-300 shadow-sm">
+              <span
+                style={{
+                  fontSize: "9px",
+                  letterSpacing: "0.2em",
+                  fontFamily: "var(--og-mono)",
+                  color: "rgba(239,159,39,0.35)",
+                  border: "0.5px solid rgba(239,159,39,0.18)",
+                  borderRadius: "3px",
+                  padding: "2px 7px",
+                }}
+              >
                 EPOCH #{lotteryId.toString()}
-              </div>
+              </span>
             )}
           </div>
 
-          <h2 className="text-4xl font-black text-yellow-500 tracking-tight">
-            {formatEther(potBalance)} <span className="text-xl text-slate-500 font-medium">ETH</span>
-          </h2>
+          {/* ETH amount */}
+          <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
+            <span
+              style={{
+                fontSize: "48px",
+                fontWeight: 800,
+                lineHeight: 1,
+                color: "var(--og-amber)",
+                fontFamily: "var(--og-mono)",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              {potEth.toFixed(4).replace(/\.?0+$/, "") || "0"}
+            </span>
+            <span
+              style={{
+                fontSize: "18px",
+                color: "var(--og-text-dim)",
+                fontFamily: "var(--og-mono)",
+                letterSpacing: "0.1em",
+              }}
+            >
+              ETH
+            </span>
+          </div>
 
-          <div className="flex items-center gap-2 mt-2 text-slate-500">
-            <CalendarDays className="w-3.5 h-3.5" />
-            <span className="text-xs font-medium">
-              {isNotStarted ? `Starts: ${formatDate(startTime)}` : `Draw: ${formatDate(endTime)}`}
+          {/* Date row */}
+          <div
+            style={{
+              marginTop: "10px",
+              display: "flex",
+              alignItems: "center",
+              gap: "7px",
+            }}
+          >
+            {/* Calendar dot */}
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="rgba(239,159,39,0.35)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+            <span
+              style={{
+                fontSize: "11px",
+                color: "var(--og-text-muted)",
+                fontFamily: "var(--og-mono)",
+                letterSpacing: "0.08em",
+              }}
+            >
+              {isNotStarted ? `STARTS · ${formatDate(startTime)}` : `DRAW · ${formatDate(endTime)}`}
             </span>
           </div>
         </div>
 
-        <div className="text-right w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-slate-800/50">
+        {/* RIGHT: status readout */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
+          <span
+            style={{
+              fontSize: "8px",
+              letterSpacing: "0.3em",
+              textTransform: "uppercase",
+              color: "rgba(239,159,39,0.3)",
+              fontFamily: "var(--og-mono)",
+            }}
+          >
+            STATUS
+          </span>
+
           {isResolved ? (
-            <div className="animate-in zoom-in slide-in-from-right-4 duration-500 flex flex-col items-end">
-              <div className="flex items-center gap-1.5 text-green-400 mb-1">
-                <Trophy className="w-4 h-4" />
-                <p className="text-[10px] font-black uppercase tracking-widest">Winner Selected</p>
+            <div
+              style={{
+                animation: "og-winner-in 0.4s ease forwards",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                gap: "5px",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                {/* Trophy icon */}
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--og-green)"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M8 21h8M12 17v4" />
+                  <path d="M7 4H4a2 2 0 0 0-2 2v1c0 4 3 7 6 8" />
+                  <path d="M17 4h3a2 2 0 0 1 2 2v1c0 4-3 7-6 8" />
+                  <path d="M5 4h14v6a7 7 0 0 1-14 0V4z" />
+                </svg>
+                <span
+                  style={{
+                    fontSize: "9px",
+                    letterSpacing: "0.25em",
+                    textTransform: "uppercase",
+                    color: "var(--og-green)",
+                    fontFamily: "var(--og-mono)",
+                  }}
+                >
+                  WINNER SELECTED
+                </span>
               </div>
-              <p className="text-slate-100 font-mono text-sm bg-slate-800/80 px-3 py-1 rounded-lg border border-slate-700">
-                {winner?.slice(0, 6)}...{winner?.slice(-4)}
-              </p>
+              <span
+                style={{
+                  fontFamily: "var(--og-mono)",
+                  fontSize: "13px",
+                  color: "var(--og-text-bright)",
+                  background: "rgba(20,20,16,0.9)",
+                  border: "0.5px solid rgba(239,159,39,0.15)",
+                  borderRadius: "3px",
+                  padding: "5px 12px",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                {winner?.slice(0, 6)}…{winner?.slice(-4)}
+              </span>
             </div>
           ) : isDrawing ? (
-            <div className="flex flex-col items-end gap-1">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full animate-ping" />
-                <p className="text-yellow-500 text-sm font-bold uppercase tracking-tight">Selecting Winner</p>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "5px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div style={{ position: "relative", width: "8px", height: "8px" }}>
+                  <span
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: "50%",
+                      background: "var(--og-amber)",
+                      animation: "og-ping 1.2s cubic-bezier(0,0,0.2,1) infinite",
+                    }}
+                  />
+                  <span
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: "50%",
+                      background: "var(--og-amber)",
+                    }}
+                  />
+                </div>
+                <span
+                  style={{
+                    fontSize: "11px",
+                    letterSpacing: "0.15em",
+                    textTransform: "uppercase",
+                    color: "var(--og-amber)",
+                    fontFamily: "var(--og-mono)",
+                    fontWeight: 600,
+                  }}
+                >
+                  SELECTING WINNER
+                </span>
               </div>
-              <p className="text-[10px] text-slate-500">Awaiting VRF Callback...</p>
+              <span
+                style={{
+                  fontSize: "9px",
+                  color: "var(--og-text-muted)",
+                  fontFamily: "var(--og-mono)",
+                  letterSpacing: "0.1em",
+                }}
+              >
+                AWAITING VRF CALLBACK
+              </span>
             </div>
           ) : (
-            <div className="flex flex-col items-end">
-              <p className="text-slate-500 text-[10px] uppercase font-black tracking-widest mb-1">Lottery Status</p>
-              <div
-                className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                  status === 1
-                    ? "bg-green-500/10 border-green-500/20 text-green-400"
-                    : "bg-slate-800 border-slate-700 text-slate-400"
-                }`}
-              >
-                {status === 1 ? "LIVE" : "PENDING"}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+                {isLive && (
+                  <div style={{ position: "relative", width: "7px", height: "7px" }}>
+                    <span
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: "50%",
+                        background: "var(--og-green)",
+                        animation: "og-ping 2s cubic-bezier(0,0,0.2,1) infinite",
+                      }}
+                    />
+                    <span
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: "50%",
+                        background: "var(--og-green)",
+                      }}
+                    />
+                  </div>
+                )}
+                <span
+                  style={{
+                    fontSize: "11px",
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    fontFamily: "var(--og-mono)",
+                    fontWeight: 600,
+                    color: isLive ? "var(--og-green)" : "var(--og-text-dim)",
+                  }}
+                >
+                  {isLive ? "LIVE" : "PENDING"}
+                </span>
               </div>
+              {isLive && (
+                <span
+                  style={{
+                    fontSize: "9px",
+                    color: "rgba(239,159,39,0.3)",
+                    fontFamily: "var(--og-mono)",
+                    letterSpacing: "0.12em",
+                  }}
+                >
+                  ENTRIES OPEN
+                </span>
+              )}
             </div>
           )}
         </div>
