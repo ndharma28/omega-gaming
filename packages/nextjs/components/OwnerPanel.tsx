@@ -122,7 +122,7 @@ export default function OwnerPanel({ show, toggle, treasuryBalance }: OwnerPanel
                 <button
                   onClick={handleSetTreasury}
                   disabled={isTreasuryDisabled}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold text-sm flex items-center justify-center min-w-[100px] gap-2 disabled:opacity-50 transition-colors"
+                  className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold text-sm flex items-center justify-center min-w-25 gap-2 disabled:opacity-50 transition-colors"
                 >
                   {isSettingTreasury || isWaitingForTx ? (
                     <>
