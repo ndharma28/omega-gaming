@@ -33,7 +33,7 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
     <div
       style={{
         background: "rgba(10,10,8,0.85)",
-        border: "0.5px solid rgba(239,159,39,0.2)",
+        border: "1px solid rgba(239,159,39,0.55)",
         borderRadius: "8px",
         padding: "28px 32px",
         position: "relative",
@@ -57,26 +57,26 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
           {
             top: 8,
             left: 8,
-            borderTop: "1px solid rgba(239,159,39,0.4)",
-            borderLeft: "1px solid rgba(239,159,39,0.4)",
+            borderTop: "1px solid rgba(239,159,39,0.7)",
+            borderLeft: "1px solid rgba(239,159,39,0.7)",
           },
           {
             top: 8,
             right: 8,
-            borderTop: "1px solid rgba(239,159,39,0.4)",
-            borderRight: "1px solid rgba(239,159,39,0.4)",
+            borderTop: "1px solid rgba(239,159,39,0.7)",
+            borderRight: "1px solid rgba(239,159,39,0.7)",
           },
           {
             bottom: 8,
             left: 8,
-            borderBottom: "1px solid rgba(239,159,39,0.4)",
-            borderLeft: "1px solid rgba(239,159,39,0.4)",
+            borderBottom: "1px solid rgba(239,159,39,0.7)",
+            borderLeft: "1px solid rgba(239,159,39,0.7)",
           },
           {
             bottom: 8,
             right: 8,
-            borderBottom: "1px solid rgba(239,159,39,0.4)",
-            borderRight: "1px solid rgba(239,159,39,0.4)",
+            borderBottom: "1px solid rgba(239,159,39,0.7)",
+            borderRight: "1px solid rgba(239,159,39,0.7)",
           },
         ] as React.CSSProperties[]
       ).map((s, i) => (
@@ -102,7 +102,7 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
                 fontSize: "9px",
                 letterSpacing: "0.3em",
                 textTransform: "uppercase",
-                color: "rgba(239,159,39,0.45)",
+                color: "rgba(239,159,39,0.85)",
                 fontFamily: "var(--og-mono)",
               }}
             >
@@ -114,8 +114,8 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
                   fontSize: "9px",
                   letterSpacing: "0.2em",
                   fontFamily: "var(--og-mono)",
-                  color: "rgba(239,159,39,0.35)",
-                  border: "0.5px solid rgba(239,159,39,0.18)",
+                  color: "rgba(239,159,39,0.75)",
+                  border: "0.5px solid rgba(239,159,39,0.45)",
                   borderRadius: "3px",
                   padding: "2px 7px",
                 }}
