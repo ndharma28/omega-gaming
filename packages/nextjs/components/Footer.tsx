@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { hardhat } from "viem/chains";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { EtherConverter } from "~~/components/EtherConverter";
 import { Faucet } from "~~/components/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
@@ -41,8 +40,6 @@ export const Footer = () => {
           </div>
 
           <div className="flex items-center gap-4 text-xs text-slate-600">
-            <EtherConverter />
-            <span className="text-slate-800">·</span>
             <a
               href="https://github.com/scaffold-eth/se-2"
               target="_blank"

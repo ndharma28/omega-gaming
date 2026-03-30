@@ -35,17 +35,15 @@ function convert(amount: string, from: Unit, to: Unit, ethPrice: number): string
 }
 
 interface EtherConverterProps {
+  /** Seed the FROM input with this value (e.g. the entry amount) */
   initialEth?: string;
-  iconOnly?: boolean;
 }
 
-export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConverterProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const EtherConverter = ({ initialEth = "1" }: EtherConverterProps) => {
   const [ethPrice, setEthPrice] = useState(0);
   const [fromUnit, setFromUnit] = useState<Unit>("ether");
   const [toUnit, setToUnit] = useState<Unit>("usd");
   const [inputVal, setInputVal] = useState(initialEth);
-  const [scanLine, setScanLine] = useState(0);
 
   useEffect(() => {
     fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd")
@@ -54,19 +52,10 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
       .catch(() => {});
   }, []);
 
+  // Keep in sync when parent entry amount changes
   useEffect(() => {
-    if (isOpen) setInputVal(initialEth || "1");
-  }, [isOpen, initialEth]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    let frame = 0;
-    const id = setInterval(() => {
-      frame = (frame + 1) % 100;
-      setScanLine(frame);
-    }, 30);
-    return () => clearInterval(id);
-  }, [isOpen]);
+    setInputVal(initialEth || "1");
+  }, [initialEth]);
 
   const result = convert(inputVal, fromUnit, toUnit, ethPrice);
 
@@ -77,484 +66,293 @@ export const EtherConverter = ({ initialEth = "1", iconOnly = false }: EtherConv
     color: "var(--og-amber)",
     fontFamily: "var(--og-mono)",
     fontSize: "11px",
-    letterSpacing: "0.15em",
-    padding: "4px 6px",
+    letterSpacing: "0.12em",
+    padding: "5px 8px",
     cursor: "pointer",
     outline: "none",
     appearance: "none" as const,
     WebkitAppearance: "none" as const,
-    width: "62px",
+    width: "100%",
     textAlign: "center" as const,
+    transition: "border-color 0.15s",
   };
 
-  const SignalIcon = () => (
-    <svg
-      width="13"
-      height="13"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="3" />
-      <path d="M6.3 6.3a8 8 0 0 0 0 11.4" />
-      <path d="M17.7 6.3a8 8 0 0 1 0 11.4" />
-      <path d="M3.5 3.5a14 14 0 0 0 0 17" />
-      <path d="M20.5 3.5a14 14 0 0 1 0 17" />
-    </svg>
-  );
-
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
+    <div style={{ marginTop: "12px" }}>
       <style>{`
-        @keyframes og-fade-up {
-          from { opacity: 0; transform: translateY(6px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
         @keyframes cipher-blink {
           0%, 100% { opacity: 1; }
           50%       { opacity: 0.3; }
         }
         .og-cipher-select:focus { border-color: rgba(239,159,39,0.45) !important; }
+        .og-cipher-select:hover { border-color: rgba(239,159,39,0.32) !important; }
         .og-cipher-select option { background: #0A0A08; color: #EF9F27; }
         .og-cipher-input:focus {
           border-color: rgba(239,159,39,0.45) !important;
-          box-shadow: 0 0 0 1px rgba(239,159,39,0.08);
+          box-shadow: 0 0 0 1px rgba(239,159,39,0.06);
+        }
+        .og-swap-btn:hover {
+          border-color: rgba(239,159,39,0.35) !important;
+          color: var(--og-amber) !important;
         }
       `}</style>
 
-      {/* Trigger */}
-      {iconOnly ? (
-        <button
-          onClick={() => setIsOpen(o => !o)}
-          title="Value Cipher — decode ETH amounts"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "22px",
-            height: "22px",
-            padding: 0,
-            background: isOpen ? "rgba(239,159,39,0.1)" : "transparent",
-            border: `0.5px solid ${isOpen ? "rgba(239,159,39,0.4)" : "rgba(239,159,39,0.2)"}`,
-            borderRadius: "4px",
-            color: isOpen ? "var(--og-amber)" : "rgba(239,159,39,0.45)",
-            cursor: "pointer",
-            transition: "all 0.15s",
-            flexShrink: 0,
-          }}
-          onMouseEnter={e => {
-            const b = e.currentTarget as HTMLButtonElement;
-            b.style.borderColor = "rgba(239,159,39,0.5)";
-            b.style.color = "var(--og-amber)";
-            b.style.background = "rgba(239,159,39,0.08)";
-          }}
-          onMouseLeave={e => {
-            if (isOpen) return;
-            const b = e.currentTarget as HTMLButtonElement;
-            b.style.borderColor = "rgba(239,159,39,0.2)";
-            b.style.color = "rgba(239,159,39,0.45)";
-            b.style.background = "transparent";
-          }}
-        >
-          <SignalIcon />
-        </button>
-      ) : (
-        <button
-          onClick={() => setIsOpen(o => !o)}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 14px",
-            background: "transparent",
-            border: "0.5px solid rgba(239,159,39,0.25)",
-            borderRadius: "4px",
-            color: "var(--og-text-dim)",
-            fontFamily: "var(--og-mono)",
-            fontSize: "12px",
-            letterSpacing: "0.1em",
-            cursor: "pointer",
-            transition: "border-color 0.2s, color 0.2s",
-          }}
-          onMouseEnter={e => {
-            const b = e.currentTarget as HTMLButtonElement;
-            b.style.borderColor = "var(--og-amber-dim)";
-            b.style.color = "var(--og-amber)";
-          }}
-          onMouseLeave={e => {
-            const b = e.currentTarget as HTMLButtonElement;
-            b.style.borderColor = "rgba(239,159,39,0.25)";
-            b.style.color = "var(--og-text-dim)";
-          }}
-        >
-          <SignalIcon />
-          SIGNAL DECODE
-        </button>
-      )}
-
-      {/* Panel */}
-      {isOpen && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: "calc(100% + 6px)",
-            left: iconOnly ? "50%" : 0,
-            transform: iconOnly ? "translateX(-50%)" : "none",
-            width: "300px",
-            background: "#0A0A08",
-            border: "0.5px solid rgba(239,159,39,0.22)",
-            borderRadius: "6px",
-            zIndex: 50,
-            animation: "og-fade-up 0.18s ease forwards",
-            boxShadow: "0 8px 40px rgba(0,0,0,0.75)",
-            overflow: "hidden",
-          }}
-        >
-          {/* Scan line */}
-          <div
+      {/* Header row */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "8px",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+          <span
             style={{
-              position: "absolute",
-              top: `${scanLine}%`,
-              left: 0,
-              right: 0,
-              height: "1px",
-              background: "linear-gradient(90deg, transparent, rgba(239,159,39,0.06), transparent)",
-              pointerEvents: "none",
-              zIndex: 10,
+              fontSize: "8px",
+              letterSpacing: "0.3em",
+              textTransform: "uppercase",
+              color: "rgba(239,159,39,0.3)",
+              fontFamily: "var(--og-mono)",
             }}
-          />
+          >
+            ████ CLASSIFIED ████
+          </span>
+          <span
+            style={{
+              fontSize: "10px",
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "var(--og-amber)",
+              fontFamily: "var(--og-mono)",
+              fontWeight: 600,
+            }}
+          >
+            VALUE CIPHER
+          </span>
+        </div>
 
-          {/* Corner brackets */}
-          {(
-            [
-              {
-                top: 6,
-                left: 6,
-                borderTop: "1px solid rgba(239,159,39,0.4)",
-                borderLeft: "1px solid rgba(239,159,39,0.4)",
-              },
-              {
-                top: 6,
-                right: 6,
-                borderTop: "1px solid rgba(239,159,39,0.4)",
-                borderRight: "1px solid rgba(239,159,39,0.4)",
-              },
-              {
-                bottom: 6,
-                left: 6,
-                borderBottom: "1px solid rgba(239,159,39,0.4)",
-                borderLeft: "1px solid rgba(239,159,39,0.4)",
-              },
-              {
-                bottom: 6,
-                right: 6,
-                borderBottom: "1px solid rgba(239,159,39,0.4)",
-                borderRight: "1px solid rgba(239,159,39,0.4)",
-              },
-            ] as React.CSSProperties[]
-          ).map((s, i) => (
-            <div key={i} style={{ position: "absolute", width: 10, height: 10, ...s }} />
-          ))}
+        {/* Live price pill */}
+        {ethPrice > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span
+              style={{
+                width: "5px",
+                height: "5px",
+                borderRadius: "50%",
+                flexShrink: 0,
+                background: "var(--og-green)",
+                display: "inline-block",
+                animation: "cipher-blink 2s ease-in-out infinite",
+              }}
+            />
+            <span
+              style={{
+                fontSize: "10px",
+                color: "var(--og-text-muted)",
+                fontFamily: "var(--og-mono)",
+                letterSpacing: "0.08em",
+              }}
+            >
+              1 ETH = <span style={{ color: "var(--og-green)", fontWeight: 600 }}>${ethPrice.toLocaleString()}</span>
+            </span>
+          </div>
+        )}
+      </div>
 
-          {/* Header */}
+      {/* Two-column converter */}
+      <div
+        style={{
+          background: "rgba(10,10,8,0.7)",
+          border: "0.5px solid rgba(239,159,39,0.15)",
+          borderRadius: "5px",
+          padding: "12px 14px",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Corner brackets */}
+        {(
+          [
+            {
+              top: 5,
+              left: 5,
+              borderTop: "1px solid rgba(239,159,39,0.35)",
+              borderLeft: "1px solid rgba(239,159,39,0.35)",
+            },
+            {
+              top: 5,
+              right: 5,
+              borderTop: "1px solid rgba(239,159,39,0.35)",
+              borderRight: "1px solid rgba(239,159,39,0.35)",
+            },
+            {
+              bottom: 5,
+              left: 5,
+              borderBottom: "1px solid rgba(239,159,39,0.35)",
+              borderLeft: "1px solid rgba(239,159,39,0.35)",
+            },
+            {
+              bottom: 5,
+              right: 5,
+              borderBottom: "1px solid rgba(239,159,39,0.35)",
+              borderRight: "1px solid rgba(239,159,39,0.35)",
+            },
+          ] as React.CSSProperties[]
+        ).map((s, i) => (
+          <div key={i} style={{ position: "absolute", width: 8, height: 8, ...s }} />
+        ))}
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "start", gap: "10px" }}>
+          {/* FROM */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+            <span
+              style={{
+                fontSize: "8px",
+                letterSpacing: "0.28em",
+                textTransform: "uppercase",
+                color: "rgba(239,159,39,0.35)",
+                fontFamily: "var(--og-mono)",
+              }}
+            >
+              FROM
+            </span>
+            <input
+              className="og-cipher-input"
+              type="number"
+              value={inputVal}
+              onChange={e => setInputVal(e.target.value)}
+              style={{
+                background: "rgba(20,20,16,0.95)",
+                border: "0.5px solid rgba(239,159,39,0.18)",
+                borderRadius: "3px",
+                padding: "7px 9px",
+                fontFamily: "var(--og-mono)",
+                fontSize: "13px",
+                color: "var(--og-text-bright)",
+                outline: "none",
+                width: "100%",
+                boxSizing: "border-box",
+                transition: "border-color 0.15s, box-shadow 0.15s",
+              }}
+            />
+            <select
+              className="og-cipher-select"
+              value={fromUnit}
+              onChange={e => setFromUnit(e.target.value as Unit)}
+              style={selectStyle}
+            >
+              {UNITS.map(u => (
+                <option key={u.value} value={u.value}>
+                  {u.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Center: arrow + swap */}
           <div
             style={{
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              justifyContent: "space-between",
-              padding: "11px 18px 9px",
-              borderBottom: "0.5px solid rgba(239,159,39,0.08)",
+              gap: "5px",
+              paddingTop: "18px",
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-              <span
-                style={{
-                  fontSize: "8px",
-                  letterSpacing: "0.35em",
-                  textTransform: "uppercase",
-                  color: "rgba(239,159,39,0.3)",
-                  fontFamily: "var(--og-mono)",
-                }}
-              >
-                ████ CLASSIFIED ████
-              </span>
-              <span
-                style={{
-                  fontSize: "11px",
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  color: "var(--og-amber)",
-                  fontFamily: "var(--og-mono)",
-                  fontWeight: 600,
-                }}
-              >
-                VALUE CIPHER
-              </span>
-            </div>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="rgba(239,159,39,0.3)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
             <button
-              onClick={() => setIsOpen(false)}
+              className="og-swap-btn"
+              onClick={() => {
+                setFromUnit(toUnit);
+                setToUnit(fromUnit);
+              }}
+              title="Swap units"
               style={{
                 background: "transparent",
-                border: "0.5px solid rgba(239,159,39,0.15)",
+                border: "0.5px solid rgba(239,159,39,0.12)",
                 borderRadius: "3px",
-                color: "var(--og-text-muted)",
+                color: "rgba(239,159,39,0.28)",
                 cursor: "pointer",
-                padding: "3px 7px",
-                fontSize: "10px",
-                fontFamily: "var(--og-mono)",
-                letterSpacing: "0.1em",
-                transition: "border-color 0.15s, color 0.15s",
-                lineHeight: 1,
-              }}
-              onMouseEnter={e => {
-                const b = e.currentTarget as HTMLButtonElement;
-                b.style.borderColor = "rgba(239,159,39,0.4)";
-                b.style.color = "var(--og-amber)";
-              }}
-              onMouseLeave={e => {
-                const b = e.currentTarget as HTMLButtonElement;
-                b.style.borderColor = "rgba(239,159,39,0.15)";
-                b.style.color = "var(--og-text-muted)";
+                padding: "3px 5px",
+                display: "flex",
+                alignItems: "center",
+                transition: "all 0.15s",
               }}
             >
-              ✕ CLOSE
+              <svg
+                width="9"
+                height="9"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M7 16V4m0 0L3 8m4-4l4 4" />
+                <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
             </button>
           </div>
 
-          {/* Live price strip */}
-          {ethPrice > 0 && (
+          {/* TO */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+            <span
+              style={{
+                fontSize: "8px",
+                letterSpacing: "0.28em",
+                textTransform: "uppercase",
+                color: "rgba(239,159,39,0.35)",
+                fontFamily: "var(--og-mono)",
+              }}
+            >
+              TO
+            </span>
             <div
               style={{
-                padding: "7px 18px",
-                borderBottom: "0.5px solid rgba(239,159,39,0.06)",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              <span
-                style={{
-                  width: "6px",
-                  height: "6px",
-                  borderRadius: "50%",
-                  flexShrink: 0,
-                  background: "var(--og-green)",
-                  boxShadow: "0 0 6px var(--og-green)",
-                  animation: "cipher-blink 2s ease-in-out infinite",
-                  display: "inline-block",
-                }}
-              />
-              <span
-                style={{
-                  fontSize: "10px",
-                  color: "var(--og-text-muted)",
-                  fontFamily: "var(--og-mono)",
-                  letterSpacing: "0.1em",
-                }}
-              >
-                LIVE INTERCEPT &nbsp;·&nbsp; 1 ETH ={" "}
-                <span style={{ color: "var(--og-green)", fontWeight: 600 }}>${ethPrice.toLocaleString()}</span>
-              </span>
-            </div>
-          )}
-
-          {/* Two-column converter */}
-          <div style={{ padding: "16px 18px 18px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: "10px" }}>
-              {/* FROM */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <span
-                  style={{
-                    fontSize: "8px",
-                    letterSpacing: "0.3em",
-                    textTransform: "uppercase",
-                    color: "rgba(239,159,39,0.35)",
-                    fontFamily: "var(--og-mono)",
-                  }}
-                >
-                  FROM
-                </span>
-                <input
-                  className="og-cipher-input"
-                  type="number"
-                  value={inputVal}
-                  onChange={e => setInputVal(e.target.value)}
-                  style={{
-                    background: "rgba(20,20,16,0.95)",
-                    border: "0.5px solid rgba(239,159,39,0.18)",
-                    borderRadius: "3px",
-                    padding: "8px 10px",
-                    fontFamily: "var(--og-mono)",
-                    fontSize: "14px",
-                    color: "var(--og-text-bright)",
-                    outline: "none",
-                    width: "100%",
-                    boxSizing: "border-box",
-                    transition: "border-color 0.15s, box-shadow 0.15s",
-                  }}
-                />
-                <select
-                  className="og-cipher-select"
-                  value={fromUnit}
-                  onChange={e => setFromUnit(e.target.value as Unit)}
-                  style={selectStyle}
-                >
-                  {UNITS.map(u => (
-                    <option key={u.value} value={u.value}>
-                      {u.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Arrow + swap */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: "6px",
-                  paddingTop: "16px",
-                }}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="rgba(239,159,39,0.35)"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-                <button
-                  onClick={() => {
-                    setFromUnit(toUnit);
-                    setToUnit(fromUnit);
-                  }}
-                  title="Swap units"
-                  style={{
-                    background: "transparent",
-                    border: "0.5px solid rgba(239,159,39,0.12)",
-                    borderRadius: "3px",
-                    color: "rgba(239,159,39,0.3)",
-                    cursor: "pointer",
-                    padding: "3px 5px",
-                    display: "flex",
-                    alignItems: "center",
-                    transition: "all 0.15s",
-                  }}
-                  onMouseEnter={e => {
-                    const b = e.currentTarget as HTMLButtonElement;
-                    b.style.borderColor = "rgba(239,159,39,0.35)";
-                    b.style.color = "var(--og-amber)";
-                  }}
-                  onMouseLeave={e => {
-                    const b = e.currentTarget as HTMLButtonElement;
-                    b.style.borderColor = "rgba(239,159,39,0.12)";
-                    b.style.color = "rgba(239,159,39,0.3)";
-                  }}
-                >
-                  <svg
-                    width="10"
-                    height="10"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M7 16V4m0 0L3 8m4-4l4 4" />
-                    <path d="M17 8v12m0 0l4-4m-4 4l-4-4" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* TO */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <span
-                  style={{
-                    fontSize: "8px",
-                    letterSpacing: "0.3em",
-                    textTransform: "uppercase",
-                    color: "rgba(239,159,39,0.35)",
-                    fontFamily: "var(--og-mono)",
-                  }}
-                >
-                  TO
-                </span>
-                <div
-                  style={{
-                    background: "rgba(12,12,10,0.95)",
-                    border: "0.5px solid rgba(239,159,39,0.1)",
-                    borderRadius: "3px",
-                    padding: "8px 10px",
-                    fontFamily: "var(--og-mono)",
-                    fontSize: "14px",
-                    color: result ? "var(--og-green)" : "var(--og-text-muted)",
-                    minHeight: "38px",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    boxSizing: "border-box",
-                  }}
-                >
-                  {result || "—"}
-                </div>
-                <select
-                  className="og-cipher-select"
-                  value={toUnit}
-                  onChange={e => setToUnit(e.target.value as Unit)}
-                  style={selectStyle}
-                >
-                  {UNITS.map(u => (
-                    <option key={u.value} value={u.value}>
-                      {u.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer stamp */}
-          <div
-            style={{
-              padding: "5px 18px 9px",
-              borderTop: "0.5px solid rgba(239,159,39,0.06)",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "8px",
-                color: "rgba(239,159,39,0.18)",
+                background: "rgba(12,12,10,0.95)",
+                border: "0.5px solid rgba(239,159,39,0.1)",
+                borderRadius: "3px",
+                padding: "7px 9px",
                 fontFamily: "var(--og-mono)",
-                letterSpacing: "0.2em",
+                fontSize: "13px",
+                color: result ? "var(--og-green)" : "var(--og-text-muted)",
+                minHeight: "35px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                boxSizing: "border-box",
               }}
             >
-              ΩG-CIPHER-V1
-            </span>
-            <span
-              style={{
-                fontSize: "8px",
-                color: "rgba(239,159,39,0.18)",
-                fontFamily: "var(--og-mono)",
-                letterSpacing: "0.1em",
-              }}
+              {result || "—"}
+            </div>
+            <select
+              className="og-cipher-select"
+              value={toUnit}
+              onChange={e => setToUnit(e.target.value as Unit)}
+              style={selectStyle}
             >
-              FOR AUTHORIZED USE ONLY
-            </span>
+              {UNITS.map(u => (
+                <option key={u.value} value={u.value}>
+                  {u.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
