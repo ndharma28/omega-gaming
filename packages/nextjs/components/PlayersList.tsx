@@ -66,7 +66,7 @@ export default function PlayersList({ players, connectedAddress }: PlayersListPr
               fontSize: "8px",
               letterSpacing: "0.3em",
               textTransform: "uppercase",
-              color: "rgba(239,159,39,0.3)",
+              color: "rgba(239,159,39,0.85)",
               fontFamily: "var(--og-mono)",
             }}
           >
@@ -91,8 +91,8 @@ export default function PlayersList({ players, connectedAddress }: PlayersListPr
             fontSize: "10px",
             letterSpacing: "0.15em",
             fontFamily: "var(--og-mono)",
-            color: "rgba(239,159,39,0.5)",
-            border: "0.5px solid rgba(239,159,39,0.18)",
+            color: "rgba(239,159,39,0.85)",
+            border: "0.5px solid rgba(239,159,39,0.45)",
             borderRadius: "3px",
             padding: "3px 10px",
           }}
@@ -142,7 +142,7 @@ export default function PlayersList({ players, connectedAddress }: PlayersListPr
             <span
               style={{
                 fontSize: "11px",
-                color: "var(--og-text-muted)",
+                color: "rgba(239,159,39,0.8)",
                 fontFamily: "var(--og-mono)",
                 letterSpacing: "0.15em",
                 textTransform: "uppercase",
@@ -153,7 +153,7 @@ export default function PlayersList({ players, connectedAddress }: PlayersListPr
             <span
               style={{
                 fontSize: "10px",
-                color: "rgba(239,159,39,0.25)",
+                color: "rgba(239,159,39,0.8)",
                 fontFamily: "var(--og-mono)",
                 letterSpacing: "0.1em",
               }}
