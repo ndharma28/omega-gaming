@@ -194,7 +194,7 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
               fontSize: "8px",
               letterSpacing: "0.3em",
               textTransform: "uppercase",
-              color: "rgba(239,159,39,0.3)",
+              color: "rgba(239,159,39,0.85)",
               fontFamily: "var(--og-mono)",
             }}
           >
@@ -246,7 +246,7 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
                   fontSize: "13px",
                   color: "var(--og-text-bright)",
                   background: "rgba(20,20,16,0.9)",
-                  border: "0.5px solid rgba(239,159,39,0.15)",
+                  border: "0.5px solid rgba(239,159,39,0.45)",
                   borderRadius: "3px",
                   padding: "5px 12px",
                   letterSpacing: "0.05em",
@@ -293,7 +293,7 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
               <span
                 style={{
                   fontSize: "9px",
-                  color: "var(--og-text-muted)",
+                  color: "rgba(239,159,39,0.7)",
                   fontFamily: "var(--og-mono)",
                   letterSpacing: "0.1em",
                 }}
@@ -332,7 +332,7 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
                     textTransform: "uppercase",
                     fontFamily: "var(--og-mono)",
                     fontWeight: 600,
-                    color: isLive ? "var(--og-green)" : "var(--og-text-dim)",
+                    color: isLive ? "var(--og-green)" : "rgba(239,159,39,0.7)",
                   }}
                 >
                   {isLive ? "LIVE" : "PENDING"}
@@ -342,7 +342,7 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
                 <span
                   style={{
                     fontSize: "9px",
-                    color: "rgba(239,159,39,0.3)",
+                    color: "rgba(239,159,39,0.7)",
                     fontFamily: "var(--og-mono)",
                     letterSpacing: "0.12em",
                   }}
