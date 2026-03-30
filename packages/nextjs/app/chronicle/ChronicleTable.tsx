@@ -8,7 +8,7 @@ import { ALL_RANKS, RANK_COLORS, classifyPrize } from "./lib";
 import { formatEther } from "viem";
 import { type WinnerEntry } from "~~/hooks/useWinnerHistory";
 
-const TABLE_COLS = ["#", "Address", "Prize", "Rank"];
+const TABLE_COLS = ["#", "Operative", "Extracted", "Clearance"];
 
 interface ChronicleTableProps {
   winnerHistory: WinnerEntry[];
@@ -74,7 +74,7 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
           onClick={() => setSortDir(d => (d === "desc" ? "asc" : "desc"))}
           className="text-[11px] text-slate-500 hover:text-slate-200 font-bold flex items-center gap-1 transition-colors"
         >
-          {sortDir === "desc" ? "↓ Newest first" : "↑ Oldest first"}
+          {sortDir === "desc" ? "↓ Most recent first" : "↑ Oldest first"}
         </button>
       </div>
 
@@ -87,7 +87,7 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
               {col}
             </span>
           ))}
-          <span className="hidden md:block chronicle-label">Date</span>
+          <span className="hidden md:block chronicle-label">Last Seen</span>
         </div>
 
         {isLoading && (
@@ -101,14 +101,18 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
         {!isLoading && winnerHistory.length === 0 && (
           <div className="chronicle-empty-container-large">
             <EmptySigil />
-            <p className="chronicle-text-secondary">The ledger awaits its first entry.</p>
-            <p className="chronicle-text-muted">No rounds have concluded on this contract yet.</p>
+            <p className="chronicle-text-secondary">The ledger has no names yet.</p>
+            <p className="chronicle-text-muted">
+              Either no one has won yet or someone made sure you can&apos;t see who did.
+            </p>
           </div>
         )}
 
         {!isLoading && winnerHistory.length > 0 && processedHistory.length === 0 && (
           <div className="py-12 text-center">
-            <p className="text-sm text-slate-500">No entries match this rank filter.</p>
+            <p className="text-sm text-slate-500">
+              Nothing at this clearance level. That doesn&apos;t mean nothing happened.
+            </p>
           </div>
         )}
 
@@ -129,10 +133,10 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
         {processedHistory.length > 0 && (
           <div className="px-6 py-3 bg-yellow-950/10 border-t border-yellow-900/20 flex justify-between items-center">
             <span className="text-[10px] text-slate-500">
-              {processedHistory.length} entr{processedHistory.length === 1 ? "y" : "ies"} shown
+              {processedHistory.length} operative{processedHistory.length === 1 ? "" : "s"} on record
             </span>
             <span className="text-[10px] text-yellow-600 font-bold">
-              {parseFloat(formatEther(totalPaidOut)).toFixed(4)} ETH paid out
+              {parseFloat(formatEther(totalPaidOut)).toFixed(4)} ETH extracted
             </span>
           </div>
         )}
@@ -145,7 +149,7 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
 
       {/* Rank legend */}
       <div className="rounded-2xl border border-yellow-900/20 bg-black/30 p-6 space-y-4 backdrop-blur-sm">
-        <p className="text-[10px] text-yellow-700 uppercase tracking-widest font-bold">Tier Classification</p>
+        <p className="text-[10px] text-yellow-700 uppercase tracking-widest font-bold">Clearance Classification</p>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
             { rank: "Spark", range: "< 0.01 ETH" },
