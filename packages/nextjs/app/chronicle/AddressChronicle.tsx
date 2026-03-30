@@ -153,7 +153,7 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
       <div className="chronicle-section-accent">
         <p className="chronicle-label mb-3">Address Chronicle</p>
         <p className="chronicle-text-secondary mb-4">
-          Every address leaves a trail. Drop one in and we&apos;ll pull everything the ledger has on it.
+          {"Every address leaves a trail. They always think they've covered it. They never have."}
         </p>
         <div className="flex gap-2">
           <input
