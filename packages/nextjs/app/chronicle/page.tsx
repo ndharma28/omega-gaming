@@ -62,7 +62,9 @@ export default function ChroniclePage() {
             <span>◆</span>
           </div>
           <p className="text-[10px] text-slate-500 tracking-widest uppercase">
-            All outcomes determined by Chainlink VRF · Immutable · Verifiable
+            Chainlink VRF reached into the void and pulled out a number that was already there. Pre-ordained by math,
+            not by men. Which, in my experience, is the only kind of fair that actually holds up. Immutable. Verifiable.
+            Unimpeachable. File your complaints with the blockchain. {"It doesn't read them"}.
           </p>
         </div>
       </div>
