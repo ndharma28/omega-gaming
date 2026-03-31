@@ -46,33 +46,12 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
   const dateLabel = isNotStarted ? `STARTS · ${formatDate(startTime)}` : `DRAW · ${formatDate(endTime)}`;
 
   return (
-    <div
-      style={{
-        background: "rgba(10,10,8,0.85)",
-        border: "1px solid rgba(239,159,39,0.55)",
-        borderRadius: "8px",
-        padding: "28px 32px",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <style>{`
-        @keyframes og-ping {
-          0%   { transform: scale(1); opacity: 1; }
-          75%, 100% { transform: scale(2); opacity: 0; }
-        }
-        @keyframes og-winner-in {
-          from { opacity: 0; transform: translateX(8px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
-
+    <div className="og-card">
       <CornerBrackets />
 
       <div
         style={{
           display: "flex",
-          flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "flex-end",
           gap: "24px",
@@ -82,71 +61,18 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
         {/* LEFT: jackpot amount */}
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-            <span
-              style={{
-                fontSize: "9px",
-                letterSpacing: "0.3em",
-                textTransform: "uppercase",
-                color: "rgba(239,159,39,0.85)",
-                fontFamily: "var(--og-mono)",
-              }}
-            >
-              {isResolved ? "TOTAL PAYOUT" : "CURRENT JACKPOT"}
-            </span>
-            {lotteryId !== undefined && (
-              <span
-                style={{
-                  fontSize: "9px",
-                  letterSpacing: "0.2em",
-                  fontFamily: "var(--og-mono)",
-                  color: "rgba(239,159,39,0.75)",
-                  border: "0.5px solid rgba(239,159,39,0.45)",
-                  borderRadius: "3px",
-                  padding: "2px 7px",
-                }}
-              >
-                EPOCH #{lotteryId.toString()}
-              </span>
-            )}
+            <span className="og-label">{isResolved ? "TOTAL PAYOUT" : "CURRENT JACKPOT"}</span>
+            {lotteryId !== undefined && <span className="og-epoch-badge">EPOCH #{lotteryId.toString()}</span>}
           </div>
 
           <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
-            <span
-              style={{
-                fontSize: "48px",
-                fontWeight: 800,
-                lineHeight: 1,
-                color: "var(--og-amber)",
-                fontFamily: "var(--og-mono)",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {potEth.toFixed(4).replace(/\.?0+$/, "") || "0"}
-            </span>
-            <span
-              style={{
-                fontSize: "18px",
-                color: "var(--og-text-dim)",
-                fontFamily: "var(--og-mono)",
-                letterSpacing: "0.1em",
-              }}
-            >
-              ETH
-            </span>
+            <span className="og-amount">{potEth.toFixed(4).replace(/\.?0+$/, "") || "0"}</span>
+            <span className="og-unit">ETH</span>
           </div>
 
           <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "7px" }}>
             <CalendarIcon />
-            <span
-              style={{
-                fontSize: "11px",
-                color: "var(--og-text-muted)",
-                fontFamily: "var(--og-mono)",
-                letterSpacing: "0.08em",
-              }}
-            >
-              {dateLabel}
-            </span>
+            <span className="og-date-label">{dateLabel}</span>
           </div>
         </div>
 
