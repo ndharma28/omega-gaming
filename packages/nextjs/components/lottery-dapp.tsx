@@ -155,7 +155,7 @@ export default function LotteryDapp() {
           <div className="og-stat-label">Known Operatives</div>
           <div className="og-stat-value">{winnerHistory.length > 0 ? uniqueWinners : "—"}</div>
           <div className="og-stat-meta">
-            across {winnerHistory.length > 0 ? winnerHistory.length : "—"} operations. patterns exist.
+            across {winnerHistory.length > 0 ? winnerHistory.length : "—"} operations. {uniquePct}% unique winners.
           </div>
         </div>
         <div className="og-stat-cell">
