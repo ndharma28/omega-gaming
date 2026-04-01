@@ -36,7 +36,7 @@ export const Footer = () => {
             <span className="text-base">🎱</span>
             <span className="text-sm font-semibold text-slate-400 tracking-tight">Omega Gaming</span>
             <span className="hidden sm:inline text-slate-700 text-xs">·</span>
-            <span className="hidden sm:inline text-xs text-slate-600">Decentralized Lottery on Ethereum</span>
+            <span className="hidden sm:inline text-xs text-slate-600">The ledger doesn@apos;t lie. It never has.</span>
           </div>
 
           <div className="flex items-center gap-4 text-xs text-slate-600">
@@ -46,7 +46,7 @@ export const Footer = () => {
               rel="noreferrer"
               className="hover:text-slate-400 transition-colors duration-200"
             >
-              GitHub
+              Verify the Contract
             </a>
             <span className="text-slate-800">·</span>
             <a
@@ -55,7 +55,7 @@ export const Footer = () => {
               rel="noreferrer"
               className="hover:text-slate-400 transition-colors duration-200"
             >
-              BuidlGuidl
+              Read the Source
             </a>
             <span className="text-slate-800">·</span>
             <a
@@ -64,7 +64,7 @@ export const Footer = () => {
               rel="noreferrer"
               className="hover:text-slate-400 transition-colors duration-200"
             >
-              Support
+              Report an Anomaly
             </a>
           </div>
         </div>

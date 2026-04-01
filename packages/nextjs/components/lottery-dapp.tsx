@@ -140,26 +140,28 @@ export default function LotteryDapp() {
       {/* ── Stat row ── */}
       <div className="og-stat-row">
         <div className="og-stat-cell">
-          <div className="og-stat-label">Rounds Completed</div>
+          <div className="og-stat-label">Closed Files</div>
           <div className="og-stat-value">{winnerHistory.length > 0 ? winnerHistory.length : "—"}</div>
-          <div className="og-stat-meta">verified on-chain</div>
+          <div className="og-stat-meta">the blockchain keeps copies. we don@apos;t need to</div>
         </div>
         <div className="og-stat-cell">
-          <div className="og-stat-label">Total Distributed</div>
+          <div className="og-stat-label">Value Extracted</div>
           <div className="og-stat-value og-stat-value--green">
             {winnerHistory.length > 0 ? `${parseFloat(formatEther(totalDistributed)).toFixed(4)}` : "—"}
           </div>
-          <div className="og-stat-meta">ETH to winners</div>
+          <div className="og-stat-meta">ETH moved. confirmed. gone</div>
         </div>
         <div className="og-stat-cell">
-          <div className="og-stat-label">Unique Winners</div>
+          <div className="og-stat-label">Known Operatives</div>
           <div className="og-stat-value">{winnerHistory.length > 0 ? uniqueWinners : "—"}</div>
-          <div className="og-stat-meta">{winnerHistory.length > 0 ? `${uniquePct}% unique` : "on-chain"}</div>
+          <div className="og-stat-meta">across {uniqueWinners} operations. patterns exist.</div>
         </div>
         <div className="og-stat-cell">
-          <div className="og-stat-label">Record Prize</div>
+          <div className="og-stat-label">Largest Extraction</div>
           <div className="og-stat-value og-stat-value--amber">{topPrize > 0 ? topPrize.toFixed(4) : "—"}</div>
-          <div className="og-stat-meta">{topPrize > 0 ? `${classifyPrize(topPrize)} tier` : "no rounds yet"}</div>
+          <div className="og-stat-meta">
+            {topPrize > 0 ? `${classifyPrize(topPrize)}. The file is in the Archive` : "no rounds yet"}
+          </div>
         </div>
       </div>
 
@@ -169,7 +171,7 @@ export default function LotteryDapp() {
         <div className="og-main-left">
           {/* Entry form */}
           <div>
-            <div className="og-section-label">Enter the Lottery</div>
+            <div className="og-section-label">Let the Contract Know You Were Here</div>
 
             <div className="og-field-label">Amount (ETH)</div>
             <div className={`og-input-wrap${isInvalidAmount && entryAmount !== "" ? " og-input-wrap--error" : ""}`}>
@@ -211,7 +213,8 @@ export default function LotteryDapp() {
 
         {/* RIGHT: inline chronicle */}
         <div className="og-main-right">
-          <div className="og-chronicle-badge">Restricted Archive</div>
+          <div className="og-chronicle-badge">The Chronicle</div>
+          <div className="og-chronicle-badge">Partially Declassified not everything surfaces. this did</div>
 
           <ChronicleMysteryTeaser
             winnerHistory={winnerHistory}
@@ -221,8 +224,9 @@ export default function LotteryDapp() {
 
           <Link href="/chronicle" className="og-chronicle-cta">
             <div>
-              <div className="og-cta-sub">Full Archive</div>
+              <div className="og-cta-sub">The Archive</div>
               <div className="og-cta-title">The Chronicle</div>
+              <div className="og-cta-title">you were going to end up here anyway</div>
             </div>
             <div className="og-cta-arrow">→</div>
           </Link>
