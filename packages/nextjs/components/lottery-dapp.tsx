@@ -142,7 +142,7 @@ export default function LotteryDapp() {
         <div className="og-stat-cell">
           <div className="og-stat-label">Closed Files</div>
           <div className="og-stat-value">{winnerHistory.length > 0 ? winnerHistory.length : "—"}</div>
-          <div className="og-stat-meta">the blockchain keeps copies. we don&apos;t need to</div>
+          <div className="og-stat-meta">the blockchain keeps copies. we don&apos;t need to.</div>
         </div>
         <div className="og-stat-cell">
           <div className="og-stat-label">Value Extracted</div>
@@ -162,7 +162,7 @@ export default function LotteryDapp() {
           <div className="og-stat-label">Largest Extraction</div>
           <div className="og-stat-value og-stat-value--amber">{topPrize > 0 ? topPrize.toFixed(4) : "—"}</div>
           <div className="og-stat-meta">
-            {topPrize > 0 ? `${classifyPrize(topPrize)}. The file is in the Archive` : "no rounds yet"}
+            {topPrize > 0 ? `${classifyPrize(topPrize)}. The file is in the Archive.` : "no rounds yet"}
           </div>
         </div>
       </div>
