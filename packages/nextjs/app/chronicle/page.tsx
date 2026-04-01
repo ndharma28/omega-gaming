@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ChronicleClearance from "./ChronicleClearance";
 import ChronicleGate from "./ChronicleGate";
 import ChronicleHeader from "./ChronicleHeader";
 import ChronicleStats from "./ChronicleStats";
 import ChronicleTable from "./ChronicleTable";
-import ChronicleVerifying from "./ChronicleVerifying";
 import { CONTRACT_SOURCES } from "./lib";
 import { useAccount } from "wagmi";
 import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
 
-// Adjudication notice — shown once per session on first clearance grant
+// Adjudication notice — shown once per session immediately after clearance completes
 function AdjudicationNotice({ onDismiss }: { onDismiss: () => void }) {
   return (
     <main className="min-h-screen bg-black flex items-center justify-center px-4">
@@ -50,31 +50,59 @@ function AdjudicationNotice({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
+// Page state machine
+// unconnected → clearance → notice → chronicle
+type PageState = "unconnected" | "clearance" | "notice" | "chronicle";
+
 export default function ChroniclePage() {
-  const { isConnected, isConnecting } = useAccount();
-  const [showNotice, setShowNotice] = useState(false);
+  const { isConnected } = useAccount();
+  const [pageState, setPageState] = useState<PageState>("unconnected");
   const [activeSource, setActiveSource] = useState(0);
 
   const { winnerHistory, isLoading } = useWinnerHistory(CONTRACT_SOURCES[activeSource].address);
 
-  // Show adjudication notice once per session on first successful connection
   useEffect(() => {
-    if (!isConnected) return;
-    const seen = sessionStorage.getItem("chronicle-clearance-seen");
-    if (!seen) {
-      setShowNotice(true);
-      sessionStorage.setItem("chronicle-clearance-seen", "true");
+    if (!isConnected) {
+      // If they disconnect mid-session, reset fully
+      setPageState("unconnected");
+      return;
     }
+
+    // Already cleared this session — skip straight to chronicle
+    const seen = sessionStorage.getItem("chronicle-clearance-seen");
+    if (seen) {
+      setPageState("chronicle");
+      return;
+    }
+
+    // First connection this session — run the full clearance sequence
+    setPageState("clearance");
   }, [isConnected]);
 
-  // Gate states — order matters
-  if (isConnecting) return <ChronicleVerifying />;
-  if (!isConnected) return <ChronicleGate />;
-  if (showNotice) return <AdjudicationNotice onDismiss={() => setShowNotice(false)} />;
+  // Gate waterfall
+  if (pageState === "unconnected") {
+    return <ChronicleGate />;
+  }
 
-  // Full Chronicle — unchanged below this line
+  if (pageState === "clearance") {
+    return (
+      <ChronicleClearance
+        onComplete={() => {
+          sessionStorage.setItem("chronicle-clearance-seen", "true");
+          setPageState("notice");
+        }}
+      />
+    );
+  }
+
+  if (pageState === "notice") {
+    return <AdjudicationNotice onDismiss={() => setPageState("chronicle")} />;
+  }
+
+  // Full Chronicle
   return (
     <main className="min-h-screen bg-black text-white relative overflow-hidden">
+      {/* Ambient background grid */}
       <div
         className="pointer-events-none fixed inset-0 opacity-[0.03]"
         style={{
@@ -83,12 +111,16 @@ export default function ChroniclePage() {
           backgroundSize: "60px 60px",
         }}
       />
+
+      {/* Radial glow */}
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(120,80,0,0.2)_0%,transparent_70%)]" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-16 space-y-16">
         <ChronicleHeader />
+
         <ChronicleStats winnerHistory={winnerHistory} />
 
+        {/* Era tabs — only rendered when multiple contract sources exist */}
         {CONTRACT_SOURCES.length > 1 && (
           <div className="space-y-3">
             <p className="chronicle-label">Contract Era</p>
@@ -110,6 +142,7 @@ export default function ChroniclePage() {
 
         <ChronicleTable winnerHistory={winnerHistory} isLoading={isLoading} activeSource={activeSource} />
 
+        {/* Footer */}
         <div className="text-center space-y-4 pb-8">
           <div className="flex items-center justify-center gap-3 text-yellow-700/80 text-xs tracking-[0.4em] select-none">
             <span>◆</span>
