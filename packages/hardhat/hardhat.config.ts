@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: ".env.local" });
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-chai-matchers";
@@ -12,16 +12,57 @@ import "hardhat-deploy-ethers";
 import { task } from "hardhat/config";
 import generateTsAbis from "./scripts/generateTsAbis";
 
-// If not set, it uses the hardhat account 0 private key.
-// You can generate a random account with `yarn generate` or `yarn account:import` to import your existing PK
-const deployerPrivateKey =
-  process.env.DEPLOYER_PRIVATE_KEY ?? "0xfa8c2bc03a4dfbb1d72d26d256fee30ceab3065b129ab6c61f3f96b8620b6386";
-// If not set, it uses our block explorers default API keys.
-const etherscanApiKey = process.env.ETHERSCAN_V2_API_KEY || "DNXJA8RX2Q3VZ4URQIWP7Z68CJXQZSC6AW";
+// ════════════════════════════════════════════════════════════════════════════════
+// ENVIRONMENT VARIABLES - SECURITY CRITICAL
+// ════════════════════════════════════════════════════════════════════════════════
 
-// If not set, it uses ours Alchemy's default API key.
-// You can get your own at https://dashboard.alchemyapi.io
-const providerApiKey = process.env.ALCHEMY_API_KEY || "cR4WnXePioePZ5fFrnSiR";
+// Deployer Private Key
+// ⚠️ CRITICAL: Populated from .env.local (NEVER commit)
+// Generate with: yarn account:generate
+// For local testing only - use encrypted keystore for mainnet
+const deployerPrivateKey =
+  process.env.DEPLOYER_PRIVATE_KEY ||
+  // Fallback to Hardhat's default test account (LOCAL DEVELOPMENT ONLY)
+  "0xac0974bec39a17e36ba4a6b4d238ff944bacb476caded87985d6f79a7ccc66a";
+
+// Etherscan API Key (for contract verification)
+// Get from: https://etherscan.io/apis
+const etherscanApiKey = process.env.ETHERSCAN_V2_API_KEY || "";
+
+// Alchemy API Key (for RPC provider)
+// Get from: https://dashboard.alchemyapi.io
+// For production, use dedicated API keys with rate limiting
+const providerApiKey = process.env.ALCHEMY_API_KEY || "cR4WnXePioePZ5fFrnSiR"; // Shared demo key
+
+// ════════════════════════════════════════════════════════════════════════════════
+// VALIDATION HELPERS
+// ════════════════════════════════════════════════════════════════════════════════
+
+function validatePrivateKey(key: string, context: string = "Deployer"): void {
+  if (!key || key === "0xac0974bec39a17e36ba4a6b4d238ff944bacb476caded87985d6f79a7ccc66a") {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        `❌ ${context} private key not configured for production!\n` +
+          `Set DEPLOYER_PRIVATE_KEY in your environment variables.`,
+      );
+    }
+    console.warn(`⚠️ ${context} using Hardhat default key (LOCAL DEVELOPMENT ONLY)`);
+  }
+  if (!key.startsWith("0x") || key.length !== 66) {
+    throw new Error(`❌ Invalid private key format. Must be 0x + 64 hex chars`);
+  }
+}
+
+function warnIfMissing(envVar: string, context: string = ""): void {
+  if (!process.env[envVar]) {
+    console.warn(`⚠️ Missing ${context || envVar} - some features may not work`);
+  }
+}
+
+// Validate critical keys on startup
+validatePrivateKey(deployerPrivateKey, "Deployer");
+warnIfMissing("ETHERSCAN_V2_API_KEY", "Etherscan API Key");
+warnIfMissing("ALCHEMY_API_KEY", "Alchemy API Key");
 
 const config: HardhatUserConfig = {
   solidity: {
