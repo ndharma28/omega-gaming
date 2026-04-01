@@ -74,14 +74,16 @@ export default function ChronicleMysteryTeaser({
       />
 
       <div className="flex items-center gap-3 px-4 py-1.5 border-b border-yellow-900/20 bg-yellow-950/10">
-        <span className="w-6 text-[9px] text-yellow-800/60 uppercase tracking-widest font-bold">#</span>
-        <span className="flex-1 text-[9px] text-yellow-800/60 uppercase tracking-widest font-bold">Subject</span>
-        <span className="w-20 text-[9px] text-yellow-800/60 uppercase tracking-widest font-bold text-right">Award</span>
-        <span className="w-16 text-[9px] text-yellow-800/60 uppercase tracking-widest font-bold text-right">
-          Class.
+        <span className="w-6 text-[9px] text-yellow-600/70 uppercase tracking-widest font-black">#</span>
+        <span className="flex-1 text-[9px] text-yellow-600/70 uppercase tracking-widest font-black">Operative</span>
+        <span className="w-20 text-[9px] text-yellow-600/70 uppercase tracking-widest font-black text-right">
+          Extracted
         </span>
-        <span className="hidden md:block w-20 text-[9px] text-yellow-800/60 uppercase tracking-widest font-bold text-right">
-          Filed
+        <span className="w-16 text-[9px] text-yellow-600/70 uppercase tracking-widest font-black text-right">
+          Clearance
+        </span>
+        <span className="hidden md:block w-20 text-[9px] text-yellow-600/70 uppercase tracking-widest font-black text-right">
+          Last Seen
         </span>
       </div>
 
@@ -136,11 +138,11 @@ export default function ChronicleMysteryTeaser({
       <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none bg-linear-to-t from-black/60 to-transparent z-10" />
 
       {winnerHistory.length > 5 && (
-        <div className="px-4 py-2 bg-black/30 border-t border-yellow-900/15 flex justify-between items-center">
-          <span className="text-[9px] text-yellow-900/50 uppercase tracking-widest font-bold">
+        <div className="px-4 py-3 bg-black/30 border-t border-yellow-900/15 flex justify-between items-center">
+          <span className="text-[9px] text-yellow-600/60 uppercase tracking-widest font-black">
             [ {winnerHistory.length - 5} ENTRIES WITHHELD ]
           </span>
-          <span className="text-[9px] text-yellow-900/40 uppercase tracking-widest">CLEARANCE REQUIRED</span>
+          <span className="text-[9px] text-yellow-900/60 uppercase tracking-widest font-black">CLEARANCE REQUIRED</span>
         </div>
       )}
     </div>
