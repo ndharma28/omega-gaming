@@ -10,7 +10,7 @@ const UNITS: { label: string; value: Unit }[] = [
 ];
 
 interface CipherFieldProps {
-  label: "FROM" | "TO";
+  label: "INPUT DENOMINATION" | "OUTPUT DENOMINATION";
   unit: Unit;
   onUnitChange: (u: Unit) => void;
   // FROM-only
@@ -21,7 +21,7 @@ interface CipherFieldProps {
 }
 
 export default function CipherField({ label, unit, onUnitChange, value, onValueChange, result }: CipherFieldProps) {
-  const isFrom = label === "FROM";
+  const isFrom = label === "INPUT DENOMINATION";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>

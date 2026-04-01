@@ -61,7 +61,7 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
         {/* LEFT: jackpot amount */}
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-            <span className="og-label">{isResolved ? "TOTAL PAYOUT" : "CURRENT EXTRACTION TARGET"}</span>
+            <span className="og-label">{isResolved ? "TOTAL PAYOUT" : "ON THE TABLE"}</span>
             {lotteryId !== undefined && <span className="og-epoch-badge">OPERATION {lotteryId.toString()}</span>}
           </div>
 

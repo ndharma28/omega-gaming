@@ -62,7 +62,7 @@ export const EtherConverter = ({ initialEth = "1" }: EtherConverterProps) => {
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "start", gap: "10px" }}>
           <CipherField
-            label="FROM"
+            label="INPUT DENOMINATION"
             unit={fromUnit}
             onUnitChange={setFromUnit}
             value={inputVal}
@@ -109,7 +109,7 @@ export const EtherConverter = ({ initialEth = "1" }: EtherConverterProps) => {
             </button>
           </div>
 
-          <CipherField label="TO" unit={toUnit} onUnitChange={setToUnit} result={result} />
+          <CipherField label="OUTPUT DENOMINATION" unit={toUnit} onUnitChange={setToUnit} result={result} />
         </div>
       </div>
     </div>
