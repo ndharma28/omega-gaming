@@ -10,6 +10,25 @@ import { CONTRACT_SOURCES } from "./lib";
 import { useAccount } from "wagmi";
 import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
 
+// ─── Clearance storage ────────────────────────────────────────────────────────
+// Keyed by wallet address so each new address gets the ceremony exactly once.
+// localStorage persists across sessions — once cleared, always cleared.
+
+function getClearanceKey(address: string) {
+  return `chronicle-clearance:${address.toLowerCase()}`;
+}
+
+function hasExistingClearance(address?: string) {
+  if (!address || typeof window === "undefined") return false;
+  return localStorage.getItem(getClearanceKey(address)) === "granted";
+}
+
+function grantClearance(address: string) {
+  localStorage.setItem(getClearanceKey(address), "granted");
+}
+
+// ─── Adjudication notice ──────────────────────────────────────────────────────
+
 function AdjudicationNotice({ onDismiss }: { onDismiss: () => void }) {
   return (
     <main className="min-h-screen bg-black flex items-center justify-center px-4">
@@ -49,46 +68,36 @@ function AdjudicationNotice({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
+// ─── Page state machine ───────────────────────────────────────────────────────
+// unconnected → clearance → notice → chronicle
+// Already-cleared address skips straight to chronicle on connect.
+
 type PageState = "unconnected" | "clearance" | "notice" | "chronicle";
 
 export default function ChroniclePage() {
-  const { isConnected } = useAccount();
-
-  // wasConnectedOnMount: did wagmi rehydrate an existing session on first render?
-  // We only want the clearance ceremony when the user connects *during* this visit.
-  const wasConnectedOnMount = useRef<boolean | null>(null);
-  const prevConnected = useRef<boolean>(false);
-
+  const { isConnected, address } = useAccount();
   const [pageState, setPageState] = useState<PageState>("unconnected");
   const [activeSource, setActiveSource] = useState(0);
+
+  // Track previous connection state to detect transitions, not just current state.
+  // This is the core fix: we respond to the moment of connection, not the fact of it.
+  const prevConnected = useRef<boolean>(false);
+  const prevAddress = useRef<string | undefined>(undefined);
+
   const { winnerHistory, isLoading } = useWinnerHistory(CONTRACT_SOURCES[activeSource].address);
 
   useEffect(() => {
-    // First render — snapshot the initial connection state
-    if (wasConnectedOnMount.current === null) {
-      wasConnectedOnMount.current = isConnected;
-
-      if (isConnected) {
-        // Wallet was already connected when page loaded (wagmi rehydration).
-        // Skip the ceremony entirely — they've already been adjudicated.
-        setPageState("chronicle");
-      }
-
-      prevConnected.current = isConnected;
-      return;
-    }
-
-    // Subsequent renders — look for state transitions
     const justConnected = !prevConnected.current && isConnected;
     const justDisconnected = prevConnected.current && !isConnected;
+    const addressChanged = isConnected && prevAddress.current !== undefined && prevAddress.current !== address;
 
-    if (justConnected) {
-      const seen = sessionStorage.getItem("chronicle-clearance-seen");
-      if (seen) {
-        // Already ran ceremony this session (e.g. disconnected and reconnected)
+    if (justConnected || addressChanged) {
+      // New connection or switched wallet — check clearance for this specific address
+      if (hasExistingClearance(address)) {
+        // This address has been adjudicated before — go straight in
         setPageState("chronicle");
       } else {
-        // Fresh connection this session — run the full clearance sequence
+        // First time for this address — run the full ceremony
         setPageState("clearance");
       }
     }
@@ -98,7 +107,10 @@ export default function ChroniclePage() {
     }
 
     prevConnected.current = isConnected;
-  }, [isConnected]);
+    prevAddress.current = address;
+  }, [isConnected, address]);
+
+  // ─── Gate waterfall ───────────────────────────────────────────────────────
 
   if (pageState === "unconnected") return <ChronicleGate />;
 
@@ -106,7 +118,7 @@ export default function ChroniclePage() {
     return (
       <ChronicleClearance
         onComplete={() => {
-          sessionStorage.setItem("chronicle-clearance-seen", "true");
+          if (address) grantClearance(address);
           setPageState("notice");
         }}
       />
@@ -116,6 +128,8 @@ export default function ChroniclePage() {
   if (pageState === "notice") {
     return <AdjudicationNotice onDismiss={() => setPageState("chronicle")} />;
   }
+
+  // ─── Full Chronicle ───────────────────────────────────────────────────────
 
   return (
     <main className="min-h-screen bg-black text-white relative overflow-hidden">
