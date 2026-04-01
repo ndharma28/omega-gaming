@@ -215,11 +215,7 @@ export default function LotteryDapp() {
 
         {/* RIGHT: inline chronicle */}
         <div className="og-main-right">
-          <div className="og-chronicle-badge">
-            The Archive
-            <br />
-            Partially Declassified not everything surfaces. this did
-          </div>
+          <div className="og-chronicle-badge">Redacted Archive</div>
 
           <ChronicleMysteryTeaser
             winnerHistory={winnerHistory}
