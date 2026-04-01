@@ -225,7 +225,7 @@ export default function LotteryDapp() {
 
           <Link href="/chronicle" className="og-chronicle-cta">
             <div>
-              <div className="og-cta-sub">The Archive</div>
+              <div className="og-cta-sub">Claim Your Clearance</div>
               <div className="og-cta-title">The Chronicle</div>
             </div>
             <div className="og-cta-arrow">→</div>

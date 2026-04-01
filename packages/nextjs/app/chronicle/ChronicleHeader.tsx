@@ -50,9 +50,9 @@ export default function ChronicleHeader() {
           </p>
           <h1 className="text-5xl font-black tracking-tight text-white">The Chronicle</h1>
           <p className="text-sm text-slate-400 max-w-sm mx-auto leading-relaxed">
-            Every name in here walked away with something. The ones who didn&apos;t aren&apos;t recorded anywhere.
-            That&apos;s not an accident. You found this page, which tells me you&apos;re already asking the right
-            questions. Keep asking them.
+            A determination has been made. You are cleared for access. The contract adjudicated your file automatically.
+            Eighteen months of background investigation, condensed into one block confirmation. The ledger is more
+            thorough anyway. — Office of the Ledger
           </p>
         </div>
 
