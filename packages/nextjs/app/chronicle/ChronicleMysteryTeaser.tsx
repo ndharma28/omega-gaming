@@ -90,7 +90,7 @@ export default function ChronicleMysteryTeaser({
       <div className="divide-y divide-yellow-900/10">
         {entries.map((entry, i) => {
           const ethAmount = parseFloat(formatEther(entry.prizeAmount));
-          const addrTotal = totalsByAddress[entry.winner] || 0;
+          const addrTotal = totalsByAddress[entry.winner.toLowerCase()] || 0;
           const rank = classifyPrize(addrTotal);
           const rowOpacity = Math.max(0.25, 1 - i * 0.17);
 
