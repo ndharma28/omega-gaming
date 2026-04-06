@@ -12,7 +12,7 @@ interface AddressChronicleProps {
   activeSource: number;
 }
 
-const TABLE_COLS = ["#", "Address", "Prize", "Rank"];
+const TABLE_COLS = ["#", "Address", "Prize", "Clearance"];
 
 const SCAN_PHRASES = [
   "Every address leaves a trail. Finding yours…",
@@ -199,7 +199,7 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
               { label: "Wins", value: matches.length.toString() },
               { label: "Total Won", value: `${parseFloat(formatEther(totalWon)).toFixed(4)} ETH` },
               {
-                label: "Classification",
+                label: "Clearance",
                 value: classifyPrize(parseFloat(formatEther(totalWon))).toUpperCase(),
               },
             ].map(({ label, value }) => (
