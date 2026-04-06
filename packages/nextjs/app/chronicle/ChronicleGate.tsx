@@ -22,7 +22,7 @@ export default function ChronicleGate() {
         }}
       />
 
-      <div className="relative z-10 max-w-[440px] w-full space-y-7">
+      <div className="relative z-10 max-w-110 w-full space-y-7">
         {/* Header */}
         <div className="text-center space-y-3">
           <p className="text-[9px] text-[#a16207] uppercase tracking-[0.35em] font-bold">
