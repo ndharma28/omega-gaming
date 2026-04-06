@@ -23,7 +23,7 @@ import generateTsAbis from "./scripts/generateTsAbis";
 const deployerPrivateKey =
   process.env.DEPLOYER_PRIVATE_KEY ||
   // Fallback to Hardhat's default test account (LOCAL DEVELOPMENT ONLY)
-  "0xac0974bec39a17e36ba4a6b4d238ff944bacb476caded87985d6f79a7ccc66a";
+  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478caded87985d6f79a7ccc66a";
 
 // Etherscan API Key (for contract verification)
 // Get from: https://etherscan.io/apis
@@ -39,7 +39,10 @@ const providerApiKey = process.env.ALCHEMY_API_KEY || "cR4WnXePioePZ5fFrnSiR"; /
 // ════════════════════════════════════════════════════════════════════════════════
 
 function validatePrivateKey(key: string, context: string = "Deployer"): void {
-  if (!key || key === "0xac0974bec39a17e36ba4a6b4d238ff944bacb476caded87985d6f79a7ccc66a") {
+  if (!key.startsWith("0x") || key.length !== 66) {
+    throw new Error(`❌ Invalid private key format. Must be 0x + 64 hex chars`);
+  }
+  if (key === "0xac0974bec39a17e36ba4a6b4d238ff944bacb478caded87985d6f79a7ccc66a") {
     if (process.env.NODE_ENV === "production") {
       throw new Error(
         `❌ ${context} private key not configured for production!\n` +
@@ -47,9 +50,6 @@ function validatePrivateKey(key: string, context: string = "Deployer"): void {
       );
     }
     console.warn(`⚠️ ${context} using Hardhat default key (LOCAL DEVELOPMENT ONLY)`);
-  }
-  if (!key.startsWith("0x") || key.length !== 66) {
-    throw new Error(`❌ Invalid private key format. Must be 0x + 64 hex chars`);
   }
 }
 
