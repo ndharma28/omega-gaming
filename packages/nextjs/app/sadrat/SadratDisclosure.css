@@ -131,47 +131,33 @@
   line-height: 1.7;
 }
 
+/* --- Footnote Styling --- */
 .og-footnote {
   font-size: 11px;
-  color: #3a3020;
+  /* Lift the color from dark brown to a readable muted gold/gray */
+  color: #8a7d5a; 
   margin-top: 2.5rem;
   border-top: 0.5px solid #2a2510;
-  padding-top: 1rem;
+  padding-top: 1.5rem;
   line-height: 1.7;
+  max-width: 700px;
 }
 
-.og-cta {
-  display: inline-block;
-  margin-top: 1.5rem;
-  border: 1px solid #6a5520;
+/* Ensure the labels in the footnote aren't blindingly bright 
+   compared to the now-readable definitions */
+.og-footnote .og-highlight {
   color: #e8c96a;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-  padding: 0.6rem 1.4rem;
-  text-transform: uppercase;
-  background: transparent;
-  transition: background 0.15s;
-}
-.og-cta:hover { background: #1a1508; text-decoration: none; }
-
-.og-badge-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 0.5rem 0 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  /* Add a slight bottom border to the labels for a "form" look */
+  border-bottom: 1px solid rgba(232, 201, 106, 0.2);
+  margin-right: 4px;
 }
 
-.og-badge {
+/* Supplemental Intel Header */
+.og-footnote-header {
+  @apply mb-4 font-bold tracking-tighter;
+  color: #5a5030; /* Keep the sub-header dim to prioritize the content */
   font-size: 10px;
-  letter-spacing: 0.15em;
-  padding: 3px 8px;
-  border: 0.5px solid #2a2510;
-  color: #5a5030;
   text-transform: uppercase;
-}
-
-.og-badge.active {
-  border-color: #6a5520;
-  color: #c8a84a;
 }
