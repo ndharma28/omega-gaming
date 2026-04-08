@@ -1,4 +1,4 @@
-/* packages/nextjs/app/sadrat/sadrat.css */
+/* packages/nextjs/app/sadrat/SadratDisclosure.css */
 
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
@@ -6,7 +6,7 @@
   font-family: 'IBM Plex Mono', monospace;
   background: #0d0d0b;
   color: #c8b87a;
-  padding: 5rem 1.5rem; /* Increased top padding for header clearance */
+  padding: 5rem 1.5rem;
   min-height: 100vh;
   border: 0.5px solid #2a2510;
 }
@@ -47,32 +47,10 @@
   margin-bottom: 2rem;
 }
 
-.og-body {
-  font-size: 13px;
-  line-height: 1.8;
-  color: #a89850;
-  max-width: 640px;
-}
-
-.og-body p { margin: 0 0 1rem; }
-
-.og-highlight {
-  color: #e8c96a;
-  font-weight: 500;
-}
-
-.og-framework-label {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: #5a5030;
-  text-transform: uppercase;
-  margin: 2rem 0 0.75rem;
-}
-
+/* --- The Framework Grid --- */
 .og-acronym-grid {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0;
   border: 0.5px solid #2a2510;
   margin-bottom: 2rem;
 }
@@ -86,7 +64,6 @@
   border-right: 0.5px solid #2a2510;
   min-width: 52px;
   text-align: center;
-  line-height: 1;
 }
 
 .og-acro-def {
@@ -96,17 +73,34 @@
   line-height: 1.5;
 }
 
-.og-acro-word {
-  color: #e8c96a;
-  font-weight: 500;
-  font-size: 13px;
-  display: block;
-  margin-bottom: 2px;
+/* --- Footnote: Legibility Fix --- */
+.og-footnote {
+  font-size: 11px;
+  color: #a89850; /* Increased brightness for the definitions */
+  margin-top: 2.5rem;
+  border-top: 0.5px solid #2a2510;
+  padding-top: 1.5rem;
+  line-height: 1.7;
 }
 
-.og-acro-note {
+.og-footnote-header {
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: #5a5030;
-  font-size: 11px;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+.og-highlight {
+  color: #e8c96a;
+  font-weight: 500;
+}
+
+.og-redline {
+  color: #b54040;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .og-callout {
@@ -116,48 +110,13 @@
   background: #120a0a;
 }
 
-.og-callout-label {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: #8b1c1c;
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-}
-
-.og-callout p {
-  font-size: 12px;
-  color: #9a6060;
-  margin: 0;
-  line-height: 1.7;
-}
-
-/* --- Footnote Styling --- */
-.og-footnote {
-  font-size: 11px;
-  /* Lift the color from dark brown to a readable muted gold/gray */
-  color: #8a7d5a; 
-  margin-top: 2.5rem;
-  border-top: 0.5px solid #2a2510;
-  padding-top: 1.5rem;
-  line-height: 1.7;
-  max-width: 700px;
-}
-
-/* Ensure the labels in the footnote aren't blindingly bright 
-   compared to the now-readable definitions */
-.og-footnote .og-highlight {
+.og-cta {
+  display: inline-block;
+  margin-top: 1.5rem;
+  border: 1px solid #6a5520;
   color: #e8c96a;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  /* Add a slight bottom border to the labels for a "form" look */
-  border-bottom: 1px solid rgba(232, 201, 106, 0.2);
-  margin-right: 4px;
-}
-
-/* Supplemental Intel Header */
-.og-footnote-header {
-  @apply mb-4 font-bold tracking-tighter;
-  color: #5a5030; /* Keep the sub-header dim to prioritize the content */
-  font-size: 10px;
+  padding: 0.6rem 1.4rem;
   text-transform: uppercase;
+  text-decoration: none;
+  font-size: 12px;
 }

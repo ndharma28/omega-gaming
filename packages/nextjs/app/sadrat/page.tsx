@@ -121,23 +121,23 @@ export default function SadratDisclosure() {
         ← Return to Operations
       </Link>
       <div className="og-footnote">
-        <p className="mb-2 font-bold tracking-tighter text-slate-500">[SUPPLEMENTAL INTEL: THE M.I.C.E. MATRIX]</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-80 group-hover:opacity-100 transition-opacity">
+        <p className="og-footnote-header">[SUPPLEMENTAL INTEL: THE M.I.C.E. MATRIX]</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-90">
           <div>
-            <span className="og-highlight uppercase">Money:</span> The ETH prize pool. In Langley, it&apos;s a suitcase
-            of non-sequential bills. Here, it&apos;s an on-chain bounty for your participation.
+            <span className="og-highlight">MONEY:</span> The ETH prize pool. In Langley, it&apos;s a suitcase of
+            non-sequential bills. Here, it&apos;s an on-chain bounty for your participation.
           </div>
           <div>
-            <span className="og-highlight uppercase">Ideology:</span> Decentralization isn&apos;t just a tech stack;
-            it&apos;s the belief that the ledger shouldn&apos;t have an editor-in-chief.
+            <span className="og-highlight">IDEOLOGY:</span> Decentralization isn&apos;t just a tech stack; it&apos;s the
+            belief that the ledger shouldn&apos;t have an editor-in-chief.
           </div>
           <div>
-            <span className="og-highlight uppercase">Coercion:</span> Zero leverage required. We don&apos;t need your
-            secrets when the smart contract enforces the rules with cold, mathematical indifference.
+            <span className="og-highlight">COERCION:</span> Zero leverage required. We don&apos;t need your secrets when
+            the smart contract enforces the rules with cold, mathematical indifference.
           </div>
           <div>
-            <span className="og-highlight uppercase">Ego:</span> You&apos;re Operative #506. You have the clearance, you
-            have the leaderboard spot, and you&apos;re still down here in the footnotes looking for the &quot;why.&quot;
+            <span className="og-highlight">EGO:</span> You&apos;re Operative #506. You have the clearance and the spot,
+            yet you&apos;re still down here in the footnotes looking for the &quot;why.&quot;
           </div>
         </div>
         <div className="mt-4 text-[9px] uppercase tracking-[0.3em] text-red-900/50">
