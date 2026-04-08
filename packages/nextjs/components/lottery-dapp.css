@@ -638,25 +638,7 @@
  * The link routes to /sadrat (or wherever you place the page).
  */
 
-import Link from "next/link";
-
-// ── Inside your home page JSX ────────────────────────────────────────────────
-
-{/* Existing Chronicle CTA card — keep as-is */}
-<div className="og-chronicle-cta">
-  <p className="og-chronicle-cta__label">CLAIM YOUR CLEARANCE</p>
-  <Link href="/chronicle" className="og-chronicle-cta__title">
-    The Chronicle →
-  </Link>
-</div>
-
-{/* ↓ Add this directly below the CTA card ↓ */}
-<div className="og-sadrat-link-row">
-  <Link href="/sadrat" className="og-sadrat-link">
-    // how we recruited you →
-  </Link>
-</div>
-
+/* Example JSX snippet removed from CSS. Use .og-sadrat-link-row and .og-sadrat-link in your React markup. */
 
 .og-sadrat-link-row {
   display: flex;
