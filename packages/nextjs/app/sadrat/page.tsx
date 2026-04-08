@@ -1,128 +1,122 @@
 "use client";
 
+import React, { Fragment } from "react";
 import Link from "next/link";
-import "./SadratDisclosure.css";
+import "./sadrat.css";
 
 const SADRAT_ENTRIES = [
   {
     letter: "S",
     word: "Spot",
-    note: "Identify potential recruits. CIA ops: foreign nationals with access to state secrets. Here: anyone with a wallet and a suspicious amount of free time on a Tuesday.",
+    note: "Identify potential recruits. In CIA ops: foreign nationals with access. Here: anyone with a wallet and a suspicious amount of free time.",
   },
   {
     letter: "A",
     word: "Assess",
-    note: "Profile the target's motivations, vulnerabilities, and pressure points. We assessed: you are here, reading this. That was enough.",
+    note: "Profile the target's motivations, vulnerabilities, and pressure points. We assessed: you are here. That was enough.",
   },
   {
     letter: "D",
     word: "Develop",
-    note: "Build a relationship. Establish trust. We built a design system and wrote copy in the voice of a burned field officer with nothing left to lose. Same energy.",
+    note: "Build a relationship. Establish trust. We built a design system and wrote copy in the voice of a burned field officer. Same energy.",
   },
   {
     letter: "R",
     word: "Recruit",
-    note: "Make the ask. Enter the lottery. Claim the clearance. The smart contract will not blackmail you afterward. This is verifiable.",
+    note: "Make the ask. Enter the lottery. Claim the clearance. The blockchain will not blackmail you afterward.",
   },
   {
     letter: "A",
     word: "Agent",
-    note: "You are now an operative with on-chain proof of participation. Unlike most CIA assets, you are actually on the payroll.",
+    note: "You are now an operative. Except you are on the payroll. Which the CIA cannot say about most of its assets.",
   },
   {
     letter: "T",
     word: "Terminate",
-    note: "CIA definition: burn the asset when convenient; deny all involvement; shred the files. Our definition: the lottery window closes. No one disappears.",
+    note: "CIA meaning: burn the asset when convenient; deny involvement. Our meaning: the lottery window closes. That's it. No one disappears.",
   },
 ];
 
 export default function SadratDisclosure() {
   return (
-    <div className="og-sadrat-page">
-      {/* ── Header ───────────────────────────────────────── */}
-      <div className="og-sadrat-header">
-        <div className="og-sadrat-stamp">VOLUNTARILY DECLASSIFIED</div>
-        <p className="og-sadrat-eyebrow">{"// operational transparency memo"}</p>
+    <div className="og-wrap">
+      <div className="og-stamp">VOLUNTARILY DECLASSIFIED</div>
 
-        <div className="og-sadrat-badge-row">
-          {["SADRAT", "MICE", "NOT MKULTRA", "WE PROMISE"].map(b => (
-            <span
-              key={b}
-              className={`og-sadrat-badge${b === "SADRAT" || b === "MICE" ? " og-sadrat-badge--active" : ""}`}
-            >
-              {b}
-            </span>
-          ))}
-        </div>
+      {/* Wrapping the // text in braces and quotes tells the linter it's a string, not a code comment */}
+      <div className="og-eyebrow">{"// operational transparency memo"}</div>
+      <div className="og-title">Yes, We Used the CIA&apos;s Playbook.</div>
+      <div className="og-subtitle">OPERATION: CHRONICLE RECRUITMENT — METHODS DISCLOSED</div>
+
+      <div className="og-badge-row">
+        <span className="og-badge active">SADRAT</span>
+        <span className="og-badge active">MICE</span>
+        <span className="og-badge">NOT MKULTRA</span>
+        <span className="og-badge">WE PROMISE</span>
       </div>
 
-      {/* ── Intro body ───────────────────────────────────── */}
-      <div className="og-sadrat-body">
+      <div className="og-body">
         <p>
-          The Chronicle recruitment copy you just read was written using <span className="og-sadrat-hl">SADRAT</span> —
+          The Chronicle recruitment copy you just read was written using <span className="og-highlight">SADRAT</span> —
           a behavioral influence framework developed and deployed by the Central Intelligence Agency to identify and
           manipulate foreign assets into betraying their countries, their colleagues, and occasionally their own
           families.
         </p>
+
         <p>
           We are telling you this because, unlike the CIA,{" "}
-          <span className="og-sadrat-hl">we disclose our methods.</span> This is not a low bar. It is, apparently, a bar
-          the CIA has never once cleared in seventy-six years of operation.
+          <span className="og-highlight">we disclose our methods.</span> This is not a low bar. It is, apparently, a bar
+          the CIA has never once cleared.
         </p>
       </div>
 
-      {/* ── SADRAT grid ──────────────────────────────────── */}
-      <p className="og-sadrat-section-label">{"// the framework — decoded"}</p>
+      <div className="og-framework-label">{"// the framework — decoded"}</div>
 
-      <div className="og-sadrat-grid">
-        {SADRAT_ENTRIES.map(({ letter, word, note }) => (
-          <div key={letter + word} className="og-sadrat-row">
-            <div className="og-sadrat-letter">{letter}</div>
-            <div className="og-sadrat-def">
-              <span className="og-sadrat-word">{word}</span>
-              <span className="og-sadrat-note">{note}</span>
+      <div className="og-acronym-grid">
+        {SADRAT_ENTRIES.map((entry, index) => (
+          <Fragment key={entry.letter + index}>
+            <div className={`og-acro-letter ${index === SADRAT_ENTRIES.length - 1 ? "border-b-0" : ""}`}>
+              {entry.letter}
             </div>
-          </div>
+            <div className={`og-acro-def ${index === SADRAT_ENTRIES.length - 1 ? "border-b-0" : ""}`}>
+              <span className="og-acro-word">{entry.word}</span>
+              <span className="og-acro-note">{entry.note}</span>
+            </div>
+          </Fragment>
         ))}
       </div>
 
-      {/* ── CIA callout ──────────────────────────────────── */}
-      <div className="og-sadrat-callout">
-        <p className="og-sadrat-callout-label">{"// for the record"}</p>
+      <div className="og-callout">
+        <div className="og-callout-label">{"// for the record"}</div>
         <p>
-          The CIA ran MKUltra — a program dosing unwitting civilians with LSD, electroshock, and sensory deprivation
-          under the banner of &quot;mind control research&quot; — for <span className="og-sadrat-danger">21 years</span>{" "}
-          before a filing error saved a box of documents from the 1973 purge. Director Richard Helms ordered the files
-          destroyed. Most were. John Kiriakou, the officer who confirmed on record that the agency was waterboarding
-          detainees, was the only person prosecuted. Not for the waterboarding. For telling a journalist it was
-          happening.
+          The CIA ran MKUltra — a program dosing unwitting civilians with LSD, electroshock, and sensory deprivation in
+          the name of &quot;mind control research&quot; — for <span style={{ color: "#c8706a" }}>21 years</span> before
+          it was exposed. They destroyed most of the files in 1973. John Kiriakou, the officer who confirmed the agency
+          was waterboarding detainees, was the only person prosecuted. Not for the torture. For telling someone about
+          it.
         </p>
       </div>
 
-      {/* ── Closer ───────────────────────────────────────── */}
-      <div className="og-sadrat-body">
+      <div className="og-body">
         <p>
           We used their framework because it is{" "}
-          <span className="og-sadrat-hl">genuinely effective behavioral psychology</span>, which is exactly how they got
-          away with everything else. The difference is that Omega Gaming is a smart contract. The rules are on-chain.
-          There is no file to destroy. There is no asset to burn. There is no Langley.
+          <span className="og-highlight">genuinely effective behavioral psychology</span>, which is how they got away
+          with everything else. The difference is that Omega Gaming is a smart contract. The rules are on-chain. There
+          is no file to destroy. There is no asset to burn. There is no Langley.
         </p>
         <p>
-          The ledger doesn&apos;t lie. <span className="og-sadrat-hl">It never has.</span>
+          The ledger doesn&apos;t lie. <span className="og-highlight">It never has.</span>
         </p>
       </div>
 
-      {/* ── CTA ──────────────────────────────────────────── */}
-      <Link href="/" className="og-sadrat-cta">
+      <Link href="/" className="og-cta">
         ← Return to Operations
       </Link>
 
-      {/* ── MICE footnote ────────────────────────────────── */}
-      <div className="og-sadrat-footnote">
-        * MICE (Money, Ideology, Coercion, Ego) is the companion CIA recruitment framework also referenced in the
-        Chronicle copy. It describes why people cooperate with intelligence agencies. Applied here — Money: ETH prize
-        pool. Ideology: decentralization. Coercion: none, the contract enforces itself. Ego: Operative #506 has
-        clearance and you are still reading the footnotes. {"\u00A0// transparency ends here."}
+      <div className="og-footnote">
+        * MICE (Money, Ideology, Coercion, Ego) is the companion CIA framework also referenced in the Chronicle copy. It
+        describes why people cooperate with intelligence agencies. In our case — Money: ETH prize pool. Ideology:
+        decentralization. Coercion: none, the contract enforces itself. Ego: Operative #506 has clearance and you are
+        still reading the footnotes. &nbsp;&nbsp;{"// transparency ends here."}
       </div>
     </div>
   );

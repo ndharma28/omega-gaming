@@ -1,241 +1,177 @@
-/* ============================================================
-   SADRAT Disclosure Page — og-sadrat-* namespace
-   Matches og-* design system: IBM Plex Mono, dark amber/noir
-   ============================================================ */
+/* packages/nextjs/app/sadrat/sadrat.css */
 
-.og-sadrat-page {
-  font-family: "IBM Plex Mono", monospace;
-  background: var(--og-bg, #0d0d0b);
-  color: var(--og-text-muted, #a89850);
-  padding: 2.5rem 1.5rem 3rem;
-  max-width: 760px;
-  margin: 0 auto;
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+.og-wrap {
+  font-family: 'IBM Plex Mono', monospace;
+  background: #0d0d0b;
+  color: #c8b87a;
+  padding: 5rem 1.5rem; /* Increased top padding for header clearance */
   min-height: 100vh;
+  border: 0.5px solid #2a2510;
 }
 
-/* ── Header ─────────────────────────────────── */
-
-.og-sadrat-header {
-  margin-bottom: 2rem;
-}
-
-.og-sadrat-stamp {
+.og-stamp {
   display: inline-block;
   border: 2px solid #8b1c1c;
   color: #8b1c1c;
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  padding: 3px 12px;
-  transform: rotate(-2deg);
-  margin-bottom: 1.75rem;
-  font-weight: 600;
-  opacity: 0.9;
-  user-select: none;
-}
-
-.og-sadrat-eyebrow {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  color: var(--og-text-dim, #4a4020);
-  text-transform: uppercase;
-  margin: 0 0 0.35rem;
-}
-
-.og-sadrat-title {
-  font-size: clamp(20px, 4vw, 28px);
-  font-weight: 600;
-  color: var(--og-gold, #e8c96a);
-  margin: 0 0 0.25rem;
-  letter-spacing: 0.03em;
-  line-height: 1.2;
-}
-
-.og-sadrat-subtitle {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.18em;
-  color: var(--og-text-dim, #4a4020);
-  text-transform: uppercase;
-  margin: 0 0 1.25rem;
+  padding: 3px 10px;
+  transform: rotate(-2deg);
+  margin-bottom: 1.5rem;
+  opacity: 0.85;
+  font-weight: 600;
 }
 
-/* ── Badge row ──────────────────────────────── */
-
-.og-sadrat-badge-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 0.25rem;
-}
-
-.og-sadrat-badge {
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  padding: 3px 9px;
-  border: 1px solid var(--og-border-dim, #2a2510);
-  color: var(--og-text-dim, #4a4020);
-  text-transform: uppercase;
-}
-
-.og-sadrat-badge--active {
-  border-color: var(--og-border-mid, #6a5520);
-  color: var(--og-text-muted, #c8a84a);
-}
-
-/* ── Section label ──────────────────────────── */
-
-.og-sadrat-section-label {
+.og-eyebrow {
   font-size: 10px;
   letter-spacing: 0.2em;
-  color: var(--og-text-dim, #4a4020);
+  color: #5a5030;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.og-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #e8c96a;
+  margin: 0 0 0.25rem;
+  letter-spacing: 0.04em;
+}
+
+.og-subtitle {
+  font-size: 12px;
+  color: #5a5030;
+  letter-spacing: 0.15em;
+  margin-bottom: 2rem;
+}
+
+.og-body {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #a89850;
+  max-width: 640px;
+}
+
+.og-body p { margin: 0 0 1rem; }
+
+.og-highlight {
+  color: #e8c96a;
+  font-weight: 500;
+}
+
+.og-framework-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: #5a5030;
   text-transform: uppercase;
   margin: 2rem 0 0.75rem;
 }
 
-/* ── SADRAT grid ────────────────────────────── */
-
-.og-sadrat-grid {
-  border: 1px solid var(--og-border-dim, #2a2510);
+.og-acronym-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0;
+  border: 0.5px solid #2a2510;
   margin-bottom: 2rem;
 }
 
-.og-sadrat-row {
-  display: grid;
-  grid-template-columns: 52px 1fr;
-  border-bottom: 1px solid var(--og-border-dim, #2a2510);
-}
-
-.og-sadrat-row:last-child {
-  border-bottom: none;
-}
-
-.og-sadrat-letter {
-  font-size: 22px;
+.og-acro-letter {
+  font-size: 20px;
   font-weight: 600;
-  color: var(--og-gold, #e8c96a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-right: 1px solid var(--og-border-dim, #2a2510);
-  padding: 0.75rem 0;
+  color: #e8c96a;
+  padding: 0.75rem 1rem;
+  border-bottom: 0.5px solid #2a2510;
+  border-right: 0.5px solid #2a2510;
+  min-width: 52px;
+  text-align: center;
   line-height: 1;
 }
 
-.og-sadrat-def {
-  padding: 0.7rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.og-acro-def {
+  padding: 0.6rem 1rem;
+  border-bottom: 0.5px solid #2a2510;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
-.og-sadrat-word {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--og-gold, #e8c96a);
-  letter-spacing: 0.05em;
-}
-
-.og-sadrat-note {
-  font-size: 11px;
-  color: var(--og-text-muted, #a89850);
-  line-height: 1.6;
-}
-
-/* ── Body text ──────────────────────────────── */
-
-.og-sadrat-body {
-  font-size: 13px;
-  line-height: 1.85;
-  color: var(--og-text-muted, #a89850);
-  max-width: 600px;
-  margin-bottom: 0.5rem;
-}
-
-.og-sadrat-body p {
-  margin: 0 0 1rem;
-}
-
-.og-sadrat-hl {
-  color: var(--og-gold, #e8c96a);
+.og-acro-word {
+  color: #e8c96a;
   font-weight: 500;
+  font-size: 13px;
+  display: block;
+  margin-bottom: 2px;
 }
 
-/* ── CIA callout ────────────────────────────── */
+.og-acro-note {
+  color: #5a5030;
+  font-size: 11px;
+}
 
-.og-sadrat-callout {
+.og-callout {
   border-left: 2px solid #8b1c1c;
-  padding: 0.85rem 1.1rem;
-  margin: 1.75rem 0;
-  background: rgba(139, 28, 28, 0.05);
+  padding: 0.75rem 1rem;
+  margin: 1.5rem 0;
+  background: #120a0a;
 }
 
-.og-sadrat-callout-label {
+.og-callout-label {
   font-size: 10px;
   letter-spacing: 0.2em;
   color: #8b1c1c;
   text-transform: uppercase;
-  margin: 0 0 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
-.og-sadrat-callout p {
+.og-callout p {
   font-size: 12px;
   color: #9a6060;
   margin: 0;
-  line-height: 1.75;
+  line-height: 1.7;
 }
 
-.og-sadrat-danger {
-  color: #c8706a;
-  font-weight: 600;
-}
-
-/* ── CTA ────────────────────────────────────── */
-
-.og-sadrat-cta {
-  display: inline-block;
-  margin-top: 1.75rem;
-  border: 1px solid var(--og-border-mid, #6a5520);
-  color: var(--og-gold, #e8c96a);
-  font-family: "IBM Plex Mono", monospace;
+.og-footnote {
   font-size: 11px;
+  color: #3a3020;
+  margin-top: 2.5rem;
+  border-top: 0.5px solid #2a2510;
+  padding-top: 1rem;
+  line-height: 1.7;
+}
+
+.og-cta {
+  display: inline-block;
+  margin-top: 1.5rem;
+  border: 1px solid #6a5520;
+  color: #e8c96a;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
   letter-spacing: 0.15em;
   padding: 0.6rem 1.4rem;
   text-transform: uppercase;
-  text-decoration: none;
   background: transparent;
-  transition: background 0.15s ease;
+  transition: background 0.15s;
+}
+.og-cta:hover { background: #1a1508; text-decoration: none; }
+
+.og-badge-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0.5rem 0 1.5rem;
 }
 
-.og-sadrat-cta:hover {
-  background: rgba(232, 201, 106, 0.05);
-  color: var(--og-gold, #e8c96a);
-  text-decoration: none;
-}
-
-/* ── Footnote ───────────────────────────────── */
-
-.og-sadrat-footnote {
+.og-badge {
   font-size: 10px;
-  color: var(--og-text-dim, #3a3020);
-  margin-top: 2.5rem;
-  border-top: 1px solid var(--og-border-dim, #2a2510);
-  padding-top: 1rem;
-  line-height: 1.75;
-  max-width: 600px;
+  letter-spacing: 0.15em;
+  padding: 3px 8px;
+  border: 0.5px solid #2a2510;
+  color: #5a5030;
+  text-transform: uppercase;
 }
 
-/* ── Responsive ─────────────────────────────── */
-
-@media (max-width: 480px) {
-  .og-sadrat-page {
-    padding: 1.5rem 1rem 2rem;
-  }
-
-  .og-sadrat-letter {
-    font-size: 18px;
-    min-width: 40px;
-  }
-
-  .og-sadrat-grid {
-    grid-template-columns: 40px 1fr;
-  }
+.og-badge.active {
+  border-color: #6a5520;
+  color: #c8a84a;
 }
