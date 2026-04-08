@@ -2,7 +2,7 @@
 
 import React, { Fragment } from "react";
 import Link from "next/link";
-import "./sadrat.css";
+import "./SadratDisclosure.css";
 
 const SADRAT_ENTRIES = [
   {
