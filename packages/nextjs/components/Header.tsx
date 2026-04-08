@@ -119,17 +119,21 @@ export const Header = () => {
         {/* Right: Sadrat + Chronicle + wallet */}
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-2">
-            {/* Sadrat Disclosure Button - Now on the Left */}
             <Link
               href="/sadrat"
               className={`px-3 py-1.5 rounded-full border text-[10px] font-bold tracking-widest uppercase transition-all duration-300
-                ${
-                  isSadratActive
-                    ? "border-slate-600 bg-slate-800 text-white"
-                    : "border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-600 hover:text-slate-200"
-                }`}
+              ${
+                isSadratActive
+                  ? "border-red-600/60 bg-red-950/40 text-red-400" // Red for "Classified/Alert"
+                  : "border-slate-800 bg-slate-900/50 text-slate-400 hover:border-red-900/50 hover:text-red-500"
+              }`}
             >
-              Sadrat Disclosure
+              <span className="relative flex h-1.5 w-1.5 mr-1">
+                {/* A slow pulse to imply a live 'breach' or 'unsealing' */}
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-20" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-700" />
+              </span>
+              DECLASS: SADRAT PROTOCOL
             </Link>
 
             {/* The Chronicle Button */}
