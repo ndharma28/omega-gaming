@@ -121,7 +121,7 @@ export const Header = () => {
           <div className="hidden md:flex items-center gap-2">
             {/* Sadrat Disclosure Button - Now on the Left */}
             <Link
-              href="/sadrat-disclosure"
+              href="/sadrat"
               className={`px-3 py-1.5 rounded-full border text-[10px] font-bold tracking-widest uppercase transition-all duration-300
                 ${
                   isSadratActive
