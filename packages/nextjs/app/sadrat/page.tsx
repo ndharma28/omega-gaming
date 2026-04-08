@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import "./SadratDisclosure.css";
 
 const SADRAT_ENTRIES = [
   {
