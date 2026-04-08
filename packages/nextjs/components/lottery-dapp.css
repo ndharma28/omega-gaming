@@ -629,3 +629,52 @@
   .og-stat-cell:nth-child(1),
   .og-stat-cell:nth-child(2) { border-bottom: var(--og-b-dim); }
 }
+
+/**
+ * Drop this block in your home page wherever the
+ * "Claim Your Clearance / The Chronicle" CTA currently lives.
+ *
+ * It adds a secondary disclosure link just below the CTA card.
+ * The link routes to /sadrat (or wherever you place the page).
+ */
+
+import Link from "next/link";
+
+// ── Inside your home page JSX ────────────────────────────────────────────────
+
+{/* Existing Chronicle CTA card — keep as-is */}
+<div className="og-chronicle-cta">
+  <p className="og-chronicle-cta__label">CLAIM YOUR CLEARANCE</p>
+  <Link href="/chronicle" className="og-chronicle-cta__title">
+    The Chronicle →
+  </Link>
+</div>
+
+{/* ↓ Add this directly below the CTA card ↓ */}
+<div className="og-sadrat-link-row">
+  <Link href="/sadrat" className="og-sadrat-link">
+    // how we recruited you →
+  </Link>
+</div>
+
+
+.og-sadrat-link-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  padding: 0 0.25rem;
+}
+
+.og-sadrat-link {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--og-text-dim, #4a4020);
+  text-decoration: none;
+  text-transform: lowercase;
+  transition: color 0.15s ease;
+}
+
+.og-sadrat-link:hover {
+  color: var(--og-gold, #e8c96a);
+}
