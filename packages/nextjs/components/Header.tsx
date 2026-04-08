@@ -133,7 +133,7 @@ export const Header = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-20" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-700" />
               </span>
-              DECLASS: SADRAT PROTOCOL
+              DECLASSIFIED: SADRAT PROTOCOL
             </Link>
 
             {/* The Chronicle Button */}
