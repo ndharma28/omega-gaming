@@ -6,117 +6,90 @@
   font-family: 'IBM Plex Mono', monospace;
   background: #0d0d0b;
   color: #c8b87a;
-  padding: 5rem 1.5rem;
+  padding: 6rem 2rem; /* Better breathing room */
   min-height: 100vh;
-  border: 0.5px solid #2a2510;
+  max-width: 850px; /* Slightly wider for better grid layout */
+  margin: 0 auto;
 }
 
+/* --- Header Spacing --- */
 .og-stamp {
   display: inline-block;
   border: 2px solid #8b1c1c;
   color: #8b1c1c;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  padding: 3px 10px;
-  transform: rotate(-2deg);
-  margin-bottom: 1.5rem;
-  opacity: 0.85;
-  font-weight: 600;
-}
-
-.og-eyebrow {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.2em;
-  color: #5a5030;
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
+  padding: 4px 12px;
+  transform: rotate(-1.5deg);
+  margin-bottom: 2.5rem;
+  font-weight: 700;
 }
 
 .og-title {
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 600;
   color: #e8c96a;
-  margin: 0 0 0.25rem;
-  letter-spacing: 0.04em;
+  margin: 0.5rem 0;
+  line-height: 1.2;
 }
 
-.og-subtitle {
-  font-size: 12px;
-  color: #5a5030;
-  letter-spacing: 0.15em;
-  margin-bottom: 2rem;
-}
-
-/* --- The Framework Grid --- */
+/* --- The Framework Grid (Fixed Spacing) --- */
 .og-acronym-grid {
   display: grid;
-  grid-template-columns: auto 1fr;
-  border: 0.5px solid #2a2510;
-  margin-bottom: 2rem;
+  grid-template-columns: 80px 1fr; /* Fixed width for letters */
+  border: 1px solid #2a2510;
+  margin: 2rem 0;
 }
 
 .og-acro-letter {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   color: #e8c96a;
-  padding: 0.75rem 1rem;
-  border-bottom: 0.5px solid #2a2510;
-  border-right: 0.5px solid #2a2510;
-  min-width: 52px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #2a2510;
+  background: rgba(232, 201, 106, 0.03);
 }
 
 .og-acro-def {
-  padding: 0.6rem 1rem;
-  border-bottom: 0.5px solid #2a2510;
-  font-size: 12px;
-  line-height: 1.5;
+  padding: 1.2rem 1.5rem; /* Added padding so text doesn't touch edges */
+  border-bottom: 1px solid #2a2510;
 }
 
-/* --- Footnote: Legibility Fix --- */
+.og-acro-row:last-child .og-acro-def,
+.og-acro-row:last-child .og-acro-letter {
+  border-bottom: none;
+}
+
+/* --- Footnote: Visibility Fix --- */
 .og-footnote {
-  font-size: 11px;
-  color: #a89850; /* Increased brightness for the definitions */
-  margin-top: 2.5rem;
-  border-top: 0.5px solid #2a2510;
-  padding-top: 1.5rem;
-  line-height: 1.7;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid #2a2510;
 }
 
-.og-footnote-header {
-  margin-bottom: 0.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #5a5030;
-  text-transform: uppercase;
-  font-size: 10px;
+.og-mice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
 }
 
-.og-highlight {
-  color: #e8c96a;
-  font-weight: 500;
-}
-
-.og-redline {
-  color: #b54040;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.og-callout {
-  border-left: 2px solid #8b1c1c;
-  padding: 0.75rem 1rem;
-  margin: 1.5rem 0;
-  background: #120a0a;
-}
-
-.og-cta {
-  display: inline-block;
-  margin-top: 1.5rem;
-  border: 1px solid #6a5520;
-  color: #e8c96a;
-  padding: 0.6rem 1.4rem;
-  text-transform: uppercase;
-  text-decoration: none;
+.og-mice-item {
   font-size: 12px;
+  line-height: 1.6;
+  color: #a89850;
+}
+
+/* THE RED TEXT FIX */
+.og-encryption-footer {
+  margin-top: 2.5rem;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  /* Brighter red with a subtle glow for readability */
+  color: #ff3131; 
+  text-shadow: 0 0 8px rgba(255, 49, 49, 0.3);
+  opacity: 0.9;
 }
