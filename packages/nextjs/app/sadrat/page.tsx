@@ -120,12 +120,29 @@ export default function SadratDisclosure() {
       <Link href="/" className="og-cta">
         ← Return to Operations
       </Link>
-
       <div className="og-footnote">
-        * MICE (Money, Ideology, Coercion, Ego) is the companion CIA framework also referenced in the Chronicle copy. It
-        describes why people cooperate with intelligence agencies. In our case — Money: ETH prize pool. Ideology:
-        decentralization. Coercion: none, the contract enforces itself. Ego: Operative #506 has clearance and you are
-        still reading the footnotes. &nbsp;&nbsp;{"// transparency ends here."}
+        <p className="mb-2 font-bold tracking-tighter text-slate-500">[SUPPLEMENTAL INTEL: THE M.I.C.E. MATRIX]</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-80 group-hover:opacity-100 transition-opacity">
+          <div>
+            <span className="og-highlight uppercase">Money:</span> The ETH prize pool. In Langley, it&apos;s a suitcase
+            of non-sequential bills. Here, it&apos;s an on-chain bounty for your participation.
+          </div>
+          <div>
+            <span className="og-highlight uppercase">Ideology:</span> Decentralization isn&apos;t just a tech stack;
+            it&apos;s the belief that the ledger shouldn&apos;t have an editor-in-chief.
+          </div>
+          <div>
+            <span className="og-highlight uppercase">Coercion:</span> Zero leverage required. We don&apos;t need your
+            secrets when the smart contract enforces the rules with cold, mathematical indifference.
+          </div>
+          <div>
+            <span className="og-highlight uppercase">Ego:</span> You&apos;re Operative #506. You have the clearance, you
+            have the leaderboard spot, and you&apos;re still down here in the footnotes looking for the &quot;why.&quot;
+          </div>
+        </div>
+        <div className="mt-4 text-[9px] uppercase tracking-[0.3em] text-red-900/50">
+          {"// encryption active. transparency ends here."}
+        </div>
       </div>
     </div>
   );
