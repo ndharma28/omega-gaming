@@ -1,12 +1,19 @@
-import SadratDisclosure from "./SadratDisclosure";
-import type { Metadata } from "next";
+import type { NextPage } from "next";
 
-export const metadata: Metadata = {
-  title: "Recruitment Methods Disclosed — Omega Gaming",
-  description:
-    "A full disclosure of the SADRAT behavioral framework used in Chronicle recruitment copy. We show our work. The CIA does not.",
+const SadratDisclosure: NextPage = () => {
+  return (
+    <div className="flex items-center flex-col grow pt-10">
+      <div className="px-5">
+        <h1 className="text-center mb-8">
+          <span className="block text-4xl font-bold text-white">Sadrat Disclosure</span>
+        </h1>
+        <div className="max-w-2xl bg-slate-900 p-8 rounded-2xl border border-slate-800 text-slate-300">
+          <p className="mb-4">Place your disclosure details here.</p>
+          {/* Add your specific content here */}
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default function SadratPage() {
-  return <SadratDisclosure />;
-}
+export default SadratDisclosure;

@@ -52,6 +52,8 @@ export const HeaderMenuLinks = () => {
   );
 };
 
+// ... (imports remain the same as previous)
+
 export const Header = () => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
@@ -69,6 +71,7 @@ export const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
         {/* Left: logo + nav */}
         <div className="flex items-center gap-2">
+          {/* Mobile Dropdown (same as before) */}
           <details className="dropdown lg:hidden" ref={burgerMenuRef}>
             <summary className="btn btn-ghost btn-sm hover:bg-slate-800/60 border-none">
               <Bars3Icon className="h-5 w-5 text-slate-300" />
@@ -81,23 +84,18 @@ export const Header = () => {
               <div className="border-t border-slate-800/60 my-1"></div>
               <li>
                 <Link
-                  href="/chronicle"
-                  className="text-yellow-600 hover:text-yellow-500 hover:bg-yellow-950/30 transition-all duration-200 py-1.5 px-3 text-sm rounded-full flex items-center gap-2"
+                  href="/sadrat-disclosure"
+                  className="text-slate-400 hover:text-yellow-500 py-1.5 px-3 text-sm flex items-center gap-2"
                 >
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-500 opacity-40" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-600" />
-                  </span>
-                  The Chronicle
+                  Sadrat Disclosure
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/sadrat-disclosure"
-                  className="text-slate-400 hover:text-yellow-500 hover:bg-yellow-950/30 transition-all duration-200 py-1.5 px-3 text-sm rounded-full flex items-center gap-2"
+                  href="/chronicle"
+                  className="text-yellow-600 hover:text-yellow-500 py-1.5 px-3 text-sm flex items-center gap-2"
                 >
-                  <DocumentTextIcon className="h-4 w-4" />
-                  Sadrat Disclosure
+                  The Chronicle
                 </Link>
               </li>
             </ul>
@@ -118,12 +116,26 @@ export const Header = () => {
           </ul>
         </div>
 
-        {/* Right: Chronicle + Sadrat + wallet */}
+        {/* Right: Sadrat + Chronicle + wallet */}
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex flex-col items-end gap-1">
+          <div className="hidden md:flex items-center gap-2">
+            {/* Sadrat Disclosure Button - Now on the Left */}
+            <Link
+              href="/sadrat-disclosure"
+              className={`px-3 py-1.5 rounded-full border text-[10px] font-bold tracking-widest uppercase transition-all duration-300
+                ${
+                  isSadratActive
+                    ? "border-slate-600 bg-slate-800 text-white"
+                    : "border-slate-800 bg-slate-900/50 text-slate-400 hover:border-slate-600 hover:text-slate-200"
+                }`}
+            >
+              Sadrat Disclosure
+            </Link>
+
+            {/* The Chronicle Button */}
             <Link
               href="/chronicle"
-              className={`group relative px-3 py-1 rounded-full border transition-all duration-300 flex items-center gap-2
+              className={`group relative px-3 py-1.5 rounded-full border transition-all duration-300 flex items-center gap-2
                 ${
                   isChronicleActive
                     ? "border-yellow-600/60 bg-yellow-950/40 text-yellow-400"
@@ -135,14 +147,6 @@ export const Header = () => {
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-yellow-600" />
               </span>
               <span className="text-[10px] font-bold tracking-widest uppercase">The Chronicle</span>
-            </Link>
-
-            <Link
-              href="/sadrat-disclosure"
-              className={`text-[10px] uppercase tracking-tighter transition-colors hover:text-yellow-500 px-2
-                ${isSadratActive ? "text-yellow-500 underline underline-offset-4" : "text-slate-500"}`}
-            >
-              Sadrat Disclosure
             </Link>
           </div>
 
