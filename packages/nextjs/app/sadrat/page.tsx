@@ -86,13 +86,22 @@ export default function SadratDisclosure() {
       </div>
 
       <div className="og-callout">
-        <div className="og-callout-label">{"// for the record"}</div>
+        <div className="og-callout-label">{"// historical precedent: the track record"}</div>
+
+        {/* Incident 1: MKUltra */}
+        <p className="mb-4">
+          <span className="og-redline">ITEM 01: PROJECT MKULTRA (1953-1973).</span> A two-decade program dosing
+          unwitting civilians with LSD and sensory deprivation under the banner of &quot;mind control.&quot; Director
+          Richard Helms ordered the files shredded in 1973 to evade oversight. A single filing error saved a box of
+          documents—the only reason we know it happened.
+        </p>
+
+        {/* Incident 2: Post-9/11 Interrogation */}
         <p>
-          The CIA ran MKUltra — a program dosing unwitting civilians with LSD, electroshock, and sensory deprivation in
-          the name of &quot;mind control research&quot; — for <span style={{ color: "#c8706a" }}>21 years</span> before
-          it was exposed. They destroyed most of the files in 1973. John Kiriakou, the officer who confirmed the agency
-          was waterboarding detainees, was the only person prosecuted. Not for the torture. For telling someone about
-          it.
+          <span className="og-redline">ITEM 02: THE WHISTLEBLOWER (2007).</span> Thirty years later, John Kiriakou
+          confirmed the agency was waterboarding detainees at black sites. He was the only person prosecuted in
+          connection with the torture program. Not for the waterboarding itself, but for confirming to the public that
+          it was agency policy.
         </p>
       </div>
 
