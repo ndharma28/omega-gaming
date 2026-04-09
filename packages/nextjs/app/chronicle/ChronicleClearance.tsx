@@ -14,15 +14,17 @@ const CLEARANCE_PHRASES = [
 const CLEARANCE_LEVELS = ["UNVERIFIED", "SPARK", "INITIATE", "ASCENDANT", "CLASSIFIED"];
 
 const LEVEL_COLORS: Record<string, string> = {
-  UNVERIFIED: "text-red-500",
-  SPARK: "text-slate-600",
-  INITIATE: "text-slate-400",
-  ASCENDANT: "text-orange-500",
-  CLASSIFIED: "text-yellow-400",
+  UNVERIFIED: "text-red-600",
+  SPARK: "text-blue-600",
+  INITIATE: "text-emerald-600",
+  ASCENDANT: "text-orange-600",
+  CLASSIFIED: "text-amber-600",
 };
 
 interface ChronicleClearanceProps {
   onComplete: () => void;
+  /** Pass the user's level if they are already logged in */
+  userLevel?: string;
 }
 
 function ClearanceProgressBar({ onDone }: { onDone: () => void }) {
@@ -45,15 +47,11 @@ function ClearanceProgressBar({ onDone }: { onDone: () => void }) {
     intervalRef.current = setInterval(() => {
       current += 1;
       const t = current / steps;
-
       let eased: number;
-      if (t < 0.6) {
-        eased = Math.round((1 - Math.pow(1 - t / 0.6, 3)) * 70);
-      } else if (t < 0.85) {
-        eased = Math.round(70 + ((t - 0.6) / 0.25) * 18);
-      } else {
-        eased = Math.round(88 + ((t - 0.85) / 0.15) * 12);
-      }
+      if (t < 0.6) eased = Math.round((1 - Math.pow(1 - t / 0.6, 3)) * 70);
+      else if (t < 0.85) eased = Math.round(70 + ((t - 0.6) / 0.25) * 18);
+      else eased = Math.round(88 + ((t - 0.85) / 0.15) * 12);
+
       eased = Math.min(100, eased);
       setProgress(eased);
 
@@ -61,7 +59,6 @@ function ClearanceProgressBar({ onDone }: { onDone: () => void }) {
         clearInterval(intervalRef.current!);
         clearInterval(phraseRef.current!);
         clearInterval(levelRef.current!);
-        // Lock level to CLASSIFIED and show the button
         setLevelIndex(CLEARANCE_LEVELS.length - 1);
         setTimeout(() => setFinished(true), 400);
       }
@@ -83,88 +80,40 @@ function ClearanceProgressBar({ onDone }: { onDone: () => void }) {
   }, []);
 
   const currentLevel = CLEARANCE_LEVELS[levelIndex];
-  const levelColor = LEVEL_COLORS[currentLevel] ?? "text-yellow-500";
   const isRunning = !finished;
 
   return (
-    <div className="space-y-5 w-full">
-      {/* Status row */}
-      <div className="flex justify-between items-center border border-slate-200 bg-slate-50 px-3 py-2">
-        <span className="text-[9px] text-amber-950/60 uppercase tracking-widest font-black">Current Status</span>
+    <div className="space-y-6 w-full animate-in fade-in duration-700">
+      <div className="flex justify-between items-center border-2 border-amber-100 bg-amber-50/50 px-4 py-3 rounded-lg">
+        <span className="text-[10px] text-amber-900/60 uppercase tracking-widest font-black">Adjudicating Level</span>
         <span
-          className={`text-[10px] uppercase tracking-widest font-black transition-colors duration-500 ${levelColor} ${isRunning && currentLevel !== "CLASSIFIED" ? "animate-pulse" : ""}`}
+          className={`text-xs uppercase tracking-widest font-black transition-colors duration-500 ${LEVEL_COLORS[currentLevel]} ${isRunning ? "animate-pulse" : ""}`}
         >
           {currentLevel}
         </span>
       </div>
 
-      {/* Phrase row */}
-      <div className="flex justify-between items-center min-h-4">
-        {isRunning ? (
-          <span className="text-[9px] text-amber-700/80 uppercase tracking-widest font-black animate-pulse">
-            {CLEARANCE_PHRASES[phraseIndex]}
+      <div className="space-y-2">
+        <div className="flex justify-between items-end">
+          <span className="text-[10px] text-amber-700 font-bold uppercase tracking-tight">
+            {isRunning ? CLEARANCE_PHRASES[phraseIndex] : "Process Finalized"}
           </span>
-        ) : (
-          <span className="text-[9px] text-amber-600/90 uppercase tracking-widest font-black">
-            Adjudication complete.
-          </span>
-        )}
-        <span className="text-[9px] text-amber-950/60 font-mono ml-4 shrink-0">{progress}%</span>
-      </div>
-
-      {/* Progress track */}
-      <div className="relative h-1 bg-amber-100 overflow-hidden rounded-full">
-        <div
-          className="absolute inset-y-0 left-0 transition-all duration-75"
-          style={{
-            width: `${progress}%`,
-            background: finished ? "rgba(245,158,11,0.9)" : "rgba(245,158,11,0.6)",
-            boxShadow: finished ? "0 0 16px rgba(245,158,11,0.7)" : "none",
-          }}
-        />
-        {isRunning && (
+          <span className="text-[11px] text-amber-900 font-mono font-bold">{progress}%</span>
+        </div>
+        <div className="relative h-2 bg-amber-100 overflow-hidden rounded-full border border-amber-200">
           <div
-            className="absolute inset-y-0 w-20"
-            style={{
-              left: `calc(${progress}% - 5rem)`,
-              transition: "left 75ms linear",
-              background: "linear-gradient(to right, transparent, rgba(251,191,36,0.35), transparent)",
-            }}
+            className="absolute inset-y-0 left-0 transition-all duration-100 bg-linear-to-r from-amber-400 to-amber-600"
+            style={{ width: `${progress}%` }}
           />
-        )}
+        </div>
       </div>
 
-      {/* Tick marks */}
-      <div className="flex justify-between px-0.5">
-        {[...Array(16)].map((_, i) => (
-          <div
-            key={i}
-            className={`w-px rounded-full transition-colors duration-300 ${i % 4 === 0 ? "h-2" : "h-1"} ${
-              (i / 15) * 100 <= progress ? (finished ? "bg-amber-600" : "bg-amber-700/80") : "bg-amber-300/40"
-            }`}
-          />
-        ))}
-      </div>
-
-      {/* Clearance granted button — only appears after progress completes */}
       <div
-        className={`transition-all duration-500 ${
-          finished ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
-        }`}
+        className={`transition-all duration-700 delay-300 ${finished ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}
       >
-        <div className="h-px bg-slate-200 mb-5" />
         <button
           onClick={onDone}
-          className="w-full py-4 px-6
-                     border border-amber-600/70 bg-amber-600
-                     hover:bg-amber-700 hover:border-amber-700
-                     text-white
-                     text-[11px] uppercase tracking-[0.4em] font-black
-                     transition-all duration-200
-                     focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2
-                     shadow-[0_0_24px_rgba(251,191,36,0.2)]
-                     hover:shadow-[0_0_36px_rgba(251,191,36,0.3)]
-                     rounded-md"
+          className="w-full py-4 px-6 rounded-xl border-2 border-amber-600 bg-amber-600 text-white text-[11px] uppercase tracking-[0.4em] font-black transition-all hover:bg-amber-700 hover:shadow-xl hover:shadow-amber-200 active:scale-[0.98]"
         >
           Access Archive →
         </button>
@@ -173,106 +122,125 @@ function ClearanceProgressBar({ onDone }: { onDone: () => void }) {
   );
 }
 
-export default function ChronicleClearance({ onComplete }: ChronicleClearanceProps) {
+export default function ChronicleClearance({ onComplete, userLevel }: ChronicleClearanceProps) {
+  const isLoggedIn = !!userLevel;
+
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-800 relative overflow-hidden flex items-center justify-center px-4">
-      {/* Scanline overlay */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.02]"
-        style={{
-          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, #fff 2px, #fff 3px)",
-          backgroundSize: "100% 3px",
-        }}
-      />
+    <main className="min-h-screen bg-white text-slate-900 relative overflow-hidden flex items-center justify-center px-4">
+      {/* Background Polish */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(245,158,11,0.08)_0%,transparent_70%)]" />
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/carbon-fibre.png')" }}
+        />
+      </div>
 
-      {/* Ambient grid */}
-      <div
-        className="pointer-events-none fixed inset-0 opacity-[0.05]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(202,138,4,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(202,138,4,0.15) 1px, transparent 1px)",
-          backgroundSize: "100px 100px",
-        }}
-      />
-
-      {/* Radial glow */}
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_50%_30%,rgba(251,191,36,0.1)_0%,transparent_70%)]" />
-
-      <div className="relative z-10 max-w-md w-full space-y-6">
-        {/* Agency stamp */}
-        <div className="text-center space-y-2">
-          <p className="text-[9px] text-amber-950/60 uppercase tracking-[0.5em] font-black">
-            Omega Gaming · Office of the Ledger
-          </p>
-          <div className="flex items-center gap-3 justify-center">
-            <div className="h-px flex-1 bg-amber-950/20" />
-            <span className="text-amber-950/20 text-[11px] font-mono tracking-widest select-none">██████████████</span>
-            <div className="h-px flex-1 bg-amber-950/20" />
+      <div className="relative z-10 max-w-md w-full space-y-8">
+        {/* Header Branding */}
+        <div className="text-center space-y-3">
+          <div className="inline-block px-3 py-1 border border-amber-200 bg-amber-50 rounded-full">
+            <p className="text-[9px] text-amber-800 uppercase tracking-[0.4em] font-black">Office of the Ledger</p>
           </div>
+          <div className="h-px w-24 mx-auto bg-linear-to-r from-transparent via-amber-200 to-transparent" />
         </div>
 
-        {/* Main document card */}
-        <div className="border border-slate-300 bg-white/90 relative backdrop-blur-sm overflow-hidden rounded-xl shadow-2xl">
-          {/* Top accent bar */}
-          <div className="h-0.5 bg-linear-to-r from-transparent via-amber-500/50 to-transparent" />
+        {/* Main Document Card */}
+        <div className="bg-white border-2 border-slate-200 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden relative">
+          {/* Security Strip */}
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-amber-400 via-yellow-300 to-amber-600" />
 
-          {/* Corner stamps */}
-          <span className="absolute top-4 right-4 text-[9px] text-red-500 font-black uppercase tracking-widest">
-            In Progress
-          </span>
-          <span className="absolute bottom-4 left-4 text-[9px] text-amber-900/60 font-mono">OL-CHRONICLE-7</span>
+          <div className="p-10 space-y-8">
+            {isLoggedIn ? (
+              /* LOGGED IN STATE */
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                    <span className="text-[10px] text-emerald-600 font-black uppercase tracking-widest">
+                      Active Session Detected
+                    </span>
+                  </div>
+                  <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 leading-[0.9]">
+                    Identity
+                    <br />
+                    <span className="text-amber-500 text-4xl">Verified</span>
+                  </h1>
+                </div>
 
-          <div className="p-9 space-y-8">
-            {/* Classification header */}
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2.5">
-                {/* Pulsing indicator dot */}
-                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <p className="text-[10px] text-amber-600 uppercase tracking-[0.3em] font-black">
-                  Adjudication In Progress
-                </p>
+                <div className="p-6 bg-slate-50 border-l-4 border-amber-500 rounded-r-xl space-y-4">
+                  <div className="space-y-1">
+                    <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">
+                      Current Authorization
+                    </p>
+                    <p className={`text-2xl font-black tracking-widest ${LEVEL_COLORS[userLevel] || "text-slate-900"}`}>
+                      {userLevel}
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-mono leading-relaxed">
+                    Credentials retrieved from the Ledger. Archive access is permitted at your current classification
+                    level.
+                  </p>
+                </div>
+
+                <button
+                  onClick={onComplete}
+                  className="group relative w-full py-5 px-6 rounded-xl bg-slate-900 text-white overflow-hidden transition-all hover:bg-black hover:shadow-2xl active:scale-[0.98]"
+                >
+                  <span className="relative z-10 text-[11px] uppercase tracking-[0.5em] font-black">
+                    Continue to Archive
+                  </span>
+                  <div className="absolute inset-0 bg-linear-to-r from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
               </div>
-              <h1 className="text-5xl font-black uppercase tracking-widest leading-none">
-                <span className="text-amber-500/95">Clearance</span>
-                <br />
-                <span className="text-amber-900/60">Processing</span>
-              </h1>
-            </div>
+            ) : (
+              /* PROCESSING STATE (NOT LOGGED IN) */
+              <div className="space-y-8">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    <span className="text-[10px] text-amber-600 font-black uppercase tracking-widest">
+                      System Adjudication
+                    </span>
+                  </div>
+                  <h1 className="text-5xl font-black uppercase tracking-tighter text-slate-900 leading-[0.9]">
+                    Clearance
+                    <br />
+                    <span className="text-slate-300">Required</span>
+                  </h1>
+                </div>
 
-            {/* Horizontal rule with classification marker */}
-            <div className="flex items-center gap-4">
-              <div className="h-px flex-1 bg-slate-300" />
-              <span className="text-[9px] text-amber-950/40 font-mono uppercase tracking-wider">sf-86 · automated</span>
-              <div className="h-px flex-1 bg-slate-300" />
-            </div>
+                <div className="space-y-3">
+                  <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                    Analyzing wallet signature against the immutable ledger history.
+                  </p>
+                  <p className="text-[10px] text-slate-400 font-mono italic">
+                    Note: Unverified accounts will be assigned &apos;SPARK&apos; status by default.
+                  </p>
+                </div>
 
-            {/* Body copy */}
-            <div className="space-y-3">
-              <p className="text-[12px] text-slate-700 leading-relaxed font-mono">
-                Identity confirmed. Running adjudication.
-              </p>
-              <p className="text-[11px] text-slate-500 leading-relaxed font-mono">
-                The ledger is being consulted. This process cannot be expedited. It was not designed to be.
-              </p>
-            </div>
+                <div className="h-px bg-slate-100" />
 
-            <div className="h-px bg-slate-200" />
-
-            {/* Progress component */}
-            <ClearanceProgressBar onDone={onComplete} />
+                <ClearanceProgressBar onDone={onComplete} />
+              </div>
+            )}
           </div>
 
-          {/* Bottom accent bar */}
-          <div className="h-0.5 bg-linear-to-r from-transparent via-amber-500/30 to-transparent" />
+          {/* Bottom Footer Info */}
+          <div className="bg-slate-50 px-10 py-4 border-t border-slate-100 flex justify-between items-center">
+            <span className="text-[8px] text-slate-400 font-mono uppercase">Reference: OL-CHRONICLE-07</span>
+            <div className="flex gap-1">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="w-1 h-1 bg-amber-200 rounded-full" />
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Footer note */}
-        <div className="text-center space-y-1">
-          <p className="text-[9px] text-amber-950/50 uppercase tracking-widest font-black">Do not close this window.</p>
-          <p className="text-[9px] text-amber-950/40 uppercase tracking-widest font-black">
-            The ledger does not save progress.
-          </p>
-        </div>
+        {/* Support Text */}
+        <p className="text-center text-[9px] text-slate-400 uppercase tracking-[0.2em] font-bold">
+          {isLoggedIn ? "Session managed by Omega Security" : "Do not refresh while adjudication is active"}
+        </p>
       </div>
     </main>
   );
