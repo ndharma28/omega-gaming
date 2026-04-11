@@ -79,8 +79,9 @@ export default function SadratDisclosure() {
         </p>
         <div className="og-mice-grid">
           <div className="og-mice-item">
-            <span className="text-yellow-600 font-bold uppercase">Money:</span> The ETH prize pool. An on-chain bounty
-            for participation.
+            <span className="text-yellow-600 font-bold uppercase">Money:</span> Money: The ETH prize pool. We apply a 2%
+            Extraction Buffer to every recruitment cycle. It&apos;s the cost of mathematical indifference. It ensures
+            that when you claim your clearance, the ledger is there to verify it—permanently.
           </div>
           <div className="og-mice-item">
             <span className="text-yellow-600 font-bold uppercase">Ideology:</span> The belief that the ledger
