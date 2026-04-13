@@ -111,7 +111,7 @@ export default function LotteryDapp() {
   if (!mounted) return null;
 
   // ── Derived ─────────────────────────────────────────────
-  const isEntryAllowed = status === LotteryStatus.OPEN && timeRemaining !== "0s" && endTime > 0;
+  const isEntryAllowed = status === LotteryStatus.OPEN && endTime > 0 && Math.floor(Date.now() / 1000) < endTime;
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
 
