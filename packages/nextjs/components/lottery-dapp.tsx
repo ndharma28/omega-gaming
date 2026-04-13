@@ -115,6 +115,18 @@ export default function LotteryDapp() {
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
 
+  console.log({
+    status,
+    endTime,
+    timeRemaining,
+    isEntryAllowed,
+    minEntry,
+    entryAmount,
+    isInvalidAmount,
+    isJoining,
+    lotteryData,
+  });
+
   // ── Render ──────────────────────────────────────────────
   return (
     <div className="og-root">
