@@ -15,7 +15,7 @@ export type ScaffoldConfig = {
 
 // Alchemy API Key - Use a shared demo key if not configured (rate limited)
 // Get your own: https://dashboard.alchemyapi.io
-export const DEFAULT_ALCHEMY_API_KEY = "cR4WnXePioePZ5fFrnSiR";
+export const DEFAULT_ALCHEMY_API_KEY = "oKxs-03sij-U_N0iOlrSsZFr7iRuGQ";
 
 // WalletConnect Project ID - Shared demo ID (not recommended for production)
 // Get your own: https://cloud.walletconnect.com
