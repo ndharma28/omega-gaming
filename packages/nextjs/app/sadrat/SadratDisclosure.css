@@ -93,3 +93,21 @@
   text-shadow: 0 0 8px rgba(255, 49, 49, 0.3);
   opacity: 0.9;
 }
+
+.og-acro-word {
+  display: block;
+  font-weight: 700;
+  color: #e8c96a; /* matches og-title exactly */
+  margin-bottom: 0.25rem;
+}
+
+.og-acro-note {
+  color: #7a6e52; /* muted amber, in-system */
+  line-height: 1.6;
+}
+
+.og-mice-label {
+  color: #e8c96a;
+  font-weight: 700;
+  text-transform: uppercase;
+}

@@ -64,7 +64,7 @@ export default function SadratDisclosure() {
           <React.Fragment key={entry.letter}>
             <div className="og-acro-letter">{entry.letter}</div>
             <div className="og-acro-def">
-              <span className="og-acro-word font-bold text-yellow-500 block mb-1">{entry.word}</span>
+              <span className="og-acro-word">{entry.word}</span>
               <span className="og-acro-note text-slate-400 leading-relaxed">{entry.note}</span>
             </div>
           </React.Fragment>
@@ -79,21 +79,21 @@ export default function SadratDisclosure() {
         </p>
         <div className="og-mice-grid">
           <div className="og-mice-item">
-            <span className="text-yellow-600 font-bold uppercase">Money:</span> Money: The ETH prize pool. We apply a 2%
-            Extraction Buffer to every recruitment cycle. It&apos;s the cost of mathematical indifference. It ensures
-            that when you claim your clearance, the ledger is there to verify it—permanently.
+            <span className="og-mice-label">Money:</span> The ETH prize pool. We apply a 2% Extraction Buffer to every
+            recruitment cycle. It&apos;s the cost of mathematical indifference. It ensures that when you claim your
+            clearance, the ledger is there to verify it—permanently.
           </div>
           <div className="og-mice-item">
-            <span className="text-yellow-600 font-bold uppercase">Ideology:</span> The belief that the ledger
-            shouldn&apos;t have an editor-in-chief.
+            <span className="og-mice-label">Ideology:</span> The belief that the ledger shouldn&apos;t have an
+            editor-in-chief.
           </div>
           <div className="og-mice-item">
-            <span className="text-yellow-600 font-bold uppercase">Coercion:</span> None. The smart contract enforces
-            rules with mathematical indifference.
+            <span className="og-mice-label">Coercion:</span> None. The smart contract enforces rules with mathematical
+            indifference.
           </div>
           <div className="og-mice-item">
-            <span className="text-yellow-600 font-bold uppercase">Ego:</span> You&apos;re Operative #506. You have the
-            clearance, yet you&apos;re still reading.
+            <span className="og-mice-label">Ego:</span> You&apos;re Operative #506. You have the clearance, yet
+            you&apos;re still reading.
           </div>
         </div>
 
