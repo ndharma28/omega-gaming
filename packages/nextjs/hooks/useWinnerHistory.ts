@@ -4,18 +4,16 @@ import { useReadContract, useReadContracts } from "wagmi";
 import { CONTRACT_ADDRESS, LEGACY_CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 
 export interface WinnerEntry {
-  roundId: string; // changed: "v1-3" or "v2-1" to avoid ID collisions
+  roundId: number;
   winner: string;
   totalPot: bigint;
   prizeAmount: bigint;
   treasuryFee: bigint;
   startTime: bigint;
   endTime: bigint;
-  contractVersion: "v1" | "v2"; // lets Chronicle page style/label them differently
 }
 
-// one contract's worth of history
-function useContractHistory(address: Address, version: "v1" | "v2") {
+function useContractHistory(address: Address) {
   const { data: counterData } = useReadContract({
     address,
     abi: OMEGA_LOTTERY_ABI,
@@ -38,12 +36,12 @@ function useContractHistory(address: Address, version: "v1" | "v2") {
   const { data: winnerCutData } = useReadContract({
     address,
     abi: OMEGA_LOTTERY_ABI,
-    functionName: "getWinnerCut", // reads _winnerCut — no more hardcoded 98
+    functionName: "getWinnerCut",
   });
 
-  const winnerCut = winnerCutData ?? 90n; // fallback
+  const winnerCut = winnerCutData ?? 90n;
 
-  const entries: WinnerEntry[] = (lotteriesData ?? [])
+  const entries = (lotteriesData ?? [])
     .map((result, i) => {
       if (result.status !== "success" || !result.result) return null;
       const lottery = result.result as {
@@ -66,26 +64,31 @@ function useContractHistory(address: Address, version: "v1" | "v2") {
       const treasuryFee = lottery.totalPot - prizeAmount;
 
       return {
-        roundId: `${version}-${completedIds[i]}`, // "v1-3", "v2-1", etc.
+        roundId: completedIds[i], // temporary, gets overwritten below
         winner: lottery.winner,
         totalPot: lottery.totalPot,
         prizeAmount,
         treasuryFee,
         startTime: lottery.startTime,
         endTime: lottery.endTime,
-        contractVersion: version,
-      } satisfies WinnerEntry;
+      };
     })
-    .filter((e): e is WinnerEntry => e !== null);
+    .filter((e): e is Omit<WinnerEntry, "roundId"> & { roundId: number } => e !== null);
 
   return { entries, isLoading };
 }
 
 export function useWinnerHistory() {
-  const legacy = useContractHistory(LEGACY_CONTRACT_ADDRESS, "v1");
-  const current = useContractHistory(CONTRACT_ADDRESS, "v2");
+  const legacy = useContractHistory(LEGACY_CONTRACT_ADDRESS);
+  const current = useContractHistory(CONTRACT_ADDRESS);
 
-  const winnerHistory = [...legacy.entries, ...current.entries].sort((a, b) => Number(b.endTime - a.endTime)); // newest first
+  const sorted = [...legacy.entries, ...current.entries].sort((a, b) => Number(b.endTime - a.endTime));
+
+  // Assign continuous round numbers after sorting (1 = oldest)
+  const winnerHistory: WinnerEntry[] = sorted
+    .reverse()
+    .map((e, i) => ({ ...e, roundId: i + 1 }))
+    .reverse();
 
   const totalFeesCollected = winnerHistory.reduce((acc, e) => acc + e.treasuryFee, 0n);
 
