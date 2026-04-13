@@ -1,22 +1,19 @@
 /* packages/nextjs/app/sadrat/SadratDisclosure.css */
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-
 .og-wrap {
-  font-family: 'IBM Plex Mono', monospace;
-  background: #0d0d0b;
-  color: #c8b87a;
-  padding: 6rem 2rem; /* Better breathing room */
+  font-family: var(--og-mono);
+  background: var(--og-black);
+  color: var(--og-text);
+  padding: 6rem 2rem;
   min-height: 100vh;
-  max-width: 850px; /* Slightly wider for better grid layout */
+  max-width: 850px;
   margin: 0 auto;
 }
 
-/* --- Header Spacing --- */
 .og-stamp {
   display: inline-block;
-  border: 2px solid #8b1c1c;
-  color: #8b1c1c;
+  border: 2px solid var(--og-red);
+  color: var(--og-red);
   font-size: 12px;
   letter-spacing: 0.2em;
   padding: 4px 12px;
@@ -25,48 +22,97 @@
   font-weight: 700;
 }
 
+.og-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--og-text-muted);
+  margin-bottom: 0.75rem;
+}
+
 .og-title {
   font-size: 28px;
   font-weight: 600;
-  color: #e8c96a;
+  color: var(--og-amber);
   margin: 0.5rem 0;
   line-height: 1.2;
 }
 
-/* --- The Framework Grid (Fixed Spacing) --- */
+.og-subtitle {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--og-amber-dim);
+  margin-bottom: 2rem;
+}
+
+.og-body {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--og-text);
+}
+
+.og-highlight {
+  color: var(--og-amber);
+  font-weight: 600;
+}
+
+.og-framework-label {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--og-text-muted);
+  margin-bottom: 1rem;
+}
+
 .og-acronym-grid {
   display: grid;
-  grid-template-columns: 80px 1fr; /* Fixed width for letters */
-  border: 1px solid #2a2510;
+  grid-template-columns: 80px 1fr;
+  border: 1px solid var(--og-amber-border);
   margin: 2rem 0;
 }
 
 .og-acro-letter {
   font-size: 24px;
   font-weight: 700;
-  color: #e8c96a;
+  color: var(--og-amber);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-right: 1px solid #2a2510;
-  background: rgba(232, 201, 106, 0.03);
+  border-right: 1px solid var(--og-amber-border);
+  border-bottom: 1px solid var(--og-amber-border);
+  background: var(--og-amber-faint);
+  padding: 1.2rem 0;
 }
 
-.og-acro-def {
-  padding: 1.2rem 1.5rem; /* Added padding so text doesn't touch edges */
-  border-bottom: 1px solid #2a2510;
-}
-
-.og-acro-row:last-child .og-acro-def,
-.og-acro-row:last-child .og-acro-letter {
+.og-acro-letter:nth-last-child(2) {
   border-bottom: none;
 }
 
-/* --- Footnote: Visibility Fix --- */
+.og-acro-def {
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid var(--og-amber-border);
+}
+
+.og-acro-def:last-child {
+  border-bottom: none;
+}
+
+.og-acro-word {
+  display: block;
+  font-weight: 700;
+  color: var(--og-amber);
+  margin-bottom: 0.25rem;
+}
+
+.og-acro-note {
+  color: var(--og-text-muted);
+  line-height: 1.6;
+  font-size: 13px;
+}
+
 .og-footnote {
   margin-top: 4rem;
   padding-top: 2rem;
-  border-top: 1px solid #2a2510;
+  border-top: 1px solid var(--og-amber-border);
 }
 
 .og-mice-grid {
@@ -79,35 +125,21 @@
 .og-mice-item {
   font-size: 12px;
   line-height: 1.6;
-  color: #a89850;
+  color: var(--og-text-muted);
 }
 
-/* THE RED TEXT FIX */
+.og-mice-label {
+  color: var(--og-amber);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 .og-encryption-footer {
   margin-top: 2.5rem;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.4em;
-  /* Brighter red with a subtle glow for readability */
-  color: #ff3131; 
-  text-shadow: 0 0 8px rgba(255, 49, 49, 0.3);
+  color: var(--og-red-text);
+  text-shadow: 0 0 8px rgba(226, 75, 74, 0.3);
   opacity: 0.9;
-}
-
-.og-acro-word {
-  display: block;
-  font-weight: 700;
-  color: #e8c96a; /* matches og-title exactly */
-  margin-bottom: 0.25rem;
-}
-
-.og-acro-note {
-  color: #7a6e52; /* muted amber, in-system */
-  line-height: 1.6;
-}
-
-.og-mice-label {
-  color: #e8c96a;
-  font-weight: 700;
-  text-transform: uppercase;
 }
