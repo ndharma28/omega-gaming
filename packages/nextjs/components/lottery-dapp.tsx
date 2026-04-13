@@ -15,7 +15,6 @@ import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
 import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
 
-// ── Component ─────────────────────────────────────────────
 export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState("");
@@ -25,15 +24,14 @@ export default function LotteryDapp() {
   const { address: connectedAddress } = useAccount();
   useBalance({ address: connectedAddress });
 
-  // ── Contract reads ──────────────────────────────────────
+  // ── Contract reads ────────────────────────────────────────────────────────────
   const { data: idCounter, refetch: refetchCounter } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
     functionName: "lotteryIdCounter",
   });
 
-  const activeLotteryId =
-    !idCounter || idCounter === 0n ? 1n : (idCounter as bigint) > 0n ? (idCounter as bigint) - 1n : 1n;
+  const activeLotteryId = idCounter && (idCounter as bigint) > 0n ? (idCounter as bigint) - 1n : 1n;
 
   const { data: rawOwnerAddress, isLoading: rawOwnerLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
@@ -48,11 +46,9 @@ export default function LotteryDapp() {
     connectedAddress.toLowerCase() === (rawOwnerAddress as string).toLowerCase();
 
   const { lotteryData, players, treasuryBalance, joinLottery, isJoining, refetchAll } = useLottery(activeLotteryId);
-
-  // ── Winner history ──────────────────────────────────────
   const { winnerHistory, isLoading } = useWinnerHistory();
 
-  // Stat calculations
+  // ── Derived stats ─────────────────────────────────────────────────────────────
   const uniqueWinners = new Set(winnerHistory.map(e => e.winner)).size;
   const topPrize =
     winnerHistory.length > 0 ? Math.max(...winnerHistory.map(e => parseFloat(formatEther(e.prizeAmount)))) : 0;
@@ -61,14 +57,13 @@ export default function LotteryDapp() {
   const totalsByAddress = winnerHistory.reduce(
     (acc, entry) => {
       const addr = entry.winner.toLowerCase();
-      const amount = parseFloat(formatEther(entry.prizeAmount));
-      acc[addr] = (acc[addr] || 0) + amount;
+      acc[addr] = (acc[addr] || 0) + parseFloat(formatEther(entry.prizeAmount));
       return acc;
     },
     {} as Record<string, number>,
   );
 
-  // ── Polling ─────────────────────────────────────────────
+  // ── Polling ───────────────────────────────────────────────────────────────────
   const refetchAllRef = useRef(refetchAll);
   useEffect(() => {
     refetchAllRef.current = refetchAll;
@@ -82,23 +77,19 @@ export default function LotteryDapp() {
     return () => clearInterval(interval);
   }, [refetchCounter]);
 
-  // ── Countdown ───────────────────────────────────────────
+  // ── Countdown ─────────────────────────────────────────────────────────────────
   const status = (lotteryData?.status as LotteryStatus) ?? LotteryStatus.OPEN;
   const endTime = Number(lotteryData?.endTime ?? 0n);
 
   useEffect(() => {
     const calculate = () => {
       const secondsLeft = Math.max(0, endTime - Math.floor(Date.now() / 1000));
-      if (secondsLeft <= 0) {
-        setTimeRemaining("0s");
-        return;
-      }
-      if (secondsLeft < 60) setTimeRemaining(`${secondsLeft}s`);
-      else if (secondsLeft < 3600) setTimeRemaining(`${Math.floor(secondsLeft / 60)}m ${secondsLeft % 60}s`);
-      else
-        setTimeRemaining(
-          `${Math.floor(secondsLeft / 3600)}h ${Math.floor((secondsLeft % 3600) / 60)}m ${secondsLeft % 60}s`,
-        );
+      if (secondsLeft <= 0) return setTimeRemaining("0s");
+      if (secondsLeft < 60) return setTimeRemaining(`${secondsLeft}s`);
+      if (secondsLeft < 3600) return setTimeRemaining(`${Math.floor(secondsLeft / 60)}m ${secondsLeft % 60}s`);
+      setTimeRemaining(
+        `${Math.floor(secondsLeft / 3600)}h ${Math.floor((secondsLeft % 3600) / 60)}m ${secondsLeft % 60}s`,
+      );
     };
     calculate();
     const interval = setInterval(calculate, 1000);
@@ -110,38 +101,20 @@ export default function LotteryDapp() {
   }, []);
   if (!mounted) return null;
 
-  // ── Derived ─────────────────────────────────────────────
+  // ── Entry validation ──────────────────────────────────────────────────────────
   const isEntryAllowed = status === LotteryStatus.OPEN && endTime > 0 && Math.floor(Date.now() / 1000) < endTime;
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
 
-  console.log("idCounter:", idCounter, "activeLotteryId:", activeLotteryId, "lotteryData:", lotteryData);
-
-  console.log({
-    status,
-    endTime,
-    timeRemaining,
-    isEntryAllowed,
-    minEntry,
-    entryAmount,
-    isInvalidAmount,
-    isJoining,
-    lotteryData,
-  });
-
-  console.log("CONTRACT_ADDRESS:", CONTRACT_ADDRESS);
-
-  // ── Render ──────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className="og-root">
-      {/* ── Margin between header and content ── */}
       <div className="pt-6">
         <div className="og-status-banner">
           <StatusBar status={status} timeRemaining={timeRemaining} endTime={lotteryData?.endTime} />
         </div>
       </div>
 
-      {/* ── Hero ── */}
       <div className="og-hero">
         <PotCard
           lotteryId={activeLotteryId}
@@ -153,7 +126,6 @@ export default function LotteryDapp() {
         />
       </div>
 
-      {/* ── Stat row ── */}
       <div className="og-stat-row">
         <div className="og-stat-cell">
           <div className="og-stat-label">Closed Files</div>
@@ -163,7 +135,7 @@ export default function LotteryDapp() {
         <div className="og-stat-cell">
           <div className="og-stat-label">Value Extracted</div>
           <div className="og-stat-value og-stat-value--green">
-            {winnerHistory.length > 0 ? `${parseFloat(formatEther(totalDistributed)).toFixed(4)}` : "—"}
+            {winnerHistory.length > 0 ? parseFloat(formatEther(totalDistributed)).toFixed(4) : "—"}
           </div>
           <div className="og-stat-meta">ETH moved. confirmed. gone.</div>
         </div>
@@ -183,14 +155,10 @@ export default function LotteryDapp() {
         </div>
       </div>
 
-      {/* ── Two-column main ── */}
       <div className="og-main-layout">
-        {/* LEFT: entry form + players list */}
         <div className="og-main-left">
-          {/* Entry form */}
           <div>
             <div className="og-section-label">Let the Contract Know You Were Here</div>
-
             <div className="og-field-label">Amount (ETH)</div>
             <div className={`og-input-wrap${isInvalidAmount && entryAmount !== "" ? " og-input-wrap--error" : ""}`}>
               <input
@@ -207,38 +175,29 @@ export default function LotteryDapp() {
             <div className={`og-min-note${isInvalidAmount && entryAmount !== "" ? " og-min-note--error" : ""}`}>
               {`Minimum entry: ${minEntry} ETH`}
             </div>
-
-            {/* ── Inline value cipher ── */}
             <EtherConverter initialEth={entryAmount} />
-
             <button
               className={`og-btn-enter${isJoining ? " og-btn-enter--loading" : ""}`}
               disabled={isJoining || isInvalidAmount || !isEntryAllowed}
               style={{ marginTop: "16px" }}
-              onClick={async () => {
-                await joinLottery(entryAmount);
-              }}
+              onClick={() => joinLottery(entryAmount)}
             >
               {isJoining ? "Confirming..." : "Enter Lottery"}
             </button>
           </div>
 
-          {/* Players list — extra top margin to breathe after the cipher widget */}
           <div style={{ marginTop: "32px" }}>
             <PlayersList players={players} connectedAddress={connectedAddress} />
           </div>
         </div>
 
-        {/* RIGHT: inline chronicle */}
         <div className="og-main-right">
           <div className="og-chronicle-badge">Redacted Archive</div>
-
           <ChronicleMysteryTeaser
             winnerHistory={winnerHistory}
             isLoading={isLoading}
             totalsByAddress={totalsByAddress}
           />
-
           <Link href="/chronicle" className="og-chronicle-cta">
             <div>
               <div className="og-cta-sub">Claim Your Clearance</div>
@@ -249,7 +208,6 @@ export default function LotteryDapp() {
         </div>
       </div>
 
-      {/* ── Owner panel ── */}
       {isOwnerDirect && (
         <div className="og-owner-zone">
           <OwnerPanel
