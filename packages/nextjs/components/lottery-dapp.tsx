@@ -41,8 +41,6 @@ export default function LotteryDapp() {
     functionName: "owner",
   });
 
-
-
   const isOwnerDirect =
     !rawOwnerLoading &&
     !!connectedAddress &&
@@ -130,6 +128,8 @@ export default function LotteryDapp() {
     isJoining,
     lotteryData,
   });
+
+  console.log("CONTRACT_ADDRESS:", CONTRACT_ADDRESS);
 
   // ── Render ──────────────────────────────────────────────
   return (
