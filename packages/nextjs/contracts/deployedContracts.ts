@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   11155111: {
     OmegaLottery: {
-      address: "0x66A0203895593e39873B15771e77208FccbbB81b",
+      address: "0x8A9f49D5812160a523A326eBd51a4359668B2c9b",
       abi: [
         {
           inputs: [
@@ -28,17 +28,22 @@ const deployedContracts = {
             },
             {
               internalType: "bytes32",
-              name: "_keyHash",
+              name: "keyHash",
               type: "bytes32",
             },
             {
               internalType: "uint256",
-              name: "_defaultEntryFee",
+              name: "defaultEntryFee",
               type: "uint256",
             },
             {
               internalType: "uint256",
-              name: "_lotteryDuration",
+              name: "lotteryDuration",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "winnerCut",
               type: "uint256",
             },
           ],
@@ -129,6 +134,16 @@ const deployedContracts = {
         },
         {
           inputs: [],
+          name: "ReentrancyGuardReentrantCall",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "RequestNotTimedOut",
+          type: "error",
+        },
+        {
+          inputs: [],
           name: "ZeroAddress",
           type: "error",
         },
@@ -188,17 +203,61 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "playerAddress",
+              name: "user",
               type: "address",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "playerStake",
+              name: "amount",
               type: "uint256",
             },
           ],
           name: "LotteryEntered",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "lotteryId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
+            },
+          ],
+          name: "LotteryRefunded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "lotteryId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "enum OmegaLottery.LotteryStatus",
+              name: "lotteryStatus",
+              type: "uint8",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "timestamp",
+              type: "uint256",
+            },
+          ],
+          name: "LotteryStatusUpdated",
           type: "event",
         },
         {
@@ -243,19 +302,19 @@ const deployedContracts = {
           anonymous: false,
           inputs: [
             {
-              indexed: false,
-              internalType: "address",
-              name: "oldTreasury",
-              type: "address",
+              indexed: true,
+              internalType: "uint256",
+              name: "lotteryId",
+              type: "uint256",
             },
             {
               indexed: false,
-              internalType: "address",
-              name: "newTreasury",
-              type: "address",
+              internalType: "uint256",
+              name: "requestId",
+              type: "uint256",
             },
           ],
-          name: "TreasuryUpdated",
+          name: "RandomnessRequested",
           type: "event",
         },
         {
@@ -270,19 +329,88 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "winnerAddress",
+              name: "user",
               type: "address",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "winnerPayout",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "RefundFailed",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "lotteryId",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "RefundIssued",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "oldAmount",
               type: "uint256",
             },
             {
               indexed: false,
               internalType: "uint256",
-              name: "treasuryFee",
+              name: "newAmount",
+              type: "uint256",
+            },
+          ],
+          name: "WinnerCutUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "lotteryId",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "payout",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "fee",
               type: "uint256",
             },
             {
@@ -307,12 +435,51 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "winnerAddress",
+              name: "user",
               type: "address",
             },
           ],
           name: "WinnerSelected",
           type: "event",
+        },
+        {
+          inputs: [],
+          name: "_defaultEntryFee",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "_keyHash",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "_lotteryDuration",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
         },
         {
           inputs: [],
@@ -353,48 +520,6 @@ const deployedContracts = {
               internalType: "bytes",
               name: "performData",
               type: "bytes",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "entryFee",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "startTime",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
-              name: "endTime",
-              type: "uint256",
-            },
-          ],
-          name: "createLottery",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "lotteryId",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "defaultEntryFee",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -455,6 +580,11 @@ const deployedContracts = {
                 {
                   internalType: "uint256",
                   name: "requestId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "vrfRequestTime",
                   type: "uint256",
                 },
               ],
@@ -539,6 +669,30 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "lotteryId",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "user",
+              type: "address",
+            },
+          ],
+          name: "getStakeByUserAddress",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "getTreasuryAddress",
           outputs: [
@@ -546,6 +700,19 @@ const deployedContracts = {
               internalType: "address",
               name: "",
               type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getWinnerCut",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -566,33 +733,7 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "keyHash",
-          outputs: [
-            {
-              internalType: "bytes32",
-              name: "",
-              type: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
           name: "lastRequestId",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "lotteryDuration",
           outputs: [
             {
               internalType: "uint256",
@@ -747,12 +888,12 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "address",
-              name: "newTreasury",
-              type: "address",
+              internalType: "uint256",
+              name: "winnerCut",
+              type: "uint256",
             },
           ],
-          name: "setTreasury",
+          name: "setWinnerCut",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -781,7 +922,7 @@ const deployedContracts = {
         checkUpkeep: "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol",
         performUpkeep: "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol",
       },
-      deployedOnBlock: 10371246,
+      deployedOnBlock: 10648457,
     },
   },
 } as const;

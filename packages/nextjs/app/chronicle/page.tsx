@@ -84,7 +84,7 @@ export default function ChroniclePage() {
   const prevConnected = useRef<boolean>(false);
   const prevAddress = useRef<string | undefined>(undefined);
 
-  const { winnerHistory, isLoading } = useWinnerHistory(CONTRACT_SOURCES[activeSource].address);
+  const { winnerHistory, isLoading } = useWinnerHistory();
 
   useEffect(() => {
     const justConnected = !prevConnected.current && isConnected;

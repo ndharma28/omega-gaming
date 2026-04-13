@@ -16,10 +16,15 @@ const deployLottery: DeployFunction = async function (hre: HardhatRuntimeEnviron
   // Sepolia Testnet defaults (can be overridden via env)
   const VRF_COORDINATOR = process.env.VRF_COORDINATOR || "0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B";
   const KEY_HASH = process.env.KEY_HASH || "0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae";
+  const WINNER_CUT = process.env.WINNER_CUT ? parseInt(process.env.WINNER_CUT) : 90; // default to 90 if not set
 
   // ════════════════════════════════════════════════════════════════════════════════
   // VALIDATION
   // ════════════════════════════════════════════════════════════════════════════════
+
+  if (WINNER_CUT < 1 || WINNER_CUT > 99) {
+    throw new Error(`❌ WINNER_CUT must be between 1 and 100. Current value: ${WINNER_CUT}`);
+  }
 
   // Validate required environment variables
   if (!TREASURY_ADDRESS) {
@@ -64,7 +69,15 @@ const deployLottery: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   const lottery = await deploy("OmegaLottery", {
     from: deployer,
-    args: [TREASURY_ADDRESS, SUBSCRIPTION_ID, VRF_COORDINATOR, KEY_HASH, DEFAULT_ENTRY_FEE, LOTTERY_DURATION],
+    args: [
+      TREASURY_ADDRESS,
+      SUBSCRIPTION_ID,
+      VRF_COORDINATOR,
+      KEY_HASH,
+      DEFAULT_ENTRY_FEE,
+      LOTTERY_DURATION,
+      WINNER_CUT,
+    ],
     log: true,
   });
 

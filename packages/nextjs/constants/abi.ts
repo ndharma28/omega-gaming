@@ -113,6 +113,14 @@ export const OMEGA_LOTTERY_ABI = [
     name: "WinnerPaid",
     type: "event",
   },
+  {
+    inputs: [],
+    name: "getWinnerCut",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
 ] as const; // <--- The "as const" is vital for Wagmi autocomplete!
 
-export const CONTRACT_ADDRESS = "0x66A0203895593e39873B15771e77208FccbbB81b";
+export const LEGACY_CONTRACT_ADDRESS = "0x66A0203895593e39873B15771e77208FccbbB81b";
+export const CONTRACT_ADDRESS = "0xYOUR_NEW_ADDRESS_HERE";
