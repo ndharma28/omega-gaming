@@ -123,4 +123,4 @@ export const OMEGA_LOTTERY_ABI = [
 ] as const; // <--- The "as const" is vital for Wagmi autocomplete!
 
 export const LEGACY_CONTRACT_ADDRESS = "0x66A0203895593e39873B15771e77208FccbbB81b";
-export const CONTRACT_ADDRESS = "0xYOUR_NEW_ADDRESS_HERE";
+export const CONTRACT_ADDRESS = "0x8A9f49D5812160a523A326eBd51a4359668B2c9b";
