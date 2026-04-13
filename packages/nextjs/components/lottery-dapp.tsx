@@ -41,6 +41,8 @@ export default function LotteryDapp() {
     functionName: "owner",
   });
 
+
+
   const isOwnerDirect =
     !rawOwnerLoading &&
     !!connectedAddress &&
@@ -114,6 +116,8 @@ export default function LotteryDapp() {
   const isEntryAllowed = status === LotteryStatus.OPEN && endTime > 0 && Math.floor(Date.now() / 1000) < endTime;
   const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
   const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
+
+  console.log("idCounter:", idCounter, "activeLotteryId:", activeLotteryId, "lotteryData:", lotteryData);
 
   console.log({
     status,
