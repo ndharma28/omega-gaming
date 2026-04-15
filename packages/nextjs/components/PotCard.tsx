@@ -40,10 +40,9 @@ const CalendarIcon = () => (
 );
 
 export default function PotCard({ lotteryId, potBalance, status, startTime, endTime, winner }: PotCardProps) {
-  const isResolved = status === 4;
-  const isNotStarted = status === 0;
+  const isResolved = status === 2;
   const potEth = parseFloat(formatEther(potBalance));
-  const dateLabel = isNotStarted ? `WINDOW OPENS · ${formatDate(startTime)}` : `EXTRACTION · ${formatDate(endTime)}`;
+  const dateLabel = isResolved ? `EXTRACTED · ${formatDate(endTime)}` : `EXTRACTION · ${formatDate(startTime)}`;
 
   return (
     <div className="og-card">

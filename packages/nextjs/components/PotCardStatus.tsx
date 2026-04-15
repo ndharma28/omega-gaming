@@ -100,18 +100,6 @@ function LiveOrPendingStatus({ isLive }: { isLive: boolean }) {
     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
         {isLive && <PingDot color="var(--og-green)" size={7} duration="2s" />}
-        <span
-          style={{
-            fontSize: "11px",
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            fontFamily: "var(--og-mono)",
-            fontWeight: 600,
-            color: isLive ? "var(--og-green)" : "rgba(239,159,39,0.7)",
-          }}
-        >
-          {isLive ? "LIVE" : "AWAITING AUTHORIZATION"}
-        </span>
       </div>
       {isLive && (
         <span
@@ -143,9 +131,9 @@ export default function PotCardStatus({ status, winner }: PotCardStatusProps) {
       >
         STATUS
       </span>
-      {status === 4 && <ResolvedStatus winner={winner} />}
-      {status === 3 && <DrawingStatus />}
-      {(status === 0 || status === 1) && <LiveOrPendingStatus isLive={status === 1} />}
+      {status === 2 && <ResolvedStatus winner={winner} />}
+      {status === 1 && <DrawingStatus />}
+      {(status === 0 || status === 1) && <LiveOrPendingStatus isLive={true} />}
     </div>
   );
 }
