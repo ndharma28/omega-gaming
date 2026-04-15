@@ -110,7 +110,7 @@ function LiveOrPendingStatus({ isLive }: { isLive: boolean }) {
             color: isLive ? "var(--og-green)" : "rgba(239,159,39,0.7)",
           }}
         >
-          {isLive ? "LIVE" : "PENDING"}
+          {isLive ? "LIVE" : "AWAITING AUTHORIZATION"}
         </span>
       </div>
       {isLive && (

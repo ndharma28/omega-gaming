@@ -43,7 +43,7 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
   const isResolved = status === 4;
   const isNotStarted = status === 0;
   const potEth = parseFloat(formatEther(potBalance));
-  const dateLabel = isNotStarted ? `STARTS · ${formatDate(startTime)}` : `DRAW · ${formatDate(endTime)}`;
+  const dateLabel = isNotStarted ? `WINDOW OPENS · ${formatDate(startTime)}` : `EXTRACTION · ${formatDate(endTime)}`;
 
   return (
     <div className="og-card">
@@ -61,8 +61,10 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
         {/* LEFT: jackpot amount */}
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-            <span className="og-label">{isResolved ? "TOTAL PAYOUT" : "ON THE TABLE"}</span>
-            {lotteryId !== undefined && <span className="og-epoch-badge">OPERATION {lotteryId.toString()}</span>}
+            <span className="og-label">{isResolved ? "TOTAL PAYOUT" : "ACTIVE DOSSIER"}</span>
+            {lotteryId !== undefined && (
+              <span className="og-epoch-badge">OP {lotteryId.toString().padStart(2, "0")}</span>
+            )}
           </div>
 
           <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
