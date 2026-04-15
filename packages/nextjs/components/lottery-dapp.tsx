@@ -120,7 +120,6 @@ export default function LotteryDapp() {
           lotteryId={activeLotteryId}
           potBalance={lotteryData?.totalPot ?? 0n}
           status={status}
-          startTime={lotteryData?.startTime ?? 0n}
           endTime={lotteryData?.endTime ?? 0n}
           winner={lotteryData?.winner}
         />

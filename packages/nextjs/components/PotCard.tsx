@@ -8,7 +8,6 @@ interface PotCardProps {
   lotteryId?: bigint | number;
   potBalance: bigint;
   status: number;
-  startTime: bigint;
   endTime: bigint;
   winner?: string;
 }
@@ -39,15 +38,14 @@ const CalendarIcon = () => (
   </svg>
 );
 
-export default function PotCard({ lotteryId, potBalance, status, startTime, endTime, winner }: PotCardProps) {
+export default function PotCard({ lotteryId, potBalance, status, endTime, winner }: PotCardProps) {
   const isResolved = status === 2;
-  const potEth = parseFloat(formatEther(potBalance));
-  const dateLabel = isResolved ? `EXTRACTED · ${formatDate(endTime)}` : `EXTRACTION · ${formatDate(startTime)}`;
+  const potEth = parseFloat(formatEther(potBalance)) || 0;
+  const dateLabel = `${isResolved ? "EXTRACTED" : "EXTRACTION"} · ${formatDate(endTime)}`;
 
   return (
     <div className="og-card">
       <CornerBrackets />
-
       <div
         style={{
           display: "flex",
@@ -57,7 +55,6 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
           flexWrap: "wrap",
         }}
       >
-        {/* LEFT: jackpot amount */}
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
             <span className="og-label">{isResolved ? "TOTAL PAYOUT" : "ACTIVE DOSSIER"}</span>
@@ -65,19 +62,15 @@ export default function PotCard({ lotteryId, potBalance, status, startTime, endT
               <span className="og-epoch-badge">OP {lotteryId.toString().padStart(2, "0")}</span>
             )}
           </div>
-
           <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
             <span className="og-amount">{potEth.toFixed(4).replace(/\.?0+$/, "") || "0"}</span>
             <span className="og-unit">ETH</span>
           </div>
-
           <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "7px" }}>
             <CalendarIcon />
             <span className="og-date-label">{dateLabel}</span>
           </div>
         </div>
-
-        {/* RIGHT: status */}
         <PotCardStatus status={status} winner={winner} />
       </div>
     </div>
