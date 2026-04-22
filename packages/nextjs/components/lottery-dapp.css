@@ -660,3 +660,164 @@
 .og-sadrat-link:hover {
   color: var(--og-gold, #e8c96a);
 }
+
+/* Entry UI Styles */
+.og-entry-container {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.og-btn-main {
+  width: 100%;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.og-entry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.og-btn-secondary {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #aaa;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.og-btn-secondary:hover:not(:disabled) {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.og-input-group-n {
+  display: flex;
+  background: #000;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.og-input-n {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 0 10px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.og-btn-n {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 0 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.og-btn-n:hover:not(:disabled) {
+  background: #444;
+}
+
+.og-summary-box {
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Modal Styles */
+.og-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.og-modal-content {
+  background: #0d0d0d;
+  border: 1px solid #333;
+  width: 90%;
+  max-width: 400px;
+  padding: 30px;
+  border-radius: 8px;
+}
+
+.og-modal-title {
+  color: #fff;
+  margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 1.2rem;
+  border-bottom: 1px solid #222;
+  padding-bottom: 15px;
+}
+
+.og-modal-body {
+  margin: 20px 0;
+}
+
+.og-modal-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.og-modal-divider {
+  height: 1px;
+  background: #222;
+  margin: 15px 0;
+}
+
+.og-modal-total {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.og-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.og-btn-cancel {
+  flex: 1;
+  background: transparent;
+  border: 1px solid #333;
+  color: #666;
+  padding: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.og-btn-confirm {
+  flex: 2;
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.og-btn-confirm:hover {
+  background: #ddd;
+}

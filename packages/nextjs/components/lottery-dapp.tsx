@@ -9,7 +9,7 @@ import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
 import StatusBar, { LotteryStatus } from "./StatusBar";
-import { formatEther } from "viem";
+import { formatEther, parseEther } from "viem";
 import { useAccount, useBalance, useReadContract } from "wagmi";
 import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
@@ -18,8 +18,10 @@ import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
 export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState("");
-  const [entryAmount, setEntryAmount] = useState("0.02");
+  const [ticketCount, setTicketCount] = useState("1");
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [pendingTickets, setPendingTickets] = useState(1);
 
   const { address: connectedAddress } = useAccount();
   useBalance({ address: connectedAddress });
@@ -101,10 +103,24 @@ export default function LotteryDapp() {
   }, []);
   if (!mounted) return null;
 
-  // ── Entry validation ──────────────────────────────────────────────────────────
+  // ── Entry Logic ───────────────────────────────────────────────────────────────
   const isEntryAllowed = status === LotteryStatus.OPEN && endTime > 0 && Math.floor(Date.now() / 1000) < endTime;
-  const minEntry = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
-  const isInvalidAmount = Number(entryAmount) < minEntry || isNaN(Number(entryAmount));
+  const minEntryEth = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
+
+  const handleOpenPreview = (count: number) => {
+    if (count <= 0 || isNaN(count)) return;
+    setPendingTickets(count);
+    setShowPreview(true);
+  };
+
+  const handleConfirmEntry = () => {
+    const totalAmount = (pendingTickets * minEntryEth).toFixed(18);
+    joinLottery(totalAmount);
+    setShowPreview(false);
+  };
+
+  const currentTotal = (Number(ticketCount) * minEntryEth).toFixed(4);
+  const isInvalidCount = Number(ticketCount) <= 0 || isNaN(Number(ticketCount));
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
@@ -142,47 +158,74 @@ export default function LotteryDapp() {
           <div className="og-stat-label">Known Operatives</div>
           <div className="og-stat-value">{winnerHistory.length > 0 ? uniqueWinners : "—"}</div>
           <div className="og-stat-meta">
-            across {winnerHistory.length > 0 ? winnerHistory.length : "—"} operations. {uniquePct}% unique winners.
+            across {winnerHistory.length > 0 ? winnerHistory.length : "—"} operations. {uniquePct}% unique.
           </div>
         </div>
         <div className="og-stat-cell">
           <div className="og-stat-label">Largest Extraction</div>
           <div className="og-stat-value og-stat-value--amber">{topPrize > 0 ? topPrize.toFixed(4) : "—"}</div>
           <div className="og-stat-meta">
-            {topPrize > 0 ? `${classifyPrize(topPrize)}. The file is in the Archive.` : "no rounds yet"}
+            {topPrize > 0 ? `${classifyPrize(topPrize)}. In Archive.` : "no rounds yet"}
           </div>
         </div>
       </div>
 
       <div className="og-main-layout">
         <div className="og-main-left">
-          <div>
-            <div className="og-section-label">Let the Contract Know You Were Here</div>
-            <div className="og-field-label">Amount (ETH)</div>
-            <div className={`og-input-wrap${isInvalidAmount && entryAmount !== "" ? " og-input-wrap--error" : ""}`}>
-              <input
-                className="og-eth-input"
-                type="number"
-                value={entryAmount}
-                min={minEntry}
-                step="0.01"
-                placeholder="0.02"
-                onChange={e => setEntryAmount(e.target.value)}
-              />
-              <span className="og-input-unit">ETH</span>
-            </div>
-            <div className={`og-min-note${isInvalidAmount && entryAmount !== "" ? " og-min-note--error" : ""}`}>
-              {`Minimum entry: ${minEntry} ETH`}
-            </div>
-            <EtherConverter initialEth={entryAmount} />
+          <div className="og-entry-container">
+            <div className="og-section-label">Deploy Entry Protocol</div>
+
+            {/* Main Action */}
             <button
-              className={`og-btn-enter${isJoining ? " og-btn-enter--loading" : ""}`}
-              disabled={isJoining || isInvalidAmount || !isEntryAllowed}
-              style={{ marginTop: "16px" }}
-              onClick={() => joinLottery(entryAmount)}
+              className={`og-btn-enter og-btn-main${isJoining ? " og-btn-enter--loading" : ""}`}
+              disabled={isJoining || !isEntryAllowed}
+              onClick={() => handleOpenPreview(1)}
             >
-              {isJoining ? "Confirming..." : "Enter Lottery"}
+              {isJoining ? "Confirming..." : "Join Lottery (1 Ticket)"}
             </button>
+
+            {/* Quick-Grid */}
+            <div className="og-entry-grid">
+              <button
+                className="og-btn-secondary"
+                disabled={isJoining || !isEntryAllowed}
+                onClick={() => handleOpenPreview(5)}
+              >
+                Join x5
+              </button>
+
+              <button
+                className="og-btn-secondary"
+                disabled={isJoining || !isEntryAllowed}
+                onClick={() => handleOpenPreview(10)}
+              >
+                Join x10
+              </button>
+
+              <div className={`og-input-group-n${isInvalidCount ? " og-input-error" : ""}`}>
+                <input
+                  type="number"
+                  className="og-input-n"
+                  value={ticketCount}
+                  onChange={e => setTicketCount(e.target.value)}
+                  placeholder="N"
+                />
+                <button
+                  className="og-btn-n"
+                  disabled={isJoining || isInvalidCount || !isEntryAllowed}
+                  onClick={() => handleOpenPreview(Number(ticketCount))}
+                >
+                  xN
+                </button>
+              </div>
+            </div>
+
+            <div className="og-summary-box">
+              <div className="og-min-note">
+                Selected: <span className="og-eth-value">{currentTotal} ETH</span>
+              </div>
+              <EtherConverter initialEth={currentTotal} />
+            </div>
           </div>
 
           <div style={{ marginTop: "32px" }}>
@@ -206,6 +249,38 @@ export default function LotteryDapp() {
           </Link>
         </div>
       </div>
+
+      {/* Transaction Preview Modal */}
+      {showPreview && (
+        <div className="og-modal-overlay">
+          <div className="og-modal-content">
+            <h3 className="og-modal-title">Confirm Extraction</h3>
+            <div className="og-modal-body">
+              <div className="og-modal-row">
+                <span>Tickets:</span>
+                <span className="white">{pendingTickets}</span>
+              </div>
+              <div className="og-modal-row">
+                <span>Cost per Ticket:</span>
+                <span className="white">{minEntryEth} ETH</span>
+              </div>
+              <div className="og-modal-divider"></div>
+              <div className="og-modal-row og-modal-total">
+                <span>Total Amount:</span>
+                <span className="og-stat-value--green">{(pendingTickets * minEntryEth).toFixed(4)} ETH</span>
+              </div>
+            </div>
+            <div className="og-modal-actions">
+              <button className="og-btn-cancel" onClick={() => setShowPreview(false)}>
+                Abort
+              </button>
+              <button className="og-btn-confirm" onClick={handleConfirmEntry}>
+                Execute Transaction
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isOwnerDirect && (
         <div className="og-owner-zone">
