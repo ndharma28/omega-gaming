@@ -240,11 +240,11 @@ export default function LotteryDapp() {
             <div className="og-modal-body">
               <div className="og-modal-row">
                 <span>Tickets:</span>
-                <span className="white">{ticketCount}</span>
+                <span style={{ color: "var(--og-amber)" }}>{ticketCount}</span>
               </div>
               <div className="og-modal-row">
                 <span>Cost per Ticket:</span>
-                <span className="white">{minEntryEth} ETH</span>
+                <span style={{ color: "var(--og-amber)" }}>{minEntryEth} ETH</span>
               </div>
               <div className="og-modal-divider"></div>
               <div className="og-modal-row og-modal-total">
