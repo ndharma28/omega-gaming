@@ -9,7 +9,7 @@ import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
 import StatusBar, { LotteryStatus } from "./StatusBar";
-import { formatEther, parseEther } from "viem";
+import { formatEther } from "viem";
 import { useAccount, useBalance, useReadContract } from "wagmi";
 import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
@@ -18,10 +18,9 @@ import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
 export default function LotteryDapp() {
   const [mounted, setMounted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState("");
-  const [ticketCount, setTicketCount] = useState("1");
+  const [ticketCount, setTicketCount] = useState("1"); // Current input value
   const [showOwnerPanel, setShowOwnerPanel] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [pendingTickets, setPendingTickets] = useState(1);
 
   const { address: connectedAddress } = useAccount();
   useBalance({ address: connectedAddress });
@@ -50,7 +49,7 @@ export default function LotteryDapp() {
   const { lotteryData, players, treasuryBalance, joinLottery, isJoining, refetchAll } = useLottery(activeLotteryId);
   const { winnerHistory, isLoading } = useWinnerHistory();
 
-  // ── Derived stats ─────────────────────────────────────────────────────────────
+  // ── Derived Stats ─────────────────────────────────────────────────────────────
   const uniqueWinners = new Set(winnerHistory.map(e => e.winner)).size;
   const topPrize =
     winnerHistory.length > 0 ? Math.max(...winnerHistory.map(e => parseFloat(formatEther(e.prizeAmount)))) : 0;
@@ -65,7 +64,7 @@ export default function LotteryDapp() {
     {} as Record<string, number>,
   );
 
-  // ── Polling ───────────────────────────────────────────────────────────────────
+  // ── Polling & Countdown ───────────────────────────────────────────────────────
   const refetchAllRef = useRef(refetchAll);
   useEffect(() => {
     refetchAllRef.current = refetchAll;
@@ -79,7 +78,6 @@ export default function LotteryDapp() {
     return () => clearInterval(interval);
   }, [refetchCounter]);
 
-  // ── Countdown ─────────────────────────────────────────────────────────────────
   const status = (lotteryData?.status as LotteryStatus) ?? LotteryStatus.OPEN;
   const endTime = Number(lotteryData?.endTime ?? 0n);
 
@@ -103,26 +101,17 @@ export default function LotteryDapp() {
   }, []);
   if (!mounted) return null;
 
-  // ── Entry Logic ───────────────────────────────────────────────────────────────
+  // ── Entry Validation ──────────────────────────────────────────────────────────
   const isEntryAllowed = status === LotteryStatus.OPEN && endTime > 0 && Math.floor(Date.now() / 1000) < endTime;
   const minEntryEth = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
-
-  const handleOpenPreview = (count: number) => {
-    if (count <= 0 || isNaN(count)) return;
-    setPendingTickets(count);
-    setShowPreview(true);
-  };
+  const isInvalidCount = Number(ticketCount) <= 0 || isNaN(Number(ticketCount));
+  const currentTotal = (Number(ticketCount) * minEntryEth).toFixed(4);
 
   const handleConfirmEntry = () => {
-    const totalAmount = (pendingTickets * minEntryEth).toFixed(18);
-    joinLottery(totalAmount);
+    joinLottery(currentTotal);
     setShowPreview(false);
   };
 
-  const currentTotal = (Number(ticketCount) * minEntryEth).toFixed(4);
-  const isInvalidCount = Number(ticketCount) <= 0 || isNaN(Number(ticketCount));
-
-  // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className="og-root">
       <div className="pt-6">
@@ -175,54 +164,47 @@ export default function LotteryDapp() {
           <div className="og-entry-container">
             <div className="og-section-label">Deploy Entry Protocol</div>
 
-            {/* Main Action */}
-            <button
-              className={`og-btn-enter og-btn-main${isJoining ? " og-btn-enter--loading" : ""}`}
-              disabled={isJoining || !isEntryAllowed}
-              onClick={() => handleOpenPreview(1)}
-            >
-              {isJoining ? "Confirming..." : "Join Lottery (1 Ticket)"}
-            </button>
-
-            {/* Quick-Grid */}
-            <div className="og-entry-grid">
-              <button
-                className="og-btn-secondary"
-                disabled={isJoining || !isEntryAllowed}
-                onClick={() => handleOpenPreview(5)}
-              >
-                Join x5
-              </button>
-
-              <button
-                className="og-btn-secondary"
-                disabled={isJoining || !isEntryAllowed}
-                onClick={() => handleOpenPreview(10)}
-              >
-                Join x10
-              </button>
-
-              <div className={`og-input-group-n${isInvalidCount ? " og-input-error" : ""}`}>
+            {/* Ticket Selection Grid */}
+            <div className="og-ticket-config">
+              <div className={`og-input-wrap-main${isInvalidCount ? " og-input-error" : ""}`}>
+                <label className="og-input-label">Number of Tickets</label>
                 <input
                   type="number"
-                  className="og-input-n"
+                  className="og-ticket-input"
                   value={ticketCount}
                   onChange={e => setTicketCount(e.target.value)}
-                  placeholder="N"
+                  min="1"
+                  placeholder="1"
                 />
-                <button
-                  className="og-btn-n"
-                  disabled={isJoining || isInvalidCount || !isEntryAllowed}
-                  onClick={() => handleOpenPreview(Number(ticketCount))}
-                >
-                  xN
-                </button>
+              </div>
+
+              <div className="og-quick-select">
+                {[1, 5, 10, 25].map(num => (
+                  <button
+                    key={num}
+                    className={`og-btn-quick ${Number(ticketCount) === num ? "active" : ""}`}
+                    onClick={() => setTicketCount(num.toString())}
+                  >
+                    {num}
+                  </button>
+                ))}
               </div>
             </div>
 
+            {/* Dynamic Action Button */}
+            <button
+              className={`og-btn-enter og-btn-main${isJoining ? " og-btn-enter--loading" : ""}`}
+              disabled={isJoining || isInvalidCount || !isEntryAllowed}
+              onClick={() => setShowPreview(true)}
+            >
+              {isJoining
+                ? "Confirming..."
+                : `Join Lottery (${ticketCount} ${Number(ticketCount) === 1 ? "Ticket" : "Tickets"})`}
+            </button>
+
             <div className="og-summary-box">
               <div className="og-min-note">
-                Selected: <span className="og-eth-value">{currentTotal} ETH</span>
+                Total Cost: <span className="og-eth-value">{currentTotal} ETH</span>
               </div>
               <EtherConverter initialEth={currentTotal} />
             </div>
@@ -258,7 +240,7 @@ export default function LotteryDapp() {
             <div className="og-modal-body">
               <div className="og-modal-row">
                 <span>Tickets:</span>
-                <span className="white">{pendingTickets}</span>
+                <span className="white">{ticketCount}</span>
               </div>
               <div className="og-modal-row">
                 <span>Cost per Ticket:</span>
@@ -267,7 +249,7 @@ export default function LotteryDapp() {
               <div className="og-modal-divider"></div>
               <div className="og-modal-row og-modal-total">
                 <span>Total Amount:</span>
-                <span className="og-stat-value--green">{(pendingTickets * minEntryEth).toFixed(4)} ETH</span>
+                <span className="og-stat-value--green">{currentTotal} ETH</span>
               </div>
             </div>
             <div className="og-modal-actions">

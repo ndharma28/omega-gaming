@@ -821,3 +821,97 @@
 .og-btn-confirm:hover {
   background: #ddd;
 }
+
+/* Entry UI Styles */
+.og-entry-container {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.og-ticket-config {
+  margin-bottom: 20px;
+}
+
+.og-input-wrap-main {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.og-input-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+
+.og-ticket-input {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  width: 100%;
+  outline: none;
+  font-family: inherit;
+}
+
+/* Chrome/Safari/Edge - Hide arrows */
+.og-ticket-input::-webkit-outer-spin-button,
+.og-ticket-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.og-quick-select {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.og-btn-quick {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #888;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.og-btn-quick:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.og-btn-quick.active {
+  background: #eee;
+  color: #000;
+  border-color: #eee;
+}
+
+.og-btn-main {
+  width: 100%;
+  padding: 16px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.og-summary-box {
+  border-top: 1px dashed rgba(255,255,255,0.1);
+  padding-top: 16px;
+}
+
+.og-eth-value {
+  color: #fff;
+  font-weight: bold;
+}
