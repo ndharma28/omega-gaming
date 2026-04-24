@@ -61,27 +61,49 @@ function ProgressBar({ onComplete }: { onComplete: () => void }) {
   }, [onComplete]);
 
   return (
-    <div className="mt-4 space-y-2">
-      <div className="flex justify-between items-center">
-        <span className="text-[10px] text-yellow-600 uppercase tracking-widest font-bold animate-pulse">
+    <div className="mt-4 space-y-3">
+      {/* Phrase + percentage */}
+      <div className="flex justify-between items-center gap-4">
+        <span className="text-[11px] font-bold uppercase tracking-widest animate-pulse" style={{ color: "#ca8a04" }}>
           {SCAN_PHRASES[phraseIndex]}
         </span>
-        <span className="text-[10px] text-yellow-700 font-mono">{progress}%</span>
+        <span className="text-[11px] font-mono font-bold shrink-0" style={{ color: "#fbbf24" }}>
+          {progress}%
+        </span>
       </div>
-      <div className="chronicle-progress-track">
-        <div className="chronicle-progress-fill" style={{ width: `${progress}%` }} />
+
+      {/* Track */}
+      <div
+        className="relative h-1.5 w-full rounded-full overflow-hidden"
+        style={{ background: "rgba(120,53,15,0.3)", border: "1px solid rgba(120,53,15,0.4)" }}
+      >
         <div
-          className="chronicle-progress-shimmer"
-          style={{ left: `calc(${progress}% - 4rem)`, transition: "left 75ms linear" }}
+          className="absolute inset-y-0 left-0 rounded-full transition-all duration-75"
+          style={{
+            width: `${progress}%`,
+            background: "linear-gradient(to right, #92400e, #fbbf24)",
+          }}
+        />
+        {/* Shimmer */}
+        <div
+          className="absolute inset-y-0 w-12 rounded-full"
+          style={{
+            left: `calc(${progress}% - 3rem)`,
+            transition: "left 75ms linear",
+            background: "linear-gradient(to right, transparent, rgba(251,191,36,0.4), transparent)",
+          }}
         />
       </div>
+
+      {/* Tick marks */}
       <div className="flex justify-between px-0.5">
         {[...Array(12)].map((_, i) => (
           <div
             key={i}
-            className={`w-px h-1 rounded-full transition-colors duration-300 ${
-              (i / 11) * 100 <= progress ? "bg-yellow-700/60" : "bg-yellow-900/20"
-            }`}
+            className="w-px h-1.5 rounded-full transition-colors duration-300"
+            style={{
+              background: (i / 11) * 100 <= progress ? "rgba(202,138,4,0.7)" : "rgba(120,53,15,0.25)",
+            }}
           />
         ))}
       </div>
@@ -152,20 +174,53 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
             }}
             placeholder="0x…"
             disabled={isScanning}
-            className="chronicle-input grow"
+            style={{
+              background: "rgba(0,0,0,0.4)",
+              border: "1px solid rgba(120,53,15,0.5)",
+              borderRadius: "0.75rem",
+              padding: "0.625rem 1rem",
+              color: "#fbbf24",
+              caretColor: "#fbbf24",
+              fontSize: "0.875rem",
+              fontFamily: "monospace",
+              outline: "none",
+              flex: 1,
+              minWidth: 0,
+              opacity: isScanning ? 0.5 : 1,
+            }}
+            onFocus={e => {
+              e.currentTarget.style.border = "1px solid rgba(202,138,4,0.7)";
+            }}
+            onBlur={e => {
+              e.currentTarget.style.border = "1px solid rgba(120,53,15,0.5)";
+            }}
           />
           <button
             onClick={handleSearch}
             disabled={!query.trim() || isScanning}
             className="shrink-0 px-5 py-2.5 bg-yellow-600 hover:bg-yellow-500
-                       disabled:bg-yellow-900/40 disabled:text-yellow-800 disabled:cursor-not-allowed
+                       disabled:bg-yellow-900/40 disabled:cursor-not-allowed
                        text-black text-xs font-black uppercase tracking-widest
                        rounded-xl transition-all"
+            style={{ color: !query.trim() || isScanning ? "#854d0e" : "#000" }}
           >
             {isScanning ? "Scanning…" : "Pull the File"}
           </button>
           {(submitted || isScanning) && (
-            <button onClick={handleClear} className="chronicle-btn-clear shrink-0">
+            <button
+              onClick={handleClear}
+              className="shrink-0 px-3 py-2 rounded-xl text-xs font-bold transition-colors"
+              style={{
+                border: "1px solid rgba(120,53,15,0.4)",
+                color: "#854d0e",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.color = "#ca8a04";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.color = "#854d0e";
+              }}
+            >
               ✕
             </button>
           )}
