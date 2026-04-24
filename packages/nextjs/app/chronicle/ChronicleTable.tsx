@@ -57,7 +57,7 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
     <div className="space-y-8">
       {/* Filters + sort */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-3 flex-wrap">
           {ALL_RANKS.map(rank => (
             <button
               key={rank}

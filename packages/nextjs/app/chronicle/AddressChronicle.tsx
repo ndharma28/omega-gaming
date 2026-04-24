@@ -63,8 +63,10 @@ function ProgressBar({ onComplete }: { onComplete: () => void }) {
   return (
     <div className="mt-4 space-y-2">
       <div className="flex justify-between items-center">
-        <span className="chronicle-label animate-pulse">{SCAN_PHRASES[phraseIndex]}</span>
-        <span className="chronicle-text-muted font-mono">{progress}%</span>
+        <span className="text-[10px] text-yellow-600 uppercase tracking-widest font-bold animate-pulse">
+          {SCAN_PHRASES[phraseIndex]}
+        </span>
+        <span className="text-[10px] text-yellow-700 font-mono">{progress}%</span>
       </div>
       <div className="chronicle-progress-track">
         <div className="chronicle-progress-fill" style={{ width: `${progress}%` }} />
@@ -132,11 +134,14 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
   return (
     <div className="chronicle-container">
       {/* Header */}
-      <div className="chronicle-section chronicle-section-accent px-6 py-5">
-        <p className="chronicle-label mb-2">Address Chronicle</p>
-        <p className="text-[11px] text-yellow-800 mb-4 leading-relaxed">
-          {"Every address leaves a trail. They always think they've covered it. They never have."}
-        </p>
+      <div className="px-6 py-5 border-b border-yellow-900/25 bg-yellow-950/10 space-y-4">
+        <div className="space-y-1">
+          <p className="text-[10px] text-yellow-600 uppercase tracking-widest font-bold">Address Chronicle</p>
+          <p className="text-[11px] text-yellow-700 leading-relaxed">
+            Every address leaves a trail. They always think they&apos;ve covered it. They never have.
+          </p>
+        </div>
+
         <div className="flex gap-2">
           <input
             type="text"
@@ -149,21 +154,32 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
             disabled={isScanning}
             className="chronicle-input"
           />
-          <button onClick={handleSearch} disabled={!query.trim() || isScanning} className="chronicle-btn-primary">
+          <button
+            onClick={handleSearch}
+            disabled={!query.trim() || isScanning}
+            className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 disabled:bg-yellow-900/40
+                       disabled:text-yellow-800 disabled:cursor-not-allowed
+                       text-black text-xs font-black uppercase tracking-widest
+                       rounded-xl transition-all"
+          >
             {isScanning ? "Scanning…" : "Pull the File"}
           </button>
           {(submitted || isScanning) && (
-            <button onClick={handleClear} className="chronicle-btn-clear">
+            <button
+              onClick={handleClear}
+              className="px-3 py-2 border border-yellow-900/20 rounded-xl text-xs font-bold text-yellow-800 hover:text-yellow-600 transition-colors"
+            >
               ✕
             </button>
           )}
         </div>
+
         {isScanning && <ProgressBar key={pendingRef.current} onComplete={handleComplete} />}
       </div>
 
       {/* No results */}
       {hasNoResults && (
-        <div className="chronicle-empty-container">
+        <div className="py-12 text-center space-y-2">
           <EmptySigil />
           <p className="text-[11px] text-yellow-800">No wins found for this address.</p>
           <p className="text-[10px] text-yellow-900/60">The ledger has no record of this wallet.</p>
@@ -173,29 +189,37 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
       {/* Results */}
       {hasResults && (
         <>
-          <div className="chronicle-stats-grid">
+          {/* Summary stats */}
+          <div className="grid grid-cols-3 gap-px bg-yellow-900/20 border-b border-yellow-900/25">
             {[
               { label: "Wins", value: matches.length.toString() },
               { label: "Total Won", value: `${parseFloat(formatEther(totalWon)).toFixed(4)} ETH` },
               { label: "Clearance", value: classifyPrize(parseFloat(formatEther(totalWon))).toUpperCase() },
             ].map(({ label, value }) => (
-              <div key={label} className="chronicle-stat-card">
-                <p className="chronicle-label">{label}</p>
-                <p className="chronicle-text-primary mt-0.5">{value}</p>
+              <div key={label} className="bg-black/60 px-4 py-3 text-center">
+                <p className="text-[10px] text-yellow-600 uppercase tracking-widest font-bold">{label}</p>
+                <p className="text-sm font-black text-yellow-300 mt-0.5">{value}</p>
               </div>
             ))}
           </div>
 
-          <div className="chronicle-table-header">
+          {/* Column headers */}
+          <div className="grid grid-cols-[3rem_1fr_5.5rem_6rem] md:grid-cols-[3rem_1fr_5.5rem_6rem_8rem] bg-yellow-950/40 border-b-2 border-yellow-900/50">
             {TABLE_COLS.map(col => (
-              <span key={col} className="chronicle-label">
+              <span
+                key={col}
+                className="px-4 py-3 text-[10px] text-yellow-600 uppercase tracking-widest font-bold border-r border-yellow-900/30 last:border-r-0"
+              >
                 {col}
               </span>
             ))}
-            <span className="hidden md:block chronicle-label">Date</span>
+            <span className="hidden md:block px-4 py-3 text-[10px] text-yellow-600 uppercase tracking-widest font-bold">
+              Date
+            </span>
           </div>
 
-          <div className="chronicle-divider">
+          {/* Rows */}
+          <div>
             {[...matches]
               .sort((a, b) => Number(b.endTime) - Number(a.endTime))
               .map(entry => (
@@ -210,8 +234,9 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
               ))}
           </div>
 
+          {/* Footer */}
           <div className="px-6 py-3 bg-yellow-950/10 border-t border-yellow-900/20 flex justify-between items-center">
-            <span className="text-[10px] text-yellow-900/50">
+            <span className="text-[10px] text-yellow-800">
               {matches.length} win{matches.length !== 1 ? "s" : ""} found
             </span>
             <span className="text-[10px] text-yellow-600 font-bold">
