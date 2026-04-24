@@ -1,3 +1,4 @@
+import type React from "react";
 import { type Address } from "viem";
 import { CONTRACT_ADDRESS } from "~~/constants/abi";
 
@@ -10,8 +11,6 @@ export interface ContractSource {
 
 // ─── Contract sources ─────────────────────────────────────────────────────────
 
-// Add past contract addresses here to preserve cross-deployment history.
-// The current contract is always first.
 export const CONTRACT_SOURCES: ContractSource[] = [
   { label: "Current", address: CONTRACT_ADDRESS },
   // { label: "Season I",  address: "0x..." },
@@ -56,12 +55,27 @@ export function classifyPrize(eth: number): string {
   return "Spark";
 }
 
-export const RANK_COLORS: Record<string, string> = {
-  Sovereign: "text-yellow-300 border-yellow-400/40 bg-yellow-400/10",
-  Titan: "text-orange-300 border-orange-400/40 bg-orange-400/10",
-  Ascendant: "text-red-300 border-red-400/40 bg-red-400/10",
-  Initiate: "text-slate-300 border-slate-400/30 bg-slate-400/10",
-  Spark: "text-slate-500 border-slate-600/30 bg-slate-600/10",
+export const RANK_COLORS: Record<string, { className: string; style: React.CSSProperties }> = {
+  Sovereign: {
+    className: "border font-black tracking-wide",
+    style: { color: "#fde68a", borderColor: "rgba(253,230,138,0.4)", background: "rgba(253,230,138,0.08)" },
+  },
+  Titan: {
+    className: "border font-black tracking-wide",
+    style: { color: "#fed7aa", borderColor: "rgba(253,215,170,0.35)", background: "rgba(253,215,170,0.07)" },
+  },
+  Ascendant: {
+    className: "border font-black tracking-wide",
+    style: { color: "#fca5a5", borderColor: "rgba(252,165,165,0.3)", background: "rgba(252,165,165,0.06)" },
+  },
+  Initiate: {
+    className: "border font-black tracking-wide",
+    style: { color: "#94a3b8", borderColor: "rgba(148,163,184,0.25)", background: "rgba(148,163,184,0.06)" },
+  },
+  Spark: {
+    className: "border font-black tracking-wide",
+    style: { color: "#475569", borderColor: "rgba(71,85,105,0.25)", background: "rgba(71,85,105,0.05)" },
+  },
 };
 
 export const ALL_RANKS = ["All", "Sovereign", "Titan", "Ascendant", "Initiate", "Spark"];

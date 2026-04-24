@@ -36,11 +36,14 @@ export default function TableRow({ entry, isRevealed, highlightAddress, totalsBy
         <span className="block md:hidden text-[10px] text-slate-500 mt-0.5">{formatTimestampShort(entry.endTime)}</span>
       </span>
 
-      <span className="text-xs font-bold text-green-400 self-center">{ethAmount.toFixed(4)} ETH</span>
+      <span className="text-xs font-bold self-center" style={{ color: "#fbbf24" }}>
+        {ethAmount.toFixed(4)} ETH
+      </span>
 
       <span className="self-center">
         <span
-          className={`inline-block text-[10px] font-black px-2 py-0.5 rounded-full border tracking-wide ${RANK_COLORS[rank]}`}
+          className={`inline-block text-[10px] px-2 py-0.5 rounded-full ${RANK_COLORS[rank].className}`}
+          style={RANK_COLORS[rank].style}
         >
           {rank.toUpperCase()}
         </span>
