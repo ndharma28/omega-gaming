@@ -25,7 +25,6 @@ function GlyphRow() {
 export default function ChronicleHeader() {
   return (
     <div className="space-y-6">
-      {/* Back nav */}
       <div className="flex items-center">
         <button
           onClick={() => {
@@ -38,7 +37,6 @@ export default function ChronicleHeader() {
         </button>
       </div>
 
-      {/* Title block */}
       <div className="text-center space-y-6">
         <div className="flex justify-center">
           <Sigil />
@@ -48,8 +46,8 @@ export default function ChronicleHeader() {
           <p className="text-[10px] tracking-[0.5em] text-yellow-600 uppercase font-bold">
             Omega Gaming · Restricted Archive
           </p>
-          <h1 className="text-5xl font-black tracking-tight text-white">The Chronicle</h1>
-          <p className="text-sm text-slate-400 max-w-sm mx-auto leading-relaxed">
+          <h1 className="text-5xl font-black tracking-tight text-yellow-200/90">The Chronicle</h1>
+          <p className="text-sm text-yellow-900/80 max-w-sm mx-auto leading-relaxed">
             A determination has been made. You are cleared for access. The contract adjudicated your file automatically.
             Eighteen months of background investigation, condensed into one block confirmation. The ledger is more
             thorough anyway. — Office of the Ledger

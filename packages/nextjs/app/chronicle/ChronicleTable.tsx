@@ -160,11 +160,12 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
           ].map(({ rank, range }) => (
             <div key={rank} className="space-y-1">
               <span
-                className={`inline-block text-[10px] font-black px-2 py-0.5 rounded-full border tracking-wide ${RANK_COLORS[rank]}`}
+                className={`inline-block text-[10px] px-2 py-0.5 rounded-full ${RANK_COLORS[rank].className}`}
+                style={RANK_COLORS[rank].style}
               >
                 {rank.toUpperCase()}
               </span>
-              <p className="text-[11px] text-slate-400">{range}</p>
+              <p className="text-[11px] text-yellow-900/60">{range}</p>
             </div>
           ))}
         </div>

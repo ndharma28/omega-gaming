@@ -5,7 +5,7 @@
 /* ── Typography ── */
 .chronicle-label          { @apply text-[10px] text-yellow-700 uppercase tracking-widest font-bold; }
 .chronicle-label-secondary { @apply text-[11px] text-slate-400; }
-.chronicle-text-primary   { @apply text-sm font-black text-white; }
+.chronicle-text-primary   { @apply text-sm font-black text-yellow-200/90; }
 .chronicle-text-secondary { @apply text-[11px] text-slate-500; }
 .chronicle-text-muted     { @apply text-[10px] text-slate-600; }
 
