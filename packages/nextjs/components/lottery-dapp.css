@@ -1057,7 +1057,7 @@
 .og-ticket-input {
   background: transparent;
   border: none;
-  color: white;
+  color: var(--og-amber);
   font-size: 1.5rem;
   width: 100%;
   outline: none;
@@ -1112,9 +1112,9 @@
 }
 
 .og-btn-quick.active {
-  background: #eee;
-  color: #000;
-  border-color: #eee;
+  background: var(--og-amber-faint);
+  color: var(--og-amber);
+  border-color: var(--og-amber-dim);
 }
 
 .og-btn-n {
