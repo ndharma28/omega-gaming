@@ -8,7 +8,7 @@ import { ALL_RANKS, RANK_COLORS, classifyPrize } from "./lib";
 import { formatEther } from "viem";
 import { type WinnerEntry } from "~~/hooks/useWinnerHistory";
 
-const TABLE_COLS = ["#", "Operative", "Extracted", "Clearance"];
+const TABLE_COLS = ["#", "Operative", "Extracted", "Clearance", "Last Seen"];
 
 interface ChronicleTableProps {
   winnerHistory: WinnerEntry[];
@@ -72,7 +72,7 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
         </div>
         <button
           onClick={() => setSortDir(d => (d === "desc" ? "asc" : "desc"))}
-          className="text-[11px] text-slate-500 hover:text-slate-200 font-bold flex items-center gap-1 transition-colors"
+          className="text-[11px] text-yellow-800 hover:text-yellow-600 font-bold flex items-center gap-1 transition-colors"
         >
           {sortDir === "desc" ? "↓ Most recent first" : "↑ Oldest first"}
         </button>
@@ -82,12 +82,16 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
       <div className="chronicle-container">
         {/* Column headers */}
         <div className="chronicle-table-header">
-          {TABLE_COLS.map(col => (
-            <span key={col} className="chronicle-label">
+          {TABLE_COLS.map((col, i) => (
+            <span
+              key={col}
+              className={`text-[10px] text-yellow-600 uppercase tracking-widest font-bold px-4 py-3
+                border-r border-yellow-900/30 last:border-r-0
+                ${i === 4 ? "hidden md:block" : ""}`}
+            >
               {col}
             </span>
           ))}
-          <span className="hidden md:block chronicle-label">Last Seen</span>
         </div>
 
         {isLoading && (
@@ -101,8 +105,8 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
         {!isLoading && winnerHistory.length === 0 && (
           <div className="chronicle-empty-container-large">
             <EmptySigil />
-            <p className="chronicle-text-secondary">The ledger has no names yet.</p>
-            <p className="chronicle-text-muted">
+            <p className="text-[11px] text-yellow-800">The ledger has no names yet.</p>
+            <p className="text-[10px] text-yellow-900/60">
               Either no one has won yet or someone made sure you can&apos;t see who did.
             </p>
           </div>
@@ -110,14 +114,14 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
 
         {!isLoading && winnerHistory.length > 0 && processedHistory.length === 0 && (
           <div className="py-12 text-center">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-yellow-800">
               Nothing at this clearance level. That doesn&apos;t mean nothing happened.
             </p>
           </div>
         )}
 
         {!isLoading && processedHistory.length > 0 && (
-          <div className="divide-y divide-yellow-900/10">
+          <div>
             {processedHistory.map((entry, i) => (
               <TableRow
                 key={`${entry.roundId}-${activeSource}`}
@@ -132,7 +136,7 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
 
         {processedHistory.length > 0 && (
           <div className="px-6 py-3 bg-yellow-950/10 border-t border-yellow-900/20 flex justify-between items-center">
-            <span className="text-[10px] text-slate-500">
+            <span className="text-[10px] text-yellow-800">
               {processedHistory.length} operative{processedHistory.length === 1 ? "" : "s"} on record
             </span>
             <span className="text-[10px] text-yellow-600 font-bold">
@@ -149,7 +153,7 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
 
       {/* Rank legend */}
       <div className="rounded-2xl border border-yellow-900/20 bg-black/30 p-6 space-y-4 backdrop-blur-sm">
-        <p className="text-[10px] text-yellow-700 uppercase tracking-widest font-bold">Clearance Classification</p>
+        <p className="text-[10px] text-yellow-600 uppercase tracking-widest font-bold">Clearance Classification</p>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
             { rank: "Spark", range: "< 0.01 ETH" },
@@ -165,7 +169,7 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
               >
                 {rank.toUpperCase()}
               </span>
-              <p className="text-[11px] text-yellow-900/60">{range}</p>
+              <p className="text-[11px] text-yellow-800">{range}</p>
             </div>
           ))}
         </div>

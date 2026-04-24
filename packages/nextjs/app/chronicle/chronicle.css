@@ -46,18 +46,14 @@
 
 /* ── Table / Grid ── */
 .chronicle-table-header {
-  @apply grid grid-cols-[2.5rem_1fr_5rem_5rem]
-         md:grid-cols-[2.5rem_1fr_6rem_6rem_7rem]
-         bg-yellow-950/40 border-b-2 border-yellow-900/40;
-}
-
-.chronicle-table-header > span {
-  @apply px-4 py-3 border-r border-yellow-900/30 last:border-r-0 text-[10px] text-yellow-600 uppercase tracking-widest font-bold;
+  @apply grid grid-cols-[3rem_1fr_5.5rem_6rem]
+         md:grid-cols-[3rem_1fr_5.5rem_6rem_8rem]
+         bg-yellow-950/40 border-b-2 border-yellow-900/50;
 }
 
 .chronicle-table-row {
-  @apply grid grid-cols-[2.5rem_1fr_5rem_5rem]
-         md:grid-cols-[2.5rem_1fr_6rem_6rem_7rem];
+  @apply grid grid-cols-[3rem_1fr_5.5rem_6rem]
+         md:grid-cols-[3rem_1fr_5.5rem_6rem_8rem];
 }
 
 .chronicle-table-row:last-child {
