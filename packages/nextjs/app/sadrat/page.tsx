@@ -1,43 +1,40 @@
 "use client";
 
-import React, { Fragment } from "react";
-import Link from "next/link";
+import React from "react";
 import "./SadratDisclosure.css";
 
 const SADRAT_ENTRIES = [
   {
     letter: "S",
     word: "Spot",
-    note: "Identify potential recruits. In CIA ops: foreign nationals with access. Here: anyone with a wallet and a suspicious amount of free time.",
+    note: "Find the mark. CIA version: foreign nationals with clearance and a mortgage. Our version: anyone who looked at ETH gas fees and thought 'yeah, fine.' You were never not a target.",
   },
   {
     letter: "A",
     word: "Assess",
-    note: "Profile the target's motivations, vulnerabilities, and pressure points. We assessed: you are here. That was enough.",
+    note: "Profile the vulnerabilities. Motivations. Pressure points. You opened this page. The assessment concluded.",
   },
   {
     letter: "D",
     word: "Develop",
-    note: "Build a relationship. Establish trust. We built a design system and wrote copy in the voice of a burned field officer. Same energy.",
+    note: "Build rapport. Make them feel seen. We wrote copy in the voice of a burned field officer and called it a design system. The Agency calls this 'relationship cultivation.' We call it Tuesday.",
   },
   {
     letter: "R",
     word: "Recruit",
-    note: "Make the ask. Enter the lottery. Claim the clearance. The blockchain will not blackmail you afterward.",
+    note: "Make the ask. Enter the lottery. Claim the clearance. The difference between us and Langley: we tell you it's happening.",
   },
   {
     letter: "A",
     word: "Agent",
-    note: "You are now an operative. Except you are on the payroll. Which the CIA cannot say about most of its assets.",
+    note: "Congratulations. You're an operative now. You're also on the payroll, which historically the CIA cannot say about most of the people doing its work.",
   },
   {
     letter: "T",
     word: "Terminate",
-    note: "CIA meaning: burn the asset when convenient; deny involvement. Our meaning: the lottery window closes. That's it. No one disappears.",
+    note: "Their version: burn the asset, shred the file, deny the program existed. Our version: the lottery window closes. Nobody gets renditioned. That's the whole difference.",
   },
 ];
-
-// ... imports and SADRAT_ENTRIES stay the same
 
 export default function SadratDisclosure() {
   return (
@@ -49,11 +46,13 @@ export default function SadratDisclosure() {
 
       <div className="og-body my-8">
         <p className="mb-4">
-          The Chronicle recruitment copy was written using <span className="og-highlight">SADRAT</span> — a behavioral
-          framework designed to identify and manipulate assets into cooperation.
+          The Chronicle recruitment copy was written using <span className="og-highlight">SADRAT</span> — a six-step
+          behavioral framework the CIA developed to turn ordinary people into assets without them fully understanding
+          what was happening until it was already done.
         </p>
         <p>
-          Unlike the Agency, <span className="og-highlight">we disclose our methods.</span>
+          We used it intentionally. We&apos;re telling you now.{" "}
+          <span className="og-highlight">That&apos;s more than they ever did.</span>
         </p>
       </div>
 
@@ -71,33 +70,69 @@ export default function SadratDisclosure() {
         ))}
       </div>
 
-      {/* ... (MKUltra/Whistleblower section remains) ... */}
+      {/* MKUltra Section */}
+      <div className="og-body my-10">
+        <p className="og-framework-label mb-4">{"// historical precedent"}</p>
 
+        <p className="mb-4">
+          MKUltra ran for twenty years. They dosed unwitting subjects with LSD, applied electroshock to people who
+          thought they were receiving psychiatric care, and when Congress started asking questions, they destroyed the
+          files. The program only surfaced because someone forgot a box of documents in a federal records room in 1977.{" "}
+          <span className="og-highlight">
+            A filing error did more for accountability than two decades of oversight.
+          </span>
+        </p>
+        <p>
+          We put the rules in the contract. You can read them before you enter. That is the entire distinction between
+          us and a black site program. We are aware that is a low bar. We are clearing it anyway.
+        </p>
+      </div>
+
+      {/* Kiriakou Section */}
+      <div className="og-body my-10">
+        <p className="og-framework-label mb-4">{"// on the subject of disclosure"}</p>
+
+        <p>
+          John Kiriakou confirmed that waterboarding was official CIA policy. The Senate Intelligence Committee later
+          documented this across 6,700 pages. Kiriakou got thirty months in federal prison. The lawyers who wrote the
+          legal justifications for it got book deals and faculty positions at institutions that have never once been
+          inconvenienced by anything they have done.{" "}
+          <span className="og-highlight">
+            This is what institutional transparency looks like when the institution controls the definition of
+            transparency.
+          </span>{" "}
+          We don&apos;t control the contract. The contract controls the contract. That&apos;s intentional.
+        </p>
+      </div>
+
+      {/* MICE Matrix */}
       <div className="og-footnote">
         <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-4 font-bold">
           [SUPPLEMENTAL INTEL: THE M.I.C.E. MATRIX]
         </p>
         <div className="og-mice-grid">
           <div className="og-mice-item">
-            <span className="og-mice-label">Money:</span> The ETH prize pool. We apply a 2% Extraction Buffer to every
-            recruitment cycle. It&apos;s the cost of mathematical indifference. It ensures that when you claim your
-            clearance, the ledger is there to verify it—permanently.
+            <span className="og-mice-label">Money:</span> The ETH prize pool. We take 2%. We call it an Extraction
+            Buffer because that is what it is. Every intelligence apparatus has a budget line nobody talks about. We put
+            ours in the contract. You can verify it. They could not say the same about the MKUltra budget, which ran
+            through front foundations for two decades without a single public line item.
           </div>
           <div className="og-mice-item">
-            <span className="og-mice-label">Ideology:</span> The belief that the ledger shouldn&apos;t have an
-            editor-in-chief.
+            <span className="og-mice-label">Ideology:</span> The ledger shouldn&apos;t have an editor. Someone decided
+            that once, wrote it into code, and now neither of us can change it. That is either terrifying or the only
+            honest institution left. Possibly both.
           </div>
           <div className="og-mice-item">
-            <span className="og-mice-label">Coercion:</span> None. The smart contract enforces rules with mathematical
-            indifference.
+            <span className="og-mice-label">Coercion:</span> None on our end. The smart contract enforces rules without
+            discretion, without favoritism, and without the ability to make exceptions for people who know the right
+            people. Kiriakou knew the right people. It did not help him.
           </div>
           <div className="og-mice-item">
-            <span className="og-mice-label">Ego:</span> You&apos;re Operative #506. You have the clearance, yet
-            you&apos;re still reading.
+            <span className="og-mice-label">Ego:</span> You read this far. You know the framework. You know about the
+            filing error and the endowed chairs. You are going to enter anyway. So did we, frankly.
           </div>
         </div>
 
-        {/* Fixed Red Text */}
         <div className="og-encryption-footer">{"// encryption active. transparency ends here."}</div>
       </div>
     </div>
