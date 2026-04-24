@@ -1,0 +1,85 @@
+/* OMEGA GAMING — Chronicle Design System
+   Import this in your Chronicle page/layout only.
+   Depends on lottery-dapp.css for --og-* token definitions. */
+
+/* ── Typography ── */
+.chronicle-label          { @apply text-[10px] text-yellow-700 uppercase tracking-widest font-bold; }
+.chronicle-label-secondary { @apply text-[11px] text-slate-400; }
+.chronicle-text-primary   { @apply text-sm font-black text-white; }
+.chronicle-text-secondary { @apply text-[11px] text-slate-500; }
+.chronicle-text-muted     { @apply text-[10px] text-slate-600; }
+
+/* ── Layout & Containers ── */
+.chronicle-card         { @apply bg-black/40 border border-yellow-900/20 rounded-2xl backdrop-blur-sm; }
+.chronicle-card-accent  { @apply bg-yellow-950/10 border border-yellow-900/20 rounded-2xl backdrop-blur-sm; }
+.chronicle-container    { @apply rounded-2xl border border-yellow-900/20 bg-black/30 backdrop-blur-sm overflow-hidden; }
+.chronicle-section      { @apply px-6 py-4 border-b border-yellow-900/20; }
+.chronicle-section-accent { @apply border-b border-yellow-900/20 bg-yellow-950/10; }
+
+/* ── Borders & Dividers ── */
+.chronicle-border  { @apply border-yellow-900/20; }
+.chronicle-divider { @apply divide-y divide-yellow-900/10; }
+
+/* ── Backgrounds ── */
+.chronicle-bg-accent    { @apply bg-yellow-950/20; }
+.chronicle-bg-highlight { @apply bg-yellow-950/30; }
+.chronicle-bg-hover     { @apply hover:bg-yellow-950/10; }
+
+/* ── Progress Bar ── */
+.chronicle-progress-track   { @apply h-px w-full bg-yellow-900/20 relative overflow-hidden rounded-full; }
+.chronicle-progress-fill    { @apply absolute inset-y-0 left-0 bg-yellow-600/60 transition-all duration-75; }
+.chronicle-progress-shimmer { @apply absolute inset-y-0 w-16 bg-linear-to-r from-transparent via-yellow-400/40 to-transparent; }
+
+/* ── Buttons ── */
+.chronicle-btn-primary {
+  @apply px-4 py-2 bg-yellow-900/40 hover:bg-yellow-900/60 border border-yellow-700/40
+         rounded-xl text-xs font-bold text-yellow-300 disabled:opacity-40
+         disabled:cursor-not-allowed transition-all;
+}
+
+.chronicle-btn-secondary         { @apply px-3 py-1 rounded-full text-[11px] font-bold border transition-all; }
+.chronicle-btn-secondary-active  { @apply bg-yellow-900/30 border-yellow-700/50 text-yellow-300; }
+.chronicle-btn-secondary-inactive { @apply bg-black/40 border-yellow-900/20 text-slate-500 hover:text-slate-300; }
+.chronicle-btn-clear             { @apply px-3 py-2 border border-yellow-900/20 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-300 transition-colors; }
+
+/* ── Form Elements ── */
+.chronicle-input {
+  @apply flex-1 min-w-0 bg-black/40 border border-yellow-900/30 rounded-xl px-4 py-2
+         text-sm font-mono text-white placeholder-slate-600 outline-none
+         focus:border-yellow-700/60 transition-colors disabled:opacity-50;
+}
+
+/* ── Table / Grid ── */
+.chronicle-table-header {
+  @apply grid grid-cols-[2.5rem_1fr_5rem_5rem]
+         md:grid-cols-[2.5rem_1fr_6rem_6rem_7rem]
+         gap-3 px-4 md:px-6 py-3 bg-yellow-950/20 border-b border-yellow-900/20;
+}
+
+.chronicle-table-row {
+  @apply grid grid-cols-[2.5rem_1fr_5rem_5rem]
+         md:grid-cols-[2.5rem_1fr_6rem_6rem_7rem]
+         gap-3 px-4 md:px-6 py-3 transition-all duration-300;
+}
+
+.chronicle-table-row-highlight { @apply bg-yellow-950/30; }
+.chronicle-table-row-hover     { @apply hover:bg-yellow-950/10; }
+
+/* ── Stats Grid ── */
+.chronicle-stats-grid { @apply grid grid-cols-3 gap-px bg-yellow-900/10 border-b border-yellow-900/20; }
+.chronicle-stat-card  { @apply bg-black/40 px-4 py-3 text-center; }
+
+/* ── Empty States ── */
+.chronicle-empty-container       { @apply py-12 text-center space-y-2; }
+.chronicle-empty-container-large { @apply py-20 text-center space-y-3; }
+
+/* ── Animations ── */
+.chronicle-fade-in  { @apply opacity-100 translate-y-0; }
+.chronicle-fade-out { @apply opacity-0 translate-y-2; }
+
+/* ── Special Elements ── */
+.chronicle-sigil    { @apply text-yellow-700/60; }
+.chronicle-glyph-row {
+  @apply flex items-center justify-center gap-3 text-yellow-700/80
+         text-xs tracking-[0.4em] select-none my-1;
+}
