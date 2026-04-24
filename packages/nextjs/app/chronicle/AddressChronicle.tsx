@@ -142,7 +142,7 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
           </p>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-stretch">
           <input
             type="text"
             value={query}
@@ -152,23 +152,20 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
             }}
             placeholder="0x…"
             disabled={isScanning}
-            className="chronicle-input"
+            className="chronicle-input grow"
           />
           <button
             onClick={handleSearch}
             disabled={!query.trim() || isScanning}
-            className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 disabled:bg-yellow-900/40
-                       disabled:text-yellow-800 disabled:cursor-not-allowed
+            className="shrink-0 px-5 py-2.5 bg-yellow-600 hover:bg-yellow-500
+                       disabled:bg-yellow-900/40 disabled:text-yellow-800 disabled:cursor-not-allowed
                        text-black text-xs font-black uppercase tracking-widest
                        rounded-xl transition-all"
           >
             {isScanning ? "Scanning…" : "Pull the File"}
           </button>
           {(submitted || isScanning) && (
-            <button
-              onClick={handleClear}
-              className="px-3 py-2 border border-yellow-900/20 rounded-xl text-xs font-bold text-yellow-800 hover:text-yellow-600 transition-colors"
-            >
+            <button onClick={handleClear} className="chronicle-btn-clear shrink-0">
               ✕
             </button>
           )}

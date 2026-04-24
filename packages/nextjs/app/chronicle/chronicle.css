@@ -36,15 +36,17 @@
          rounded-xl text-xs font-bold text-yellow-300 disabled:opacity-40
          disabled:cursor-not-allowed transition-all;
 }
-.chronicle-btn-secondary          { @apply px-4 py-1.5 rounded-full text-[11px] font-bold border transition-all; }
-.chronicle-btn-secondary-active   { @apply bg-yellow-900/30 border-yellow-700/50 text-yellow-300; }
-.chronicle-btn-secondary-inactive { @apply bg-black/40 border-yellow-900/30 text-yellow-700 hover:text-yellow-500 hover:border-yellow-800/50; }
+.chronicle-btn-secondary          { @apply px-5 py-2 rounded-full text-[11px] font-bold border transition-all; }
+.chronicle-btn-secondary-active   { @apply bg-yellow-900/40 border-yellow-600/60 text-yellow-400; }
+.chronicle-btn-secondary-inactive { @apply bg-transparent border-yellow-900/50 text-yellow-600 hover:text-yellow-400 hover:border-yellow-700/60 hover:bg-yellow-900/20; }
+.chronicle-btn-clear              { @apply px-3 py-2 border border-yellow-900/30 rounded-xl text-xs font-bold text-yellow-800 hover:text-yellow-600 transition-colors; }
 
 /* ── Form Elements ── */
 .chronicle-input {
-  @apply flex-1 min-w-0 bg-black/40 border border-yellow-900/30 rounded-xl px-4 py-2
-         text-sm font-mono text-yellow-200/80 placeholder-yellow-800 outline-none
-         focus:border-yellow-700/60 transition-colors disabled:opacity-50;
+  @apply flex-1 min-w-0 bg-black/40 border border-yellow-900/30 rounded-xl px-4 py-2.5
+         text-sm font-mono text-yellow-400 placeholder-yellow-900 outline-none
+         focus:border-yellow-600 focus:ring-1 focus:ring-yellow-600/40
+         transition-colors disabled:opacity-50;
 }
 
 /* ── Table / Grid ── */
