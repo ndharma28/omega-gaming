@@ -57,14 +57,15 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
     <div className="space-y-8">
       {/* Filters + sort */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex flex-1 gap-0 border border-yellow-900/30 rounded-xl overflow-hidden">
           {ALL_RANKS.map(rank => (
             <button
               key={rank}
               onClick={() => setFilterRank(rank)}
-              className={`chronicle-btn-secondary ${
-                filterRank === rank ? "chronicle-btn-secondary-active" : "chronicle-btn-secondary-inactive"
-              }`}
+              style={{ color: filterRank === rank ? "#fde68a" : "#854d0e" }}
+              className={`flex-1 py-2.5 text-[11px] font-bold border-r border-yellow-900/30 last:border-r-0
+                transition-all duration-200
+                ${filterRank === rank ? "bg-yellow-900/40" : "bg-transparent hover:bg-yellow-900/20"}`}
             >
               {rank}
             </button>
