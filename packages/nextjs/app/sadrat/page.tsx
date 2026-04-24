@@ -129,7 +129,8 @@ export default function SadratDisclosure() {
           </div>
           <div className="og-mice-item">
             <span className="og-mice-label">Ego:</span> You read this far. You know the framework. You know about the
-            filing error and the endowed chairs. You are going to enter anyway. So did we, frankly.
+            filing error and the faculty positions at institutions that have never once been inconvenienced by anything
+            they have done. You are going to enter anyway. So did we, frankly.
           </div>
         </div>
 
