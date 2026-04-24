@@ -81,17 +81,18 @@ export default function ChronicleTable({ winnerHistory, isLoading, activeSource 
       {/* Main table */}
       <div className="chronicle-container">
         {/* Column headers */}
-        <div className="chronicle-table-header">
-          {TABLE_COLS.map((col, i) => (
+        <div className="grid grid-cols-[3rem_1fr_5.5rem_6rem] md:grid-cols-[3rem_1fr_5.5rem_6rem_8rem] bg-yellow-950/40 border-b-2 border-yellow-900/50">
+          {["#", "Operative", "Extracted", "Clearance"].map(col => (
             <span
               key={col}
-              className={`text-[10px] text-yellow-600 uppercase tracking-widest font-bold px-4 py-3
-                border-r border-yellow-900/30 last:border-r-0
-                ${i === 4 ? "hidden md:block" : ""}`}
+              className="px-4 py-3 text-[10px] text-yellow-600 uppercase tracking-widest font-bold border-r border-yellow-900/30 last:border-r-0"
             >
               {col}
             </span>
           ))}
+          <span className="hidden md:block px-4 py-3 text-[10px] text-yellow-600 uppercase tracking-widest font-bold">
+            Last Seen
+          </span>
         </div>
 
         {isLoading && (

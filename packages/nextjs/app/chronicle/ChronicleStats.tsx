@@ -7,8 +7,8 @@ import { type WinnerEntry } from "~~/hooks/useWinnerHistory";
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="bg-black/40 px-5 py-4 space-y-1">
-      <p className="chronicle-label">{label}</p>
-      <p className="chronicle-text-primary">{value}</p>
+      <p className="text-[10px] text-yellow-600 uppercase tracking-widest font-bold">{label}</p>
+      <p className="text-sm font-black text-yellow-300">{value}</p>
       {sub && <p className="text-[11px] text-yellow-700">{sub}</p>}
     </div>
   );

@@ -1,7 +1,11 @@
+/* OMEGA GAMING — Chronicle Design System
+   Import this in your Chronicle page/layout only.
+   Depends on lottery-dapp.css for --og-* token definitions. */
+
 /* ── Typography ── */
 .chronicle-label           { @apply text-[10px] text-yellow-600 uppercase tracking-widest font-bold; }
 .chronicle-label-secondary { @apply text-[11px] text-yellow-700; }
-.chronicle-text-primary    { @apply text-sm font-black text-yellow-200/90; }
+.chronicle-text-primary    { @apply text-sm font-black text-yellow-300; }
 .chronicle-text-secondary  { @apply text-[11px] text-yellow-700; }
 .chronicle-text-muted      { @apply text-[10px] text-yellow-800; }
 
@@ -45,27 +49,10 @@
 }
 
 /* ── Table / Grid ── */
-.chronicle-table-header {
-  @apply grid grid-cols-[3rem_1fr_5.5rem_6rem]
-         md:grid-cols-[3rem_1fr_5.5rem_6rem_8rem]
-         bg-yellow-950/40 border-b-2 border-yellow-900/50;
-}
-
-.chronicle-table-row {
-  @apply grid grid-cols-[3rem_1fr_5.5rem_6rem]
-         md:grid-cols-[3rem_1fr_5.5rem_6rem_8rem];
-}
-
-.chronicle-table-row:last-child {
-  @apply border-b-0;
-}
-
-.chronicle-table-row > span {
-  @apply px-4 py-3 border-r border-yellow-900/15 last:border-r-0;
-}
+/* Grid columns defined inline in ChronicleTable and TableRow to guarantee alignment */
 
 .chronicle-table-row-highlight { @apply bg-yellow-950/30; }
-.chronicle-table-row-hover     { @apply hover:bg-yellow-950/15; }
+.chronicle-table-row-hover     { @apply hover:bg-yellow-950/10; }
 
 /* ── Stats Grid ── */
 .chronicle-stats-grid { @apply grid grid-cols-3 gap-px bg-yellow-900/20 border-b border-yellow-900/25; }
