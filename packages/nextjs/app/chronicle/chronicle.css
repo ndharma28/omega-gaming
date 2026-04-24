@@ -1,24 +1,20 @@
-/* OMEGA GAMING — Chronicle Design System
-   Import this in your Chronicle page/layout only.
-   Depends on lottery-dapp.css for --og-* token definitions. */
-
 /* ── Typography ── */
-.chronicle-label          { @apply text-[10px] text-yellow-700 uppercase tracking-widest font-bold; }
-.chronicle-label-secondary { @apply text-[11px] text-slate-400; }
-.chronicle-text-primary   { @apply text-sm font-black text-yellow-200/90; }
-.chronicle-text-secondary { @apply text-[11px] text-slate-500; }
-.chronicle-text-muted     { @apply text-[10px] text-slate-600; }
+.chronicle-label           { @apply text-[10px] text-yellow-600 uppercase tracking-widest font-bold; }
+.chronicle-label-secondary { @apply text-[11px] text-yellow-900/70; }
+.chronicle-text-primary    { @apply text-sm font-black text-yellow-200/90; }
+.chronicle-text-secondary  { @apply text-[11px] text-yellow-900/70; }
+.chronicle-text-muted      { @apply text-[10px] text-yellow-900/50; }
 
 /* ── Layout & Containers ── */
 .chronicle-card         { @apply bg-black/40 border border-yellow-900/20 rounded-2xl backdrop-blur-sm; }
 .chronicle-card-accent  { @apply bg-yellow-950/10 border border-yellow-900/20 rounded-2xl backdrop-blur-sm; }
-.chronicle-container    { @apply rounded-2xl border border-yellow-900/20 bg-black/30 backdrop-blur-sm overflow-hidden; }
+.chronicle-container    { @apply rounded-2xl border border-yellow-900/30 bg-black/30 backdrop-blur-sm overflow-hidden; }
 .chronicle-section      { @apply px-6 py-4 border-b border-yellow-900/20; }
 .chronicle-section-accent { @apply border-b border-yellow-900/20 bg-yellow-950/10; }
 
 /* ── Borders & Dividers ── */
-.chronicle-border  { @apply border-yellow-900/20; }
-.chronicle-divider { @apply divide-y divide-yellow-900/10; }
+.chronicle-border  { @apply border-yellow-900/30; }
+.chronicle-divider { @apply divide-y divide-yellow-900/15; }
 
 /* ── Backgrounds ── */
 .chronicle-bg-accent    { @apply bg-yellow-950/20; }
@@ -36,16 +32,15 @@
          rounded-xl text-xs font-bold text-yellow-300 disabled:opacity-40
          disabled:cursor-not-allowed transition-all;
 }
-
-.chronicle-btn-secondary         { @apply px-3 py-1 rounded-full text-[11px] font-bold border transition-all; }
-.chronicle-btn-secondary-active  { @apply bg-yellow-900/30 border-yellow-700/50 text-yellow-300; }
-.chronicle-btn-secondary-inactive { @apply bg-black/40 border-yellow-900/20 text-slate-500 hover:text-slate-300; }
-.chronicle-btn-clear             { @apply px-3 py-2 border border-yellow-900/20 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-300 transition-colors; }
+.chronicle-btn-secondary          { @apply px-3 py-1 rounded-full text-[11px] font-bold border transition-all; }
+.chronicle-btn-secondary-active   { @apply bg-yellow-900/30 border-yellow-700/50 text-yellow-300; }
+.chronicle-btn-secondary-inactive { @apply bg-black/40 border-yellow-900/20 text-yellow-900/60 hover:text-yellow-700; }
+.chronicle-btn-clear              { @apply px-3 py-2 border border-yellow-900/20 rounded-xl text-xs font-bold text-yellow-900/50 hover:text-yellow-700 transition-colors; }
 
 /* ── Form Elements ── */
 .chronicle-input {
   @apply flex-1 min-w-0 bg-black/40 border border-yellow-900/30 rounded-xl px-4 py-2
-         text-sm font-mono text-white placeholder-slate-600 outline-none
+         text-sm font-mono text-yellow-200/80 placeholder-yellow-900/40 outline-none
          focus:border-yellow-700/60 transition-colors disabled:opacity-50;
 }
 
@@ -53,21 +48,30 @@
 .chronicle-table-header {
   @apply grid grid-cols-[2.5rem_1fr_5rem_5rem]
          md:grid-cols-[2.5rem_1fr_6rem_6rem_7rem]
-         gap-3 px-4 md:px-6 py-3 bg-yellow-950/20 border-b border-yellow-900/20;
+         gap-0 px-0 py-0
+         bg-yellow-950/30 border-b border-yellow-900/30;
+}
+
+.chronicle-table-header > span {
+  @apply px-4 py-3 border-r border-yellow-900/20 last:border-r-0;
 }
 
 .chronicle-table-row {
   @apply grid grid-cols-[2.5rem_1fr_5rem_5rem]
          md:grid-cols-[2.5rem_1fr_6rem_6rem_7rem]
-         gap-3 px-4 md:px-6 py-3 transition-all duration-300;
+         gap-0;
+}
+
+.chronicle-table-row > span {
+  @apply px-4 py-3 border-r border-yellow-900/15 last:border-r-0;
 }
 
 .chronicle-table-row-highlight { @apply bg-yellow-950/30; }
-.chronicle-table-row-hover     { @apply hover:bg-yellow-950/10; }
+.chronicle-table-row-hover     { @apply hover:bg-yellow-950/15; }
 
 /* ── Stats Grid ── */
-.chronicle-stats-grid { @apply grid grid-cols-3 gap-px bg-yellow-900/10 border-b border-yellow-900/20; }
-.chronicle-stat-card  { @apply bg-black/40 px-4 py-3 text-center; }
+.chronicle-stats-grid { @apply grid grid-cols-3 gap-px bg-yellow-900/15 border-b border-yellow-900/20; }
+.chronicle-stat-card  { @apply bg-black/60 px-4 py-3 text-center; }
 
 /* ── Empty States ── */
 .chronicle-empty-container       { @apply py-12 text-center space-y-2; }

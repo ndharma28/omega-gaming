@@ -38,18 +38,10 @@ function ProgressBar({ onComplete }: { onComplete: () => void }) {
     intervalRef.current = setInterval(() => {
       current += 1;
       const t = current / steps;
-      // Heavy cubic ease-out — fast start, then drags hard before 100
-      // Also stalls artificially between 70-90% to feel like it's working
       let eased: number;
-      if (t < 0.6) {
-        eased = Math.round((1 - Math.pow(1 - t / 0.6, 3)) * 70);
-      } else if (t < 0.85) {
-        // Crawl through 70–88%
-        eased = Math.round(70 + ((t - 0.6) / 0.25) * 18);
-      } else {
-        // Final push to 100
-        eased = Math.round(88 + ((t - 0.85) / 0.15) * 12);
-      }
+      if (t < 0.6) eased = Math.round((1 - Math.pow(1 - t / 0.6, 3)) * 70);
+      else if (t < 0.85) eased = Math.round(70 + ((t - 0.6) / 0.25) * 18);
+      else eased = Math.round(88 + ((t - 0.85) / 0.15) * 12);
       eased = Math.min(100, eased);
       setProgress(eased);
       if (current >= steps) {
@@ -70,27 +62,17 @@ function ProgressBar({ onComplete }: { onComplete: () => void }) {
 
   return (
     <div className="mt-4 space-y-2">
-      {/* Label */}
       <div className="flex justify-between items-center">
         <span className="chronicle-label animate-pulse">{SCAN_PHRASES[phraseIndex]}</span>
         <span className="chronicle-text-muted font-mono">{progress}%</span>
       </div>
-
-      {/* Track */}
       <div className="chronicle-progress-track">
-        {/* Fill */}
         <div className="chronicle-progress-fill" style={{ width: `${progress}%` }} />
-        {/* Shimmer */}
         <div
           className="chronicle-progress-shimmer"
-          style={{
-            left: `calc(${progress}% - 4rem)`,
-            transition: "left 75ms linear",
-          }}
+          style={{ left: `calc(${progress}% - 4rem)`, transition: "left 75ms linear" }}
         />
       </div>
-
-      {/* Tick marks — decorative */}
       <div className="flex justify-between px-0.5">
         {[...Array(12)].map((_, i) => (
           <div
@@ -150,9 +132,9 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
   return (
     <div className="chronicle-container">
       {/* Header */}
-      <div className="chronicle-section-accent">
-        <p className="chronicle-label mb-3">Address Chronicle</p>
-        <p className="chronicle-text-secondary mb-4">
+      <div className="chronicle-section chronicle-section-accent px-6 py-5">
+        <p className="chronicle-label mb-2">Address Chronicle</p>
+        <p className="text-[11px] text-yellow-800 mb-4 leading-relaxed">
           {"Every address leaves a trail. They always think they've covered it. They never have."}
         </p>
         <div className="flex gap-2">
@@ -176,8 +158,6 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
             </button>
           )}
         </div>
-
-        {/* Progress bar — only shown while scanning */}
         {isScanning && <ProgressBar key={pendingRef.current} onComplete={handleComplete} />}
       </div>
 
@@ -185,23 +165,19 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
       {hasNoResults && (
         <div className="chronicle-empty-container">
           <EmptySigil />
-          <p className="chronicle-text-secondary">No wins found for this address.</p>
-          <p className="chronicle-text-muted">The ledger has no record of this wallet.</p>
+          <p className="text-[11px] text-yellow-800">No wins found for this address.</p>
+          <p className="text-[10px] text-yellow-900/60">The ledger has no record of this wallet.</p>
         </div>
       )}
 
       {/* Results */}
       {hasResults && (
         <>
-          {/* Summary stats */}
           <div className="chronicle-stats-grid">
             {[
               { label: "Wins", value: matches.length.toString() },
               { label: "Total Won", value: `${parseFloat(formatEther(totalWon)).toFixed(4)} ETH` },
-              {
-                label: "Clearance",
-                value: classifyPrize(parseFloat(formatEther(totalWon))).toUpperCase(),
-              },
+              { label: "Clearance", value: classifyPrize(parseFloat(formatEther(totalWon))).toUpperCase() },
             ].map(({ label, value }) => (
               <div key={label} className="chronicle-stat-card">
                 <p className="chronicle-label">{label}</p>
@@ -210,7 +186,6 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
             ))}
           </div>
 
-          {/* Column headers */}
           <div className="chronicle-table-header">
             {TABLE_COLS.map(col => (
               <span key={col} className="chronicle-label">
@@ -220,7 +195,6 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
             <span className="hidden md:block chronicle-label">Date</span>
           </div>
 
-          {/* Rows */}
           <div className="chronicle-divider">
             {[...matches]
               .sort((a, b) => Number(b.endTime) - Number(a.endTime))
@@ -236,12 +210,13 @@ export default function AddressChronicle({ winnerHistory, activeSource }: Addres
               ))}
           </div>
 
-          {/* Footer */}
-          <div className="chronicle-section-accent px-6 py-3 flex justify-between items-center">
-            <span className="chronicle-text-muted">
+          <div className="px-6 py-3 bg-yellow-950/10 border-t border-yellow-900/20 flex justify-between items-center">
+            <span className="text-[10px] text-yellow-900/50">
               {matches.length} win{matches.length !== 1 ? "s" : ""} found
             </span>
-            <span className="chronicle-label">{parseFloat(formatEther(totalWon)).toFixed(4)} ETH won</span>
+            <span className="text-[10px] text-yellow-600 font-bold">
+              {parseFloat(formatEther(totalWon)).toFixed(4)} ETH won
+            </span>
           </div>
         </>
       )}

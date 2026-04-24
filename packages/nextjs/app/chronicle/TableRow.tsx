@@ -1,4 +1,5 @@
 "use client";
+"use client";
 
 import { RANK_COLORS, classifyPrize, formatTimestamp, formatTimestampShort, shortenAddress } from "./lib";
 import { formatEther } from "viem";
@@ -24,23 +25,29 @@ export default function TableRow({ entry, isRevealed, highlightAddress, totalsBy
         isHighlighted ? "chronicle-table-row-highlight" : "chronicle-table-row-hover"
       } ${isRevealed ? "chronicle-fade-in" : "chronicle-fade-out"}`}
     >
-      <span className="text-xs font-bold text-slate-500 self-center">#{entry.roundId}</span>
+      {/* # */}
+      <span className="text-xs font-bold text-yellow-900/60 flex items-center">#{entry.roundId}</span>
 
-      <span className="self-center min-w-0">
+      {/* Operative */}
+      <span className="flex flex-col justify-center min-w-0">
         <span
-          className={`block text-xs font-mono truncate ${isHighlighted ? "text-yellow-300" : "text-yellow-400"}`}
+          className={`text-xs font-mono truncate ${isHighlighted ? "text-yellow-300" : "text-yellow-500"}`}
           title={entry.winner}
         >
           {shortenAddress(entry.winner)}
         </span>
-        <span className="block md:hidden text-[10px] text-slate-500 mt-0.5">{formatTimestampShort(entry.endTime)}</span>
+        <span className="block md:hidden text-[10px] text-yellow-900/50 mt-0.5">
+          {formatTimestampShort(entry.endTime)}
+        </span>
       </span>
 
-      <span className="text-xs font-bold self-center" style={{ color: "#fbbf24" }}>
+      {/* Extracted */}
+      <span className="text-xs font-bold flex items-center" style={{ color: "#fbbf24" }}>
         {ethAmount.toFixed(4)} ETH
       </span>
 
-      <span className="self-center">
+      {/* Clearance */}
+      <span className="flex items-center">
         <span
           className={`inline-block text-[10px] px-2 py-0.5 rounded-full ${RANK_COLORS[rank].className}`}
           style={RANK_COLORS[rank].style}
@@ -49,7 +56,10 @@ export default function TableRow({ entry, isRevealed, highlightAddress, totalsBy
         </span>
       </span>
 
-      <span className="hidden md:block text-[11px] text-slate-400 self-center">{formatTimestamp(entry.endTime)}</span>
+      {/* Last Seen */}
+      <span className="hidden md:flex items-center text-[11px] text-yellow-900/60">
+        {formatTimestamp(entry.endTime)}
+      </span>
     </div>
   );
 }
