@@ -14,40 +14,43 @@ interface OwnerPanelProps {
 }
 
 export default function OwnerPanel({ show, toggle, treasuryBalance }: OwnerPanelProps) {
-  const [treasuryAddress, setTreasuryAddress] = useState("");
-  const [treasurySuccess, setTreasurySuccess] = useState(false);
+  const [winnerCutInput, setWinnerCutInput] = useState("");
+  const [winnerCutSuccess, setWinnerCutSuccess] = useState(false);
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
 
   const { totalFeesCollected, winnerHistory, isLoading: isLoadingFees } = useWinnerHistory();
 
-  const { writeContractAsync, isPending: isSettingTreasury } = useWriteContract();
+  const { writeContractAsync, isPending: isSettingWinnerCut } = useWriteContract();
   const { isLoading: isWaitingForTx, isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
 
   useEffect(() => {
     if (isTxConfirmed) {
-      setTreasurySuccess(true);
-      setTreasuryAddress("");
+      setWinnerCutSuccess(true);
+      setWinnerCutInput("");
       setTxHash(undefined);
     }
   }, [isTxConfirmed]);
 
-  const handleSetTreasury = async () => {
-    if (!treasuryAddress) return;
+  const handleSetWinnerCut = async () => {
+    const parsed = parseInt(winnerCutInput);
+    if (!winnerCutInput || isNaN(parsed) || parsed < 1 || parsed > 99) return;
     try {
-      setTreasurySuccess(false);
+      setWinnerCutSuccess(false);
       const hash = await writeContractAsync({
         address: CONTRACT_ADDRESS,
         abi: OMEGA_LOTTERY_ABI,
-        functionName: "setTreasury",
-        args: [treasuryAddress],
+        functionName: "setWinnerCut",
+        args: [BigInt(parsed)],
       });
       setTxHash(hash);
     } catch (e) {
-      console.error("Failed to set treasury:", e);
+      console.error("Failed to set winner cut:", e);
     }
   };
 
-  const isTreasuryDisabled = isSettingTreasury || isWaitingForTx || !treasuryAddress;
+  const parsedCut = parseInt(winnerCutInput);
+  const isWinnerCutValid = !isNaN(parsedCut) && parsedCut >= 1 && parsedCut <= 99;
+  const isWinnerCutDisabled = isSettingWinnerCut || isWaitingForTx || !isWinnerCutValid;
 
   return (
     <div className="rounded-2xl border border-red-900/30 bg-red-950/10 overflow-hidden">
@@ -67,7 +70,6 @@ export default function OwnerPanel({ show, toggle, treasuryBalance }: OwnerPanel
             </h4>
 
             <div className="grid grid-cols-2 gap-3">
-              {/* Current balance */}
               <div className="bg-black/30 border border-red-900/20 rounded-xl p-4 space-y-1">
                 <p className="text-[10px] text-slate-500 uppercase font-bold">Current Balance</p>
                 <p className="text-xl font-black text-white">
@@ -77,7 +79,6 @@ export default function OwnerPanel({ show, toggle, treasuryBalance }: OwnerPanel
                 </p>
               </div>
 
-              {/* Fees collected */}
               <div className="bg-black/30 border border-red-900/20 rounded-xl p-4 space-y-1">
                 <p className="text-[10px] text-slate-500 uppercase font-bold">Total Fees Collected</p>
                 {isLoadingFees ? (
@@ -102,29 +103,31 @@ export default function OwnerPanel({ show, toggle, treasuryBalance }: OwnerPanel
 
             <div className="space-y-2 mt-4">
               <label
-                htmlFor="treasury-input"
+                htmlFor="winner-cut-input"
                 className="text-[10px] text-slate-500 uppercase font-bold flex items-center gap-1"
               >
-                <Wallet className="w-3 h-3" /> Set Treasury Address
+                <Wallet className="w-3 h-3" /> Set Winner Cut (1–99%)
               </label>
               <div className="flex gap-2">
                 <input
-                  id="treasury-input"
-                  type="text"
-                  value={treasuryAddress}
+                  id="winner-cut-input"
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={winnerCutInput}
                   onChange={e => {
-                    setTreasuryAddress(e.target.value);
-                    setTreasurySuccess(false);
+                    setWinnerCutInput(e.target.value);
+                    setWinnerCutSuccess(false);
                   }}
-                  placeholder="0x..."
+                  placeholder="90"
                   className="flex-1 bg-black/40 border border-red-900/30 rounded-lg p-2 text-white text-sm outline-none focus:border-red-500 font-mono"
                 />
                 <button
-                  onClick={handleSetTreasury}
-                  disabled={isTreasuryDisabled}
+                  onClick={handleSetWinnerCut}
+                  disabled={isWinnerCutDisabled}
                   className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold text-sm flex items-center justify-center min-w-25 gap-2 disabled:opacity-50 transition-colors"
                 >
-                  {isSettingTreasury || isWaitingForTx ? (
+                  {isSettingWinnerCut || isWaitingForTx ? (
                     <>
                       <Loader2 className="animate-spin w-4 h-4" />
                       {isWaitingForTx ? "Mining..." : "Signing..."}
@@ -134,9 +137,12 @@ export default function OwnerPanel({ show, toggle, treasuryBalance }: OwnerPanel
                   )}
                 </button>
               </div>
-              {treasurySuccess && (
+              {!isWinnerCutValid && winnerCutInput !== "" && (
+                <p className="text-[10px] text-red-400 font-bold">Must be between 1 and 99</p>
+              )}
+              {winnerCutSuccess && (
                 <p className="text-[10px] text-green-400 font-bold animate-in fade-in">
-                  ✓ Treasury address updated successfully
+                  ✓ Winner cut updated successfully
                 </p>
               )}
             </div>

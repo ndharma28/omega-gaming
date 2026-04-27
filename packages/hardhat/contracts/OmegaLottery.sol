@@ -132,6 +132,8 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface, R
     mapping(uint256 => Lottery) internal lotteries; // lotteryId => Lottery 
     mapping(uint256 => address[]) internal lotteryPlayers;  // lotteryId => players
     mapping(uint256 => mapping(address => uint256)) internal activePlayerStakes;    // lotteryId => address => stake
+    mapping(uint256 => mapping(address => uint256)) internal playerTickets;
+    mapping(uint256 => uint256) internal totalTickets;
 
     // CHAINLINK VRF
     uint256 public s_subscriptionId;
@@ -154,7 +156,7 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface, R
         _keyHash = keyHash;
 
         lotteryIdCounter = 1;
-        callbackGasLimit = 200_000;
+        callbackGasLimit = 1_000_000;
         requestConfirmations = 3;
         numWords = 1;
 
@@ -167,32 +169,36 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface, R
     }
 
     // JOIN LOTTERY
-    function joinLottery(uint256 lotteryId) external payable
+    function joinLottery(uint256 lotteryId) external payable 
     {
         Lottery storage lottery = lotteries[lotteryId];
 
-        // enforce rules
         if (lotteryId == 0) revert LotteryDNE();
         if (block.timestamp < lottery.startTime) revert LotteryNotStarted();
         if (block.timestamp >= lottery.endTime) revert LotteryEnded();
         if (msg.value < lottery.entryFee) revert InsufficientFunds();
-        
-        // check lottery state
         if (lottery.status != LotteryStatus.OPEN) revert LotteryNotOpen();
 
-        // update lottery state
-        lotteryPlayers[lotteryId].push(msg.sender);
-        lottery.totalPot += msg.value;
+        if (msg.value % lottery.entryFee != 0) revert InsufficientFunds();
 
-        // keep track of how much each player deposits in case of refund
+        uint256 tickets = msg.value / lottery.entryFee;
+
+        if (activePlayerStakes[lotteryId][msg.sender] == 0) {
+            lotteryPlayers[lotteryId].push(msg.sender);
+        }
+
+        playerTickets[lotteryId][msg.sender] += tickets;
+        totalTickets[lotteryId] += tickets;
+
+        lottery.totalPot += msg.value;
         activePlayerStakes[lotteryId][msg.sender] += msg.value;
 
-        // send event to frontend
         emit LotteryEntered(lotteryId, msg.sender, msg.value);
     }
     
     // LOTTERY CREATION
-    function _createLottery() internal {
+    function _createLottery() internal 
+    {
         uint256 lotteryId = lotteryIdCounter++;
 
         uint256 startTime = block.timestamp;
@@ -260,19 +266,33 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface, R
     }
 
     // SELECT WINNER
-    function _selectWinner(uint256 lotteryId) internal returns(address winnerAddress)
+    function _selectWinner(uint256 lotteryId) internal returns (address winnerAddress) 
     {
-        Lottery storage lottery = lotteries[lotteryId];     // lottery object
+        Lottery storage lottery = lotteries[lotteryId];
 
-        uint256 numPlayers = lotteryPlayers[lotteryId].length; // store number of players
-        if (numPlayers == 0) revert NotEnoughPlayers(); // make sure we have >= 1 player
+        uint256 ticketCount = totalTickets[lotteryId];
+        if (ticketCount == 0) revert NotEnoughPlayers();
 
-        uint256 winnerIndex = lottery.randomValue % numPlayers;
-        winnerAddress = lotteryPlayers[lotteryId][winnerIndex];
+        uint256 winningTicket = lottery.randomValue % ticketCount;
+        uint256 cumulativeTickets = 0;
 
-        lottery.winner = winnerAddress;
+        address[] storage players = lotteryPlayers[lotteryId];
 
-        emit WinnerSelected(lotteryId, winnerAddress);
+        for (uint256 i = 0; i < players.length; i++) {
+            address player = players[i];
+
+            cumulativeTickets += playerTickets[lotteryId][player];
+
+            if (winningTicket < cumulativeTickets) {
+                winnerAddress = player;
+                lottery.winner = winnerAddress;
+
+                emit WinnerSelected(lotteryId, winnerAddress);
+                return winnerAddress;
+            }
+        }
+
+        revert NotEnoughPlayers();
     }
     
     // PAY WINNER
@@ -291,7 +311,6 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface, R
         require(treasuryCall, "Treasury transfer failed");
 
         emit WinnerPaid(lotteryId, winnerAddress, winnerCut, treasuryCut, totalPot);
-        delete lotteryPlayers[lotteryId];
 
         lottery.status = LotteryStatus.RESOLVED;
         emit LotteryStatusUpdated(lotteryId, lottery.status, block.timestamp);
@@ -315,7 +334,8 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface, R
         performData = abi.encode(currentLotteryId); // data to be used in performUpkeep
     }
 
-    function performUpkeep(bytes calldata performData) external override nonReentrant {
+    function performUpkeep(bytes calldata performData) external override nonReentrant 
+    {
         uint256 lotteryId = abi.decode(performData, (uint256));
 
         Lottery storage lottery = lotteries[lotteryId];
@@ -339,10 +359,11 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface, R
             revert("Upkeep not needed");
         }
 
-        uint256 playerCount = lotteryPlayers[lotteryId].length;
+        uint256 playerCount = totalTickets[lotteryId];
 
         // automatically rollover if no players joined the lottery
-        if (playerCount == 0) {
+        if (playerCount == 0) 
+        {
             lottery.status = LotteryStatus.RESOLVED;
             emit LotteryStatusUpdated(lotteryId, lottery.status, block.timestamp);
 
@@ -393,7 +414,6 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface, R
 
         emit LotteryStatusUpdated(lotteryId, lottery.status, block.timestamp);
 
-        delete lotteryPlayers[lotteryId];
         delete requestToLottery[requestId];
 
         emit LotteryRefunded(lotteryId, requestId);
@@ -402,11 +422,14 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface, R
         _createLottery();
     }
 
-    function setWinnerCut(uint256 winnerCut) external 
+    function setWinnerCut(uint256 winnerCut) external onlyOwner
     {
         // note: this sets the % of the pot that the winner of the lottery will receive.
         // for example, winnerCut = 90 => winner takes 90%, treasury takes 10%
         //                        = 95 => winner takes 95%, treasury takes 5%
+
+        require(winnerCut <= 100, "Invalid winner cut");
+
         uint256 oldCut = _winnerCut;
         _winnerCut = winnerCut;
         
@@ -454,5 +477,62 @@ contract OmegaLottery is VRFConsumerBaseV2Plus, AutomationCompatibleInterface, R
     function getWinnerCut() external view returns (uint256)
     {
         return _winnerCut;
+    }
+
+    function getPlayerCount(uint256 lotteryId) external view returns (uint256) 
+    {
+        return lotteryPlayers[lotteryId].length;
+    }
+
+    function getPlayerAt(uint256 lotteryId, uint256 index) external view returns (address) 
+    {
+        return lotteryPlayers[lotteryId][index];
+    }
+
+    function getPlayerTickets(uint256 lotteryId, address user) external view returns (uint256) 
+    {
+        return playerTickets[lotteryId][user];
+    }
+
+    function getTotalTickets(uint256 lotteryId) external view returns (uint256) 
+    {
+        return totalTickets[lotteryId];
+    }
+
+    function getWinningTicket(uint256 lotteryId) external view returns (uint256) 
+    {
+        Lottery storage lottery = lotteries[lotteryId];
+
+        uint256 ticketCount = totalTickets[lotteryId];
+        if (ticketCount == 0) revert NotEnoughPlayers();
+
+        return lottery.randomValue % ticketCount;
+    }
+
+    function recomputeWinner(uint256 lotteryId) external view returns (address winnerAddress) 
+    {
+        Lottery storage lottery = lotteries[lotteryId];
+
+        uint256 ticketCount = totalTickets[lotteryId];
+        if (ticketCount == 0) revert NotEnoughPlayers();
+
+        uint256 winningTicket = lottery.randomValue % ticketCount;
+        uint256 cumulativeTickets = 0;
+
+        address[] storage players = lotteryPlayers[lotteryId];
+
+        for (uint256 i = 0; i < players.length; i++) 
+        {
+            address player = players[i];
+
+            cumulativeTickets += playerTickets[lotteryId][player];
+
+            if (winningTicket < cumulativeTickets) 
+            {
+                return player;
+            }
+        }
+
+        revert NotEnoughPlayers();
     }
 }
