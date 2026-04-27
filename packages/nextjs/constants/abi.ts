@@ -1,4 +1,46 @@
 // constants/abi.ts
+
+export const LEGACY_OMEGA_LOTTERY_ABI = [
+  {
+    inputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
+    name: "getLottery",
+    outputs: [
+      {
+        components: [
+          { internalType: "uint256", name: "id", type: "uint256" },
+          { internalType: "uint256", name: "entryFee", type: "uint256" },
+          { internalType: "uint256", name: "startTime", type: "uint256" },
+          { internalType: "uint256", name: "endTime", type: "uint256" },
+          { internalType: "uint256", name: "totalPot", type: "uint256" },
+          { internalType: "uint8", name: "status", type: "uint8" },
+          { internalType: "address", name: "winner", type: "address" },
+          { internalType: "uint256", name: "randomValue", type: "uint256" },
+          { internalType: "uint256", name: "requestId", type: "uint256" },
+        ],
+        internalType: "struct OmegaLottery.Lottery",
+        name: "lottery",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lotteryIdCounter",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getWinnerCut",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+] as const;
+
 export const OMEGA_LOTTERY_ABI = [
   {
     inputs: [
@@ -28,7 +70,7 @@ export const OMEGA_LOTTERY_ABI = [
           { internalType: "address", name: "winner", type: "address" },
           { internalType: "uint256", name: "randomValue", type: "uint256" },
           { internalType: "uint256", name: "requestId", type: "uint256" },
-          { internalType: "uint256", name: "vrfRequestTime", type: "uint256" }, // ← new field
+          { internalType: "uint256", name: "vrfRequestTime", type: "uint256" },
         ],
         internalType: "struct OmegaLottery.Lottery",
         name: "lottery",

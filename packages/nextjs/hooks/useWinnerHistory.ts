@@ -5,6 +5,7 @@ import {
   CONTRACT_ADDRESS,
   LEGACY_CONTRACT_ADDRESS,
   LEGACY_CONTRACT_ADDRESS2,
+  LEGACY_OMEGA_LOTTERY_ABI,
   OMEGA_LOTTERY_ABI,
 } from "~~/constants/abi";
 
@@ -28,13 +29,15 @@ type LotteryStruct = {
   winner: string;
   randomValue: bigint;
   requestId: bigint;
-  vrfRequestTime: bigint;
+  vrfRequestTime?: bigint;
 };
 
-function useContractHistory(address: Address | undefined) {
+type SupportedAbi = typeof OMEGA_LOTTERY_ABI | typeof LEGACY_OMEGA_LOTTERY_ABI;
+
+function useContractHistory(address: Address | undefined, abi: SupportedAbi) {
   const { data: counterData, isLoading: counterLoading } = useReadContract({
     address,
-    abi: OMEGA_LOTTERY_ABI,
+    abi,
     functionName: "lotteryIdCounter",
     query: { enabled: !!address },
   });
@@ -45,7 +48,7 @@ function useContractHistory(address: Address | undefined) {
   const { data: lotteriesData, isLoading: lotteriesLoading } = useReadContracts({
     contracts: allIds.map(id => ({
       address: address!,
-      abi: OMEGA_LOTTERY_ABI,
+      abi,
       functionName: "getLottery" as const,
       args: [BigInt(id)] as const,
     })),
@@ -54,7 +57,7 @@ function useContractHistory(address: Address | undefined) {
 
   const { data: winnerCutData } = useReadContract({
     address,
-    abi: OMEGA_LOTTERY_ABI,
+    abi,
     functionName: "getWinnerCut",
     query: { enabled: !!address },
   });
@@ -92,17 +95,17 @@ function useContractHistory(address: Address | undefined) {
 }
 
 export function useWinnerHistory() {
-  const legacy1 = useContractHistory(LEGACY_CONTRACT_ADDRESS);
-  const legacy2 = useContractHistory(LEGACY_CONTRACT_ADDRESS2);
-  const current = useContractHistory(CONTRACT_ADDRESS);
+  const legacy1 = useContractHistory(LEGACY_CONTRACT_ADDRESS, LEGACY_OMEGA_LOTTERY_ABI);
+  const legacy2 = useContractHistory(LEGACY_CONTRACT_ADDRESS2, LEGACY_OMEGA_LOTTERY_ABI);
+  const current = useContractHistory(CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI);
 
   const allSorted = useMemo(
-    () => [...legacy1.entries, ...legacy2.entries, ...current.entries].sort((a, b) => Number(a.endTime - b.endTime)), // oldest first
+    () => [...legacy1.entries, ...legacy2.entries, ...current.entries].sort((a, b) => Number(a.endTime - b.endTime)),
     [legacy1.entries, legacy2.entries, current.entries],
   );
 
   const winnerHistory: WinnerEntry[] = useMemo(
-    () => allSorted.map((e, i) => ({ ...e, roundId: i + 1 })).reverse(), // newest first for display
+    () => allSorted.map((e, i) => ({ ...e, roundId: i + 1 })).reverse(),
     [allSorted],
   );
 
