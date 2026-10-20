@@ -9,7 +9,7 @@ import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
 import StatusBar, { LotteryStatus } from "./StatusBar";
-import { formatEther } from "viem";
+import { formatEther, parseEther } from "viem";
 import { useAccount, useBalance, useReadContract } from "wagmi";
 import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
@@ -26,7 +26,11 @@ export default function LotteryDapp() {
   useBalance({ address: connectedAddress });
 
   // ── Contract reads ────────────────────────────────────────────────────────────
-  const { data: idCounter, refetch: refetchCounter } = useReadContract({
+  const {
+    data: idCounter,
+    isLoading: isLoadingId,
+    refetch: refetchCounter,
+  } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: OMEGA_LOTTERY_ABI,
     functionName: "lotteryIdCounter",
@@ -99,7 +103,7 @@ export default function LotteryDapp() {
   useEffect(() => {
     setMounted(true);
   }, []);
-  if (!mounted) return null;
+  if (!mounted || isLoadingId) return null;
 
   // ── Entry Validation ──────────────────────────────────────────────────────────
   const isEntryAllowed = status === LotteryStatus.OPEN && endTime > 0 && Math.floor(Date.now() / 1000) < endTime;
@@ -108,7 +112,8 @@ export default function LotteryDapp() {
   const currentTotal = (Number(ticketCount) * minEntryEth).toFixed(4);
 
   const handleConfirmEntry = () => {
-    joinLottery(currentTotal);
+    // Pass parsed wei value to joinLottery
+    joinLottery(parseEther(currentTotal).toString());
     setShowPreview(false);
   };
 
@@ -265,7 +270,14 @@ export default function LotteryDapp() {
       )}
 
       {isOwnerDirect && (
-        <div className="og-owner-zone">
+        <div className="og-owner-zone" style={{ marginTop: "24px", padding: "0 24px" }}>
+          <button
+            className="og-btn-quick"
+            style={{ width: "100%", marginBottom: "12px" }}
+            onClick={() => setShowOwnerPanel(prev => !prev)}
+          >
+            {showOwnerPanel ? "Hide Protocol Controls" : "Access Protocol Controls"}
+          </button>
           <OwnerPanel
             show={showOwnerPanel}
             toggle={() => setShowOwnerPanel(prev => !prev)}
