@@ -241,9 +241,20 @@ export const OMEGA_LOTTERY_ABI = [
     name: "LotteryStatusUpdated",
     type: "event",
   },
+  {
+    inputs: [
+      { internalType: "uint256", name: "lotteryId", type: "uint256" },
+      { internalType: "uint256", name: "randomValue", type: "uint256" },
+    ],
+    name: "fulfillDraw",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ] as const;
 
 // Chain of custody — oldest to newest
 export const LEGACY_CONTRACT_ADDRESS = "0x66A0203895593e39873B15771e77208FccbbB81b" as const;
 export const LEGACY_CONTRACT_ADDRESS2 = "0x8A9f49D5812160a523A326eBd51a4359668B2c9b" as const;
-export const CONTRACT_ADDRESS = "0xCa312D97a4fF6F4C95f154a6ED97aFF59eE3C098" as const;
+export const LEGACY_CONTRACT_ADDRESS3 = "0xCa312D97a4fF6F4C95f154a6ED97aFF59eE3C098" as const;
+export const CONTRACT_ADDRESS = "0xbfbD71e94636c1623f1d9b7923c4c98751aA6599" as const;

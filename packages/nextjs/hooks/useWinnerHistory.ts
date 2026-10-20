@@ -5,6 +5,7 @@ import {
   CONTRACT_ADDRESS,
   LEGACY_CONTRACT_ADDRESS,
   LEGACY_CONTRACT_ADDRESS2,
+  LEGACY_CONTRACT_ADDRESS3,
   LEGACY_OMEGA_LOTTERY_ABI,
   OMEGA_LOTTERY_ABI,
 } from "~~/constants/abi";
@@ -97,11 +98,15 @@ function useContractHistory(address: Address | undefined, abi: SupportedAbi) {
 export function useWinnerHistory() {
   const legacy1 = useContractHistory(LEGACY_CONTRACT_ADDRESS, LEGACY_OMEGA_LOTTERY_ABI);
   const legacy2 = useContractHistory(LEGACY_CONTRACT_ADDRESS2, LEGACY_OMEGA_LOTTERY_ABI);
+  const legacy3 = useContractHistory(LEGACY_CONTRACT_ADDRESS3, LEGACY_OMEGA_LOTTERY_ABI);
   const current = useContractHistory(CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI);
 
   const allSorted = useMemo(
-    () => [...legacy1.entries, ...legacy2.entries, ...current.entries].sort((a, b) => Number(a.endTime - b.endTime)),
-    [legacy1.entries, legacy2.entries, current.entries],
+    () =>
+      [...legacy1.entries, ...legacy2.entries, ...legacy3.entries, ...current.entries].sort((a, b) =>
+        Number(a.endTime - b.endTime),
+      ),
+    [legacy1.entries, legacy2.entries, legacy3.entries, current.entries],
   );
 
   const winnerHistory: WinnerEntry[] = useMemo(
@@ -115,6 +120,6 @@ export function useWinnerHistory() {
     winnerHistory,
     totalFeesCollected,
     totalRounds: winnerHistory.length,
-    isLoading: legacy1.isLoading || legacy2.isLoading || current.isLoading,
+    isLoading: legacy1.isLoading || legacy2.isLoading || legacy3.isLoading || current.isLoading,
   };
 }
