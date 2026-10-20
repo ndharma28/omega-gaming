@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   11155111: {
     OmegaLottery: {
-      address: "0xbfbD71e94636c1623f1d9b7923c4c98751aA6599",
+      address: "0x53E28fAB6bE14FaFBb72b478bA33ad156d0E5BD9",
       abi: [
         {
           inputs: [
@@ -319,6 +319,13 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [],
+          name: "createLotteryManually",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -494,7 +501,7 @@ const deployedContracts = {
         renounceOwnership: "@openzeppelin/contracts/access/Ownable.sol",
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
-      deployedOnBlock: 11956984,
+      deployedOnBlock: 11957766,
     },
   },
 } as const;

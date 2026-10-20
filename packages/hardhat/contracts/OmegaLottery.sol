@@ -151,6 +151,11 @@ contract OmegaLottery is Ownable, ReentrancyGuard
 
         emit LotteryEntered(lotteryId, msg.sender, msg.value);
     }
+
+    // MANUAL CREATION HELPER FOR TESTING
+    function createLotteryManually() external onlyOwner {
+        _createLottery();
+    }
     
     // LOTTERY CREATION
     function _createLottery() internal 
