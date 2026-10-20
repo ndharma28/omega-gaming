@@ -32,7 +32,7 @@ export default function LotteryDapp() {
     functionName: "lotteryIdCounter",
   });
 
-  const activeLotteryId = idCounter ?? 1n;
+  const activeLotteryId = idCounter && (idCounter as bigint) > 1n ? (idCounter as bigint) - 1n : 1n;
 
   const { data: rawOwnerAddress, isLoading: rawOwnerLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
