@@ -1,5 +1,6 @@
 // constants/abi.ts
 
+// Pre-CRE contracts (VRF-era struct with requestId). Read-only history.
 export const LEGACY_OMEGA_LOTTERY_ABI = [
   {
     inputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
@@ -41,36 +42,509 @@ export const LEGACY_OMEGA_LOTTERY_ABI = [
   },
 ] as const;
 
+// Current CRE-era ABI (8-field Lottery struct). Generated from OmegaLottery.sol.
+// Prefer importing this from deployedContracts.ts after each deploy so it never drifts.
 export const OMEGA_LOTTERY_ABI = [
   {
     inputs: [
-      { internalType: "address", name: "treasuryAddress", type: "address" },
-      { internalType: "uint256", name: "subscriptionId", type: "uint256" },
-      { internalType: "address", name: "vrfCoordinator", type: "address" },
-      { internalType: "bytes32", name: "keyHash", type: "bytes32" },
-      { internalType: "uint256", name: "defaultEntryFee", type: "uint256" },
-      { internalType: "uint256", name: "lotteryDuration", type: "uint256" },
-      { internalType: "uint256", name: "winnerCut", type: "uint256" },
+      {
+        internalType: "address",
+        name: "treasuryAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "forwarderAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "defaultEntryFee",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "lotteryDuration",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "winnerCut",
+        type: "uint256",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
   },
   {
-    inputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
+    inputs: [],
+    name: "InsufficientFunds",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidConfig",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidForwarder",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidReport",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidTreasuryAddress",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "LotteryDNE",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "LotteryEnded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "LotteryNotEnded",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "LotteryNotOpen",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "LotteryNotStarted",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NotLatestLottery",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "NothingToWithdraw",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "OwnableInvalidOwner",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "OwnableUnauthorizedAccount",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "PreviousLotteryNotResolved",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ReentrancyGuardReentrantCall",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "RefundNotAvailable",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "UnauthorizedForwarder",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "WithdrawFailed",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newForwarder",
+        type: "address",
+      },
+    ],
+    name: "ForwarderUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "entryFee",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "startTime",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "endTime",
+        type: "uint256",
+      },
+    ],
+    name: "LotteryCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "LotteryEntered",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "totalRefunded",
+        type: "uint256",
+      },
+    ],
+    name: "LotteryRefunded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum OmegaLottery.LotteryStatus",
+        name: "lotteryStatus",
+        type: "uint8",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "timestamp",
+        type: "uint256",
+      },
+    ],
+    name: "LotteryStatusUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "PayoutDeferred",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "payout",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "totalPot",
+        type: "uint256",
+      },
+    ],
+    name: "WinnerPaid",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "randomValue",
+        type: "uint256",
+      },
+    ],
+    name: "WinnerSelected",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "Withdrawn",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "REFUND_DELAY",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "_defaultEntryFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "_lotteryDuration",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "claimable",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "creForwarder",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "createLotteryManually",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+    ],
     name: "getLottery",
     outputs: [
       {
         components: [
-          { internalType: "uint256", name: "id", type: "uint256" },
-          { internalType: "uint256", name: "entryFee", type: "uint256" },
-          { internalType: "uint256", name: "startTime", type: "uint256" },
-          { internalType: "uint256", name: "endTime", type: "uint256" },
-          { internalType: "uint256", name: "totalPot", type: "uint256" },
-          { internalType: "uint8", name: "status", type: "uint8" },
-          { internalType: "address", name: "winner", type: "address" },
-          { internalType: "uint256", name: "randomValue", type: "uint256" },
-          { internalType: "uint256", name: "requestId", type: "uint256" },
-          { internalType: "uint256", name: "vrfRequestTime", type: "uint256" },
+          {
+            internalType: "uint256",
+            name: "id",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "entryFee",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "startTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "endTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "totalPot",
+            type: "uint256",
+          },
+          {
+            internalType: "enum OmegaLottery.LotteryStatus",
+            name: "status",
+            type: "uint8",
+          },
+          {
+            internalType: "address",
+            name: "winner",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "randomValue",
+            type: "uint256",
+          },
         ],
         internalType: "struct OmegaLottery.Lottery",
         name: "lottery",
@@ -81,180 +555,301 @@ export const OMEGA_LOTTERY_ABI = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
-    name: "joinLottery",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
-    name: "getPlayersByLotteryId",
-    outputs: [{ internalType: "address[]", name: "players", type: "address[]" }],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+    ],
+    name: "getLotteryStatusById",
+    outputs: [
+      {
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [],
-    name: "owner",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+    ],
+    name: "getPlayerCount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getPlayerTickets",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+    ],
+    name: "getPlayersByLotteryId",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "players",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "getStakeByUserAddress",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+    ],
+    name: "getTotalTickets",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "getTreasuryAddress",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "lotteryIdCounter",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
     name: "getWinnerCut",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "winnerCut", type: "uint256" }],
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+    ],
+    name: "joinLottery",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "lotteryIdCounter",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "",
+        type: "bytes",
+      },
+      {
+        internalType: "bytes",
+        name: "report",
+        type: "bytes",
+      },
+    ],
+    name: "onReport",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "lotteryId",
+        type: "uint256",
+      },
+    ],
+    name: "refundExpiredLottery",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newForwarder",
+        type: "address",
+      },
+    ],
+    name: "setForwarder",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "winnerCut",
+        type: "uint256",
+      },
+    ],
     name: "setWinnerCut",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
-    name: "getPlayerCount",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
-      { internalType: "uint256", name: "lotteryId", type: "uint256" },
-      { internalType: "address", name: "user", type: "address" },
+      {
+        internalType: "bytes4",
+        name: "interfaceId",
+        type: "bytes4",
+      },
     ],
-    name: "getStakeByUserAddress",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "uint256", name: "lotteryId", type: "uint256" },
-      { internalType: "address", name: "user", type: "address" },
-    ],
-    name: "getPlayerTickets",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
-    name: "getTotalTickets",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
-    name: "getLotteryStatusById",
-    outputs: [{ internalType: "uint8", name: "status", type: "uint8" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
-    name: "getRandomnessDetails",
+    name: "supportsInterface",
     outputs: [
-      { internalType: "uint256", name: "requestId", type: "uint256" },
-      { internalType: "uint256", name: "randomValue", type: "uint256" },
-      { internalType: "bytes32", name: "vrfKeyHash", type: "bytes32" },
-      { internalType: "uint256", name: "subscriptionId", type: "uint256" },
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    stateMutability: "view",
+    stateMutability: "pure",
     type: "function",
   },
   {
-    inputs: [{ internalType: "uint256", name: "lotteryId", type: "uint256" }],
-    name: "recomputeWinner",
-    outputs: [{ internalType: "address", name: "winnerAddress", type: "address" }],
-    stateMutability: "view",
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "uint256", name: "lotteryId", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "entryFee", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "startTime", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "endTime", type: "uint256" },
-    ],
-    name: "LotteryCreated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "uint256", name: "lotteryId", type: "uint256" },
-      { indexed: true, internalType: "address", name: "user", type: "address" },
-      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
-    ],
-    name: "LotteryEntered",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "uint256", name: "lotteryId", type: "uint256" },
-      { indexed: true, internalType: "address", name: "user", type: "address" },
-      { indexed: false, internalType: "uint256", name: "payout", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "fee", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "totalPot", type: "uint256" },
-    ],
-    name: "WinnerPaid",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "uint256", name: "lotteryId", type: "uint256" },
-      { indexed: true, internalType: "address", name: "user", type: "address" },
-    ],
-    name: "WinnerSelected",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "uint256", name: "lotteryId", type: "uint256" },
-      { internalType: "enum OmegaLottery.LotteryStatus", name: "lotteryStatus", type: "uint8" },
-      { indexed: false, internalType: "uint256", name: "timestamp", type: "uint256" },
-    ],
-    name: "LotteryStatusUpdated",
-    type: "event",
-  },
-  {
-    inputs: [
-      { internalType: "uint256", name: "lotteryId", type: "uint256" },
-      { internalType: "uint256", name: "randomValue", type: "uint256" },
-    ],
-    name: "fulfillDraw",
+    inputs: [],
+    name: "withdraw",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
 ] as const;
 
-// Chain of custody — oldest to newest
+// Chain of custody: oldest to newest
 export const LEGACY_CONTRACT_ADDRESS = "0x66A0203895593e39873B15771e77208FccbbB81b" as const;
 export const LEGACY_CONTRACT_ADDRESS2 = "0x8A9f49D5812160a523A326eBd51a4359668B2c9b" as const;
 export const LEGACY_CONTRACT_ADDRESS3 = "0xCa312D97a4fF6F4C95f154a6ED97aFF59eE3C098" as const;
-export const CONTRACT_ADDRESS = "0x53E28fAB6bE14FaFBb72b478bA33ad156d0E5BD9" as const;
+export const CONTRACT_ADDRESS = "0x778Fd2b403Fd27C9A14900De212856E94dD0cf06" as const;

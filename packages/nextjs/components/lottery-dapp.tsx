@@ -9,8 +9,8 @@ import OwnerPanel from "./OwnerPanel";
 import PlayersList from "./PlayersList";
 import PotCard from "./PotCard";
 import StatusBar, { LotteryStatus } from "./StatusBar";
-import { formatEther, parseEther } from "viem";
-import { useAccount, useBalance, useReadContract } from "wagmi";
+import { formatEther } from "viem";
+import { useAccount, useBalance, useBlock, useReadContract } from "wagmi";
 import { CONTRACT_ADDRESS, OMEGA_LOTTERY_ABI } from "~~/constants/abi";
 import { useLottery } from "~~/hooks/useLottery";
 import { useWinnerHistory } from "~~/hooks/useWinnerHistory";
@@ -82,13 +82,27 @@ export default function LotteryDapp() {
     return () => clearInterval(interval);
   }, [refetchCounter]);
 
+  // ── Chain clock ───────────────────────────────────────────────────────────────
+  // The contract compares against block.timestamp, not the browser clock, so track
+  // the offset between the two and use chain time for every countdown/entry check.
+  const { data: latestBlock } = useBlock({ query: { refetchInterval: 12000 } });
+  const [clockOffset, setClockOffset] = useState(0);
+  useEffect(() => {
+    if (latestBlock?.timestamp) {
+      setClockOffset(Number(latestBlock.timestamp) - Math.floor(Date.now() / 1000));
+    }
+  }, [latestBlock?.timestamp]);
+
+  // Don't pretend the round is OPEN while the data is still loading.
   const status = (lotteryData?.status as LotteryStatus) ?? LotteryStatus.OPEN;
   const endTime = Number(lotteryData?.endTime ?? 0n);
 
   useEffect(() => {
     const calculate = () => {
-      const secondsLeft = Math.max(0, endTime - Math.floor(Date.now() / 1000));
-      if (secondsLeft <= 0) return setTimeRemaining("0s");
+      if (endTime === 0) return setTimeRemaining(""); // still loading
+      const secondsLeft = Math.max(0, endTime - (Math.floor(Date.now() / 1000) + clockOffset));
+      // Round is over but the CRE workflow hasn't drawn yet.
+      if (secondsLeft <= 0) return setTimeRemaining(status === LotteryStatus.OPEN ? "Awaiting draw" : "0s");
       if (secondsLeft < 60) return setTimeRemaining(`${secondsLeft}s`);
       if (secondsLeft < 3600) return setTimeRemaining(`${Math.floor(secondsLeft / 60)}m ${secondsLeft % 60}s`);
       setTimeRemaining(
@@ -98,7 +112,7 @@ export default function LotteryDapp() {
     calculate();
     const interval = setInterval(calculate, 1000);
     return () => clearInterval(interval);
-  }, [endTime]);
+  }, [endTime, clockOffset, status]);
 
   useEffect(() => {
     setMounted(true);
@@ -106,15 +120,24 @@ export default function LotteryDapp() {
   if (!mounted || isLoadingId) return null;
 
   // ── Entry Validation ──────────────────────────────────────────────────────────
-  const isEntryAllowed = status === LotteryStatus.OPEN && endTime > 0 && Math.floor(Date.now() / 1000) < endTime;
+  const chainNow = Math.floor(Date.now() / 1000) + clockOffset;
+  const isEntryAllowed = !!lotteryData && status === LotteryStatus.OPEN && endTime > 0 && chainNow < endTime;
   const minEntryEth = lotteryData ? Number(lotteryData.entryFee) / 1e18 : 0.01;
-  const isInvalidCount = Number(ticketCount) <= 0 || isNaN(Number(ticketCount));
+  // The contract only accepts whole multiples of the entry fee, so tickets must be whole numbers.
+  const isInvalidCount = !Number.isInteger(Number(ticketCount)) || Number(ticketCount) <= 0;
   const currentTotal = (Number(ticketCount) * minEntryEth).toFixed(4);
 
-  const handleConfirmEntry = () => {
-    // Pass parsed wei value to joinLottery
-    joinLottery(parseEther(currentTotal).toString());
+  const handleConfirmEntry = async () => {
     setShowPreview(false);
+    try {
+      // useLottery.joinLottery runs parseEther itself, so pass the amount in ETH (not wei).
+      await joinLottery(currentTotal);
+      refetchAllRef.current();
+      refetchCounter();
+    } catch (error) {
+      // User rejected the wallet prompt or the tx reverted; nothing else to do.
+      console.warn("Entry failed:", error);
+    }
   };
 
   return (

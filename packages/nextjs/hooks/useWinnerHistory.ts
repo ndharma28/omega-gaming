@@ -29,22 +29,29 @@ type LotteryStruct = {
   status: number;
   winner: string;
   randomValue: bigint;
-  requestId: bigint;
-  vrfRequestTime?: bigint;
+  requestId?: bigint; // VRF-era contracts only
+  vrfRequestTime?: bigint; // VRF-era contracts only
 };
 
 type SupportedAbi = typeof OMEGA_LOTTERY_ABI | typeof LEGACY_OMEGA_LOTTERY_ABI;
+
+// Re-read finished rounds every 30s so a new winner shows up without a page reload.
+const HISTORY_REFETCH_MS = 30_000;
+
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 function useContractHistory(address: Address | undefined, abi: SupportedAbi) {
   const { data: counterData, isLoading: counterLoading } = useReadContract({
     address,
     abi,
     functionName: "lotteryIdCounter",
-    query: { enabled: !!address },
+    query: { enabled: !!address, refetchInterval: HISTORY_REFETCH_MS },
   });
 
   const currentId = counterData ? Number(counterData) - 1 : 0;
-  const allIds = currentId > 0 ? Array.from({ length: currentId }, (_, i) => i + 1) : [];
+
+  // Memoized: a fresh array every render made every memo below recompute on every render.
+  const allIds = useMemo(() => (currentId > 0 ? Array.from({ length: currentId }, (_, i) => i + 1) : []), [currentId]);
 
   const { data: lotteriesData, isLoading: lotteriesLoading } = useReadContracts({
     contracts: allIds.map(id => ({
@@ -53,7 +60,7 @@ function useContractHistory(address: Address | undefined, abi: SupportedAbi) {
       functionName: "getLottery" as const,
       args: [BigInt(id)] as const,
     })),
-    query: { enabled: !!address && allIds.length > 0 },
+    query: { enabled: !!address && allIds.length > 0, refetchInterval: HISTORY_REFETCH_MS },
   });
 
   const { data: winnerCutData } = useReadContract({
@@ -72,8 +79,9 @@ function useContractHistory(address: Address | undefined, abi: SupportedAbi) {
           if (result.status !== "success" || !result.result) return null;
           const lottery = result.result as LotteryStruct;
 
+          // Only RESOLVED rounds with a winner. Empty rollovers and refunded rounds have no winner.
           if (lottery.status !== 2) return null;
-          if (!lottery.winner || lottery.winner === "0x0000000000000000000000000000000000000000") return null;
+          if (!lottery.winner || lottery.winner === ZERO_ADDRESS) return null;
 
           const prizeAmount = (lottery.totalPot * winnerCut) / 100n;
           const treasuryFee = lottery.totalPot - prizeAmount;
