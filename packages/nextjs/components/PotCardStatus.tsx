@@ -143,7 +143,7 @@ export default function PotCardStatus({ status, winner }: PotCardStatusProps) {
       </span>
       {status === 2 && <ResolvedStatus winner={winner} />}
       {status === 1 && <DrawingStatus />}
-      {(status === 0 || status === 1) && <LiveStatus />}
+      {status === 0 && <LiveStatus />}
     </div>
   );
 }
